@@ -1,0 +1,13 @@
+type User {
+  username: String!
+  media: Media
+}
+
+type Mutation {
+  signIn(username: String!, password: String): String!
+  signOut: Boolean!
+}
+
+type Query {
+  getAllUsers: [User!]!
+}

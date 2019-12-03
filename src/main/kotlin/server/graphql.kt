@@ -7,14 +7,19 @@ import graphql.schema.idl.SchemaGenerator
 import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeDefinitionRegistry
 import org.slf4j.LoggerFactory
+import server.datafetchers.UserDataFetchers
+import server.model.UsersRepository
 import java.io.File
 
 
 const val GRAPHQL_SCHEMA_FILE = "graphql/schema.sdl"
 
-class GraphQLProvider {
+class GraphQLProvider(
+    usersRepository: UsersRepository
+) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName);
     private var graphql: GraphQL? = null
+    private val userDataFetchers = UserDataFetchers(usersRepository)
 
     init {
         val schema = this.getSchema()
@@ -31,32 +36,28 @@ class GraphQLProvider {
 
     private fun getSchema(): GraphQLSchema? {
         val schemaGenerator = SchemaGenerator()
-        val runtimeWiring = this.getRuntimeWiring()
-        if (runtimeWiring === null) {
-            return null
-        }
-        val typedefRegistry = this.getTypeDefinitionRegistry()
-        if (typedefRegistry === null) {
-            return null
-        }
+        val runtimeWiring = this.getRuntimeWiring() ?: return null
+        val typedefRegistry = this.getTypeDefinitionRegistry() ?: return null
         return schemaGenerator.makeExecutableSchema(typedefRegistry, runtimeWiring);
     }
 
     private fun getRuntimeWiring(): RuntimeWiring? {
-        val runtimeWiring = RuntimeWiring.newRuntimeWiring().build();
-        return runtimeWiring
+        val runtimeWiringBuilder = RuntimeWiring.newRuntimeWiring()
+        runtimeWiringBuilder.type("Query") { query ->
+            query.dataFetcher("getAllUsers", this.userDataFetchers.queryGetAllUsers())
+        }
+        runtimeWiringBuilder.type("Mutation") { mutation ->
+            mutation.dataFetcher("signIn", this.userDataFetchers.mutationSignIn())
+        }
+        return runtimeWiringBuilder.build()
     }
 
     private fun getTypeDefinitionRegistry(): TypeDefinitionRegistry? {
         val schemaParser = SchemaParser()
-        val url = this::class.java.classLoader.getResource(GRAPHQL_SCHEMA_FILE);
-        if (url === null) {
-            logger.error("URL for GraphQL Schema resource not found")
-            return null;
-        }
-        val file = File(url.toURI())
         return try {
-            schemaParser.parse(file)
+            return this::class.java.classLoader.getResource(GRAPHQL_SCHEMA_FILE)
+                ?.let { File(it.toURI()) }
+                ?.let { schemaParser.parse(it) }
         } catch (e: Exception) {
             logger.error(e.message)
             null;

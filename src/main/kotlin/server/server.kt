@@ -5,6 +5,8 @@ import io.javalin.Javalin
 import io.javalin.http.Context
 import org.slf4j.LoggerFactory
 import com.google.gson.Gson
+import server.model.UsersRepository
+import server.GraphQLProvider as GraphQLProvider
 
 const val DEFAULT_PORT = 57423;
 
@@ -13,7 +15,7 @@ data class GraphQLQuery(val query: String, val operationName: String?, val varia
 class Server constructor(private val port: Int = DEFAULT_PORT) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val server: Javalin = Javalin.create()
-    private var graphQLProvider: GraphQLProvider = GraphQLProvider()
+    private var graphQLProvider: GraphQLProvider = GraphQLProvider(usersRepository = UsersRepository())
 
     init {
         this.server.post("/graphql") {

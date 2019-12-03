@@ -15,9 +15,14 @@ data class GraphQLQuery(val query: String, val operationName: String?, val varia
 class Server constructor(private val port: Int = DEFAULT_PORT) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val server: Javalin = Javalin.create()
-    private var graphQLProvider: GraphQLProvider = GraphQLProvider(usersRepository = UsersRepository())
+    private val usersRepository = UsersRepository()
+    private var graphQLProvider: GraphQLProvider = GraphQLProvider(usersRepository)
+    private val serverAuthentication = ServerAuthentication()
 
     init {
+        this.server.before("*") {
+            this.serverAccess(it)
+        }
         this.server.post("/graphql") {
             this.serveGraphQLRequest(it)
         }
@@ -26,7 +31,7 @@ class Server constructor(private val port: Int = DEFAULT_PORT) {
     fun initialize(): Boolean {
         if (this.graphQLProvider.getGraphQL() === null) {
             logger.error("Will not initialize server as GraphQL is unable to be initalized")
-            return false;
+            return false
         }
         try {
             this.server.start(port)
@@ -35,6 +40,10 @@ class Server constructor(private val port: Int = DEFAULT_PORT) {
             return false
         }
         return true
+    }
+
+    fun setServerPassword(password: String) {
+        serverAuthentication.setServerPassword(password)
     }
 
     fun port(): Int {
@@ -47,8 +56,7 @@ class Server constructor(private val port: Int = DEFAULT_PORT) {
         val graphql = this.graphQLProvider.getGraphQL()
         if (graphql == null) {
             logger.error("Could not initialize GraphQL")
-            context.status(400)
-            context.result("Could not initialize GraphQL")
+            context.status(400).result("Could not initialize GraphQL")
             return;
         }
         val body: GraphQLQuery
@@ -57,8 +65,7 @@ class Server constructor(private val port: Int = DEFAULT_PORT) {
             body = gson.fromJson(context.body(), GraphQLQuery::class.java)
         } catch (e: Exception) {
             logger.error(e.message)
-            context.status(400)
-            context.result("Could not parse query string")
+            context.status(400).result("Could not parse query string")
             return
         }
         val builder: ExecutionInput.Builder = ExecutionInput.newExecutionInput()
@@ -66,8 +73,14 @@ class Server constructor(private val port: Int = DEFAULT_PORT) {
         body.operationName?.let { builder.operationName(it) }
         body.variables.takeIf { !it.isNullOrEmpty() }?.let { builder.variables(it) }
         val result = graphql.execute(builder).toSpecification()
-        context.status(200)
-        context.json(result)
+        context.status(200).json(result)
         return
+    }
+
+    private val SERVER_ACCESS_HEADER = "ServerAuth"
+    private fun serverAccess(context: Context) {
+        val authHeader = context.header(SERVER_ACCESS_HEADER)
+        val result = this.serverAuthentication.verifyPassword(authHeader)
+        if (!result) context.status(401).result("Incorrect server password")
     }
 }

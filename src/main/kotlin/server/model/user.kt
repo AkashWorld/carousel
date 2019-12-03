@@ -18,12 +18,19 @@ class User constructor(private val username: String) {
 
 class UsersRepository {
     private val usersList: MutableList<User> = ArrayList();
+    private val usersSet: MutableSet<User> = HashSet()
 
-    fun addUser(user: User) {
-        this.usersList.add(user)
+    fun addUser(user: User): Boolean {
+        if(usersSet.contains(user)) {
+            return false
+        }
+        usersList.add(user)
+        usersSet.add(user)
+        return true
     }
 
     fun getAllUsers(): List<User> {
-        return this.usersList
+        return usersList
     }
 }
+

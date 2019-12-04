@@ -136,3 +136,5 @@ gradle-app.setting
 
 ### Gradle Patch ###
 **/build/
+
+bin/node_modules

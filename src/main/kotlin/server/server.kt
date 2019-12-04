@@ -5,10 +5,13 @@ import io.javalin.Javalin
 import io.javalin.http.Context
 import org.slf4j.LoggerFactory
 import com.google.gson.Gson
+import io.javalin.http.ForbiddenResponse
 import server.model.UsersRepository
 import server.GraphQLProvider as GraphQLProvider
 
 const val DEFAULT_PORT = 57423;
+const val SERVER_ACCESS_HEADER = "ServerAuth"
+const val AUTH_HEADER = "Authorization"
 
 data class GraphQLQuery(val query: String, val operationName: String?, val variables: Map<String, Any>?)
 
@@ -42,7 +45,11 @@ class Server constructor(private val port: Int = DEFAULT_PORT) {
         return true
     }
 
-    fun setServerPassword(password: String) {
+    fun close() {
+        server.stop()
+    }
+
+    fun setServerPassword(password: String?) {
         serverAuthentication.setServerPassword(password)
     }
 
@@ -77,10 +84,12 @@ class Server constructor(private val port: Int = DEFAULT_PORT) {
         return
     }
 
-    private val SERVER_ACCESS_HEADER = "ServerAuth"
     private fun serverAccess(context: Context) {
         val authHeader = context.header(SERVER_ACCESS_HEADER)
         val result = this.serverAuthentication.verifyPassword(authHeader)
-        if (!result) context.status(401).result("Incorrect server password")
+        if (!result) {
+            logger.error("Server access denied - ServerAuth: $authHeader")
+            throw ForbiddenResponse("There isn't any popcorn here!")
+        }
     }
 }

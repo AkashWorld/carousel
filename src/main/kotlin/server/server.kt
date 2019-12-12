@@ -6,6 +6,8 @@ import io.javalin.http.Context
 import org.slf4j.LoggerFactory
 import com.google.gson.Gson
 import io.javalin.http.ForbiddenResponse
+import server.model.UserAuthentication
+import server.model.UserAuthenticationImpl
 import server.model.UsersRepository
 import server.GraphQLProvider as GraphQLProvider
 
@@ -19,7 +21,8 @@ class Server constructor(private val port: Int = DEFAULT_PORT) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val server: Javalin = Javalin.create()
     private val usersRepository = UsersRepository()
-    private var graphQLProvider: GraphQLProvider = GraphQLProvider(usersRepository)
+    private val userAuthentication = UserAuthenticationImpl(usersRepository)
+    private var graphQLProvider: GraphQLProvider = GraphQLProvider(usersRepository, userAuthentication)
     private val serverAuthentication = ServerAuthentication()
 
     init {
@@ -66,6 +69,8 @@ class Server constructor(private val port: Int = DEFAULT_PORT) {
             context.status(400).result("Could not initialize GraphQL")
             return;
         }
+        val user = userAuthentication.verifyUser(context.header(AUTH_HEADER))
+        val graphqlContext: GraphQLContext? = if(user != null) GraphQLContext(user) else null
         val body: GraphQLQuery
         try {
             val gson = Gson()
@@ -76,6 +81,7 @@ class Server constructor(private val port: Int = DEFAULT_PORT) {
             return
         }
         val builder: ExecutionInput.Builder = ExecutionInput.newExecutionInput()
+        builder.context(graphqlContext)
         builder.query(body.query)
         body.operationName?.let { builder.operationName(it) }
         body.variables.takeIf { !it.isNullOrEmpty() }?.let { builder.variables(it) }

@@ -7,7 +7,9 @@ import graphql.schema.idl.SchemaGenerator
 import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeDefinitionRegistry
 import org.slf4j.LoggerFactory
+import server.datafetchers.MediaDataFetchers
 import server.datafetchers.UserDataFetchers
+import server.model.UserAuthentication
 import server.model.UsersRepository
 import java.io.File
 
@@ -15,11 +17,13 @@ import java.io.File
 const val GRAPHQL_SCHEMA_FILE = "graphql/schema.sdl"
 
 class GraphQLProvider(
-    usersRepository: UsersRepository
+    usersRepository: UsersRepository,
+    userAuthentication: UserAuthentication
 ) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName);
     private var graphql: GraphQL? = null
-    private val userDataFetchers = UserDataFetchers(usersRepository)
+    private val userDataFetchers = UserDataFetchers(usersRepository, userAuthentication)
+    private val mediaDataFetchers = MediaDataFetchers()
 
     init {
         val schema = this.getSchema()
@@ -48,6 +52,9 @@ class GraphQLProvider(
         }
         runtimeWiringBuilder.type("Mutation") { mutation ->
             mutation.dataFetcher("signIn", this.userDataFetchers.mutationSignIn())
+            mutation.dataFetcher("play", this.mediaDataFetchers.mutationPlay())
+            mutation.dataFetcher("pause", this.mediaDataFetchers.mutationPause())
+            mutation.dataFetcher("load", this.mediaDataFetchers.mutationLoad())
         }
         return runtimeWiringBuilder.build()
     }

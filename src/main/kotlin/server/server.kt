@@ -6,6 +6,9 @@ import io.javalin.http.Context
 import org.slf4j.LoggerFactory
 import com.google.gson.Gson
 import io.javalin.http.ForbiddenResponse
+import io.javalin.websocket.WsContext
+import io.javalin.websocket.WsMessageContext
+import server.model.User
 import server.model.UserAuthentication
 import server.model.UserAuthenticationImpl
 import server.model.UsersRepository
@@ -27,18 +30,35 @@ class Server constructor(private val port: Int = DEFAULT_PORT) {
 
     init {
         this.server.before("*") {
-            this.serverAccess(it)
+            val serverAccessHeader = it.header(SERVER_ACCESS_HEADER)
+            this.serverAccess(serverAccessHeader)
         }
         this.server.post("/graphql") {
             this.serveGraphQLRequest(it)
         }
+        this.server.wsBefore { handler ->
+            handler.onConnect {
+                val serverAccessHeader = it.header(SERVER_ACCESS_HEADER)
+                this.serverAccess(serverAccessHeader)
+            }
+        }
+        this.server.ws("/subscription") { handler ->
+            handler.onConnect {
+                val token = it.header(AUTH_HEADER)
+                val user = userAuthentication.verifyUser(token)
+                if (user == null) {
+                    logger.error("WS Access denied, user token not found")
+                    throw ForbiddenResponse("There isn't any popcorn here!")
+                }
+                logger.info("${user.getUsername()} connected via WS")
+            }
+            handler.onMessage {
+                serveSubscriptionGraphQLRequest(it)
+            }
+        }
     }
 
     fun initialize(): Boolean {
-        if (this.graphQLProvider.getGraphQL() === null) {
-            logger.error("Will not initialize server as GraphQL is unable to be initalized")
-            return false
-        }
         try {
             this.server.start(port)
         } catch (e: Exception) {
@@ -63,38 +83,30 @@ class Server constructor(private val port: Int = DEFAULT_PORT) {
     private fun serveGraphQLRequest(context: Context) {
         logger.info("post /graphql from ip:${context.ip()}")
         logger.info("Request query: ${context.body()}")
-        val graphql = this.graphQLProvider.getGraphQL()
-        if (graphql == null) {
-            logger.error("Could not initialize GraphQL")
-            context.status(400).result("Could not initialize GraphQL")
+        val user = userAuthentication.verifyUser(context.header(AUTH_HEADER))
+        val result = this.graphQLProvider.serveGraphQLQueryMutation(context.body(), user)
+        if (result != null) {
+            context.status(200).json(result)
             return;
         }
-        val user = userAuthentication.verifyUser(context.header(AUTH_HEADER))
-        val graphqlContext: GraphQLContext? = if(user != null) GraphQLContext(user) else null
-        val body: GraphQLQuery
-        try {
-            val gson = Gson()
-            body = gson.fromJson(context.body(), GraphQLQuery::class.java)
-        } catch (e: Exception) {
-            logger.error(e.message)
-            context.status(400).result("Could not parse query string")
-            return
-        }
-        val builder: ExecutionInput.Builder = ExecutionInput.newExecutionInput()
-        builder.context(graphqlContext)
-        builder.query(body.query)
-        body.operationName?.let { builder.operationName(it) }
-        body.variables.takeIf { !it.isNullOrEmpty() }?.let { builder.variables(it) }
-        val result = graphql.execute(builder).toSpecification()
-        context.status(200).json(result)
-        return
+        context.status(400).result("Error handling GraphQL request")
     }
 
-    private fun serverAccess(context: Context) {
-        val authHeader = context.header(SERVER_ACCESS_HEADER)
-        val result = this.serverAuthentication.verifyPassword(authHeader)
+    private fun serveSubscriptionGraphQLRequest(handler: WsMessageContext) {
+        val token = handler.header(AUTH_HEADER)
+        val user = userAuthentication.verifyUser(token)
+        if (user == null) {
+            logger.error("WS Access denied, user token not found")
+            throw ForbiddenResponse("There isn't any popcorn here!")
+        }
+        val message = handler.message()
+        logger.info("${user.getUsername()} sent the following message: $message")
+    }
+
+    private fun serverAccess(serverAccessHeader: String?) {
+        val result = this.serverAuthentication.verifyPassword(serverAccessHeader)
         if (!result) {
-            logger.error("Server access denied - ServerAuth: $authHeader")
+            logger.error("Server access denied - ServerAuth: $serverAccessHeader")
             throw ForbiddenResponse("There isn't any popcorn here!")
         }
     }

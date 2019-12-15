@@ -1,5 +1,11 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.3.41'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.50'
+    id 'org.openjfx.javafxplugin' version '0.0.8'
+}
+
+javafx {
+    version = "13"
+    modules = ['javafx.controls', 'javafx.base', 'javafx.fxml', 'javafx.graphics']
 }
 
 
@@ -9,6 +15,9 @@ version '1.0-SNAPSHOT'
 repositories {
     mavenCentral()
     jcenter()
+    maven {
+        setUrl("https://plugins.gradle.org/m2/")
+    }
 }
 
 dependencies {
@@ -18,10 +27,12 @@ dependencies {
     compile 'org.slf4j:slf4j-simple:1.7.29'
     compile "org.jetbrains.kotlin:kotlin-reflect:1.3.41"
     compile "com.fasterxml.jackson.core:jackson-databind:2.10.0"
+    compile 'no.tornado:tornadofx:1.7.19'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.auth0:java-jwt:3.8.3'
     implementation "com.squareup.okhttp3:okhttp:4.2.1"
+    implementation "uk.co.caprica:vlcj:4.2.0"
     testImplementation "org.junit.jupiter:junit-jupiter:5.5.2"
 }
 

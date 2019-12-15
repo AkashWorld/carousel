@@ -1,6 +1,9 @@
-import server.Server
+import client.playerpage.FileLoaderView
+import tornadofx.*
 
-fun main() {
-    val server = Server()
-    server.initialize()
+class Application: App(FileLoaderView::class)
+
+fun main(args: Array<String>) {
+    launch<Application>()
 }
+

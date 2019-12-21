@@ -1,20 +1,28 @@
 package client.playerpage
 
-import client.playerpage.chatfeed.ChatView
+import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
+import javafx.scene.layout.VBox
+import javafx.scene.paint.Color
 import tornadofx.*
 
 
 class FileLoaderView: View() {
     private val fileLoaderController: FileLoaderController by inject()
-    private val chatView = find(ChatView::class)
+    private var container: VBox? = null
+    private var loadingErrorMessage: SimpleStringProperty = SimpleStringProperty("")
 
     override val root = vbox {
+        container = this
         prefWidth = 1600.0
         prefHeight = 1200.0
         alignment = Pos.CENTER
+        style {
+            this.backgroundColor = multi(mainGradient)
+        }
         text("PLAYTIME") {
             style {
+                this.fill = Color.WHITE
                 fontSize = 250.px
             }
         }
@@ -26,10 +34,18 @@ class FileLoaderView: View() {
                 prefHeight = 60.px
             }
             action {
-                fileLoaderController.loadVideoFile()
-                replaceWith<MediaPlayerView>()
+                val result = fileLoaderController.loadVideoFile()
+                if(result) {
+                    replaceWith<MediaPlayerView>()
+                } else {
+                    loadingErrorMessage.set("Please select a media file to play!")
+                }
             }
         }
-        chatView
+        text(loadingErrorMessage) {
+            style {
+                this.fill = Color.WHITE
+            }
+        }
     }
 }

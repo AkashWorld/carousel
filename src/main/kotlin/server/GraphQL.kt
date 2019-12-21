@@ -15,24 +15,31 @@ import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import org.slf4j.LoggerFactory
+import server.datafetchers.ChatFeedDataFetchers
 import server.datafetchers.MediaDataFetchers
 import server.datafetchers.UserDataFetchers
+import server.model.ChatFeedRepository
 import server.model.User
 import server.model.UserAuthentication
 import server.model.UsersRepository
 import java.io.File
+import java.util.concurrent.atomic.AtomicReference
 
 
 const val GRAPHQL_SCHEMA_FILE = "graphql/schema.sdl"
 
+data class GraphQLQuery(val query: String, val operationName: String?, val variables: Map<String, Any>?)
+
 class GraphQLProvider(
     usersRepository: UsersRepository,
+    chatFeedRepository: ChatFeedRepository,
     userAuthentication: UserAuthentication
 ) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName);
     private var graphql: GraphQL? = null
     private val userDataFetchers = UserDataFetchers(usersRepository, userAuthentication)
     private val mediaDataFetchers = MediaDataFetchers()
+    private val chatFeedDataFetchers = ChatFeedDataFetchers(chatFeedRepository)
 
     init {
         val schema = this.getSchema()
@@ -68,13 +75,15 @@ class GraphQLProvider(
         return graphql?.execute(builder)?.toSpecification()
     }
 
-    fun serveGraphQLSubscription(handler: WsMessageContext, query: String, user: User) {
+    fun serveGraphQLSubscription(handler: WsMessageContext, user: User?) {
         if (graphql == null) {
             logger.error("Could not initialize GraphQL")
             return
         }
-        val graphqlContext: GraphQLContext = GraphQLContext(user)
+        val graphqlContext = if(user != null) GraphQLContext(user) else user
         val body: GraphQLQuery
+        val query = handler.message()
+        logger.info(query)
         try {
             val gson = Gson()
             body = gson.fromJson(query, GraphQLQuery::class.java)
@@ -89,7 +98,30 @@ class GraphQLProvider(
         body.variables.takeIf { !it.isNullOrEmpty() }?.let { builder.variables(it) }
         val executionInput = builder.build()
         val executionResult = graphql?.execute(executionInput)
-        val subscriptionStream: Publisher<ExecutionResult>? = executionResult?.getData()
+        executionResult?.getData<Publisher<ExecutionResult>?>()
+            ?.subscribe(object : Subscriber<ExecutionResult> {
+                private val subscriptionRef: AtomicReference<Subscription> = AtomicReference()
+                override fun onComplete() {
+                    logger.info("ws://GraphQL onComplete")
+                }
+
+                override fun onSubscribe(subscription: Subscription?) {
+                    logger.info("ws://GraphQL onSubscribe")
+                    subscriptionRef.set(subscription)
+                    subscription?.request(Long.MAX_VALUE)
+                }
+
+                override fun onNext(item: ExecutionResult?) {
+                    val data = item?.getData<Any>()
+                    logger.info("ws://subscriber.onNext -> $data.toString()")
+                    data?.let { handler.send(it) }
+                    subscriptionRef.get().request(Long.MAX_VALUE)
+                }
+
+                override fun onError(throwable: Throwable?) {
+                    logger.error("ws://GraphQL onError", throwable)
+                }
+            })
     }
 
     private fun getSchema(): GraphQLSchema? {
@@ -103,6 +135,8 @@ class GraphQLProvider(
         val runtimeWiringBuilder = RuntimeWiring.newRuntimeWiring()
         runtimeWiringBuilder.type("Query") { query ->
             query.dataFetcher("getAllUsers", this.userDataFetchers.queryGetAllUsers())
+            query.dataFetcher("getLengthOfChatFeed", this.chatFeedDataFetchers.queryGetLengthOfChatFeed())
+            query.dataFetcher("getMessagePaginated", this.chatFeedDataFetchers.queryGetMessagePaginated())
         }
         runtimeWiringBuilder.type("Mutation") { mutation ->
             mutation.dataFetcher("signIn", this.userDataFetchers.mutationSignIn())
@@ -110,6 +144,12 @@ class GraphQLProvider(
             mutation.dataFetcher("play", this.mediaDataFetchers.mutationPlay())
             mutation.dataFetcher("pause", this.mediaDataFetchers.mutationPause())
             mutation.dataFetcher("load", this.mediaDataFetchers.mutationLoad())
+            mutation.dataFetcher("insertImage", this.chatFeedDataFetchers.mutationInsertImage())
+            mutation.dataFetcher("insertMessage", this.chatFeedDataFetchers.mutationInsertMessage())
+        }
+        runtimeWiringBuilder.type("Subscription") { subscription ->
+            subscription.dataFetcher("mediaActions", this.mediaDataFetchers.mediaSubscription())
+            subscription.dataFetcher("chatFeed", this.chatFeedDataFetchers.subscriptionChatFeed())
         }
         return runtimeWiringBuilder.build()
     }
@@ -127,4 +167,5 @@ class GraphQLProvider(
     }
 
 }
+
 

@@ -12,6 +12,7 @@ import javafx.scene.image.PixelBuffer
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
 import javafx.scene.paint.Color
+import javafx.scene.paint.LinearGradient
 import javafx.scene.transform.Affine
 import org.slf4j.LoggerFactory
 import tornadofx.View
@@ -50,6 +51,9 @@ class MediaPlayerView : View() {
     private val mediaPlayer = mediaPlayerFactory.mediaPlayers().newEmbeddedMediaPlayer()
 
     override val root = hbox {
+        if(fileLoaderController.getCurrentSelectedFile() == null) {
+            replaceWith<FileLoaderView>()
+        }
         vbox {
             prefWidth = 1600.0
             prefHeight = 1200.0
@@ -77,7 +81,7 @@ class MediaPlayerView : View() {
         val width = canvas.width
         val height = canvas.height
 
-        graphics.fill = Color(0.0, 0.0, 0.0, 1.0)
+        graphics.fill = mainGradient
         graphics.fillRect(0.0, 0.0, width, height)
 
         if (img != null) {

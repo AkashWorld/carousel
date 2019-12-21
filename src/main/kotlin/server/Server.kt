@@ -8,24 +8,21 @@ import com.google.gson.Gson
 import io.javalin.http.ForbiddenResponse
 import io.javalin.websocket.WsContext
 import io.javalin.websocket.WsMessageContext
-import server.model.User
-import server.model.UserAuthentication
-import server.model.UserAuthenticationImpl
-import server.model.UsersRepository
+import server.model.*
 import server.GraphQLProvider as GraphQLProvider
 
 const val DEFAULT_PORT = 57423;
 const val SERVER_ACCESS_HEADER = "ServerAuth"
 const val AUTH_HEADER = "Authorization"
 
-data class GraphQLQuery(val query: String, val operationName: String?, val variables: Map<String, Any>?)
 
 class Server constructor(private val port: Int = DEFAULT_PORT) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val server: Javalin = Javalin.create()
     private val usersRepository = UsersRepository()
+    private val chatFeedRepository = ChatFeedRepository()
     private val userAuthentication = UserAuthenticationImpl(usersRepository)
-    private var graphQLProvider: GraphQLProvider = GraphQLProvider(usersRepository, userAuthentication)
+    private var graphQLProvider: GraphQLProvider = GraphQLProvider(usersRepository, chatFeedRepository, userAuthentication)
     private val serverAuthentication = ServerAuthentication()
 
     init {
@@ -54,6 +51,12 @@ class Server constructor(private val port: Int = DEFAULT_PORT) {
             }
             handler.onMessage {
                 serveSubscriptionGraphQLRequest(it)
+            }
+            handler.onError {
+                logger.error("WS error", it.error())
+            }
+            handler.onClose {
+                logger.info("WS closed", it.reason())
             }
         }
     }
@@ -95,12 +98,7 @@ class Server constructor(private val port: Int = DEFAULT_PORT) {
     private fun serveSubscriptionGraphQLRequest(handler: WsMessageContext) {
         val token = handler.header(AUTH_HEADER)
         val user = userAuthentication.verifyUser(token)
-        if (user == null) {
-            logger.error("WS Access denied, user token not found")
-            throw ForbiddenResponse("There isn't any popcorn here!")
-        }
-        val message = handler.message()
-        logger.info("${user.getUsername()} sent the following message: $message")
+        graphQLProvider.serveGraphQLSubscription(handler, user)
     }
 
     private fun serverAccess(serverAccessHeader: String?) {

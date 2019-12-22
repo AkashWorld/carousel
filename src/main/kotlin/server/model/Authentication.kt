@@ -9,7 +9,7 @@ interface UserAuthentication {
 }
 
 class UserAuthenticationImpl(private val usersRepository: UsersRepository): UserAuthentication {
-    private val logger = LoggerFactory.getLogger(this::class.qualifiedName);
+    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     override fun verifyUser(token: String?): User? {
         if(token == null) return null
         return usersRepository.getUser(token)

@@ -1,4 +1,4 @@
-package client.playerpage
+package client.controllers
 
 import javafx.stage.FileChooser
 import org.slf4j.LoggerFactory
@@ -6,7 +6,7 @@ import tornadofx.*
 import java.io.File
 
 class FileLoaderController : Controller() {
-    private val logger = LoggerFactory.getLogger(this::class.qualifiedName);
+    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val videoFilter =
         FileChooser.ExtensionFilter("Video Extensions", "*.mkv", "*.mp4", "*.webm", "*.ogg", "*.flv", "*.wav", "*.avi")
     private var currentFile: File? = null

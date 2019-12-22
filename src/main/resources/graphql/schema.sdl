@@ -44,12 +44,23 @@ type MediaAction {
   user: String!
 }
 
-type Subscription {
+extend type Subscription {
   mediaActions: MediaAction!
 }
 type User {
   username: String!
   media: Media
+}
+
+enum UserAction {
+  SIGN_IN
+  SIGN_OUT
+  CHANGE_MEDIA
+}
+
+type UserActionEvent {
+  action: UserAction!
+  user: User!
 }
 
 type Mutation {
@@ -59,4 +70,8 @@ type Mutation {
 
 type Query {
   getAllUsers: [User!]!
+}
+
+type Subscription {
+  userAction: UserActionEvent!
 }

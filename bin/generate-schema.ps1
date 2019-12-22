@@ -1,1 +1,1 @@
-Get-Content ./src/main/resources/graphql/*.gql | Set-Content ./src/main/resources/graphql/schema.sdl
+Get-Content ./src/main/resources/graphql/*.graphql | Set-Content ./src/main/resources/graphql/schema.sdl

@@ -13,7 +13,7 @@ class ChatFeedRepository {
     private val messages = AtomicReference(mutableListOf<Message>())
 
     fun addMessage(user: User, content: String, contentType: ContentType): Message {
-        val message = Message(contentType, content, user);
+        val message = Message(contentType, content, user)
         messages.get().add(message)
         return message
     }

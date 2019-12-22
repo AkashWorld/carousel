@@ -15,8 +15,8 @@ abstract class NanoTimer(period: Double) : ScheduledService<Void>() {
     private var deltaTime: Double = 0.0
 
     init {
-        this.setPeriod(Duration.millis(period))
-        this.setExecutor(Executors.newCachedThreadPool(NanoThreadFactory()))
+        this.period = Duration.millis(period)
+        this.executor = Executors.newCachedThreadPool(NanoThreadFactory())
     }
 
 
@@ -41,7 +41,7 @@ abstract class NanoTimer(period: Double) : ScheduledService<Void>() {
         return deltaTime
     }
 
-    public fun getFrameRate(): Double {
+    fun getFrameRate(): Double {
         return frameRate
     }
 
@@ -59,7 +59,7 @@ abstract class NanoTimer(period: Double) : ScheduledService<Void>() {
     }
 
     private fun updateTimer() {
-        deltaTime = (getTime() - previousTime) * (1.0f / ONE_NANO).toDouble()
+        deltaTime = (getTime() - previousTime) * (1.0f / ONE_NANO.toDouble())
         frameRate = 1.0f / deltaTime
         previousTime = getTime()
     }
@@ -89,8 +89,8 @@ private class NanoThreadFactory : ThreadFactory {
 }
 
 private class Time {
-    fun formatTime(value: Long): String {
-        var value = value
+    fun formatTime(inputVal: Long): String {
+        var value = inputVal
         value /= 1000
         val hours = value.toInt() / 3600
         var remainder = value.toInt() - hours * 3600

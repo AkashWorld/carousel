@@ -19,8 +19,8 @@ class User constructor(private val username: String) {
 }
 
 class UsersRepository {
-    private val logger = LoggerFactory.getLogger(this::class.qualifiedName);
-    private val usersList: MutableList<User> = ArrayList();
+    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
+    private val usersList: MutableList<User> = ArrayList()
     private val usersSet: MutableSet<String> = HashSet()
 
     fun addUser(user: User): Boolean {
@@ -48,12 +48,12 @@ class UsersRepository {
         if(!usersSet.contains(user.getUsername())) {
             return false
         }
-        usersList.removeIf() {
+        usersList.removeIf {
             it.getUsername() == user.getUsername()
         }
         usersSet.remove(user.getUsername())
         logger.info("Removed user ${user.getUsername()}")
-        return true;
+        return true
     }
 }
 

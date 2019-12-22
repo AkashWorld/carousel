@@ -3,12 +3,12 @@ package server
 import java.security.MessageDigest
 
 class ServerAuthentication {
-    private var hashedPassword: String? = null;
+    private var hashedPassword: String? = null
 
     fun setServerPassword(password: String?) {
         if(password == null) {
             hashedPassword = null
-            return;
+            return
         }
         val digest = MessageDigest.getInstance("SHA-256")
         val encodedHash = digest.digest(password.toByteArray())

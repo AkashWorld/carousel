@@ -11,7 +11,7 @@ import server.AUTH_HEADER
 import server.Server
 
 class GraphQLMediaSubscriptionTest {
-    private val logger = LoggerFactory.getLogger(this::class.qualifiedName);
+    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val client: OkHttpClient = OkHttpClient()
     private val gson = Gson()
     private lateinit var server: Server

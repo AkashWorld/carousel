@@ -1,5 +1,6 @@
 package client.playerpage
 
+import client.controllers.FileLoaderController
 import javafx.application.Platform
 import javafx.beans.Observable
 import javafx.beans.property.DoubleProperty
@@ -11,8 +12,6 @@ import javafx.scene.canvas.GraphicsContext
 import javafx.scene.image.PixelBuffer
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
-import javafx.scene.paint.Color
-import javafx.scene.paint.LinearGradient
 import javafx.scene.transform.Affine
 import org.slf4j.LoggerFactory
 import tornadofx.View
@@ -45,7 +44,7 @@ private val y: DoubleProperty = SimpleDoubleProperty()
 private val opacity: DoubleProperty = SimpleDoubleProperty()
 
 class MediaPlayerView : View() {
-    private val logger = LoggerFactory.getLogger(this::class.qualifiedName);
+    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val fileLoaderController: FileLoaderController by inject()
     private val mediaPlayerFactory: MediaPlayerFactory = MediaPlayerFactory()
     private val mediaPlayer = mediaPlayerFactory.mediaPlayers().newEmbeddedMediaPlayer()
@@ -55,13 +54,11 @@ class MediaPlayerView : View() {
             replaceWith<FileLoaderView>()
         }
         vbox {
-            prefWidth = 1600.0
-            prefHeight = 1200.0
             alignment = Pos.CENTER
             canvas {
                 mediaCanvas = this
-                this.width = 1600.0
-                this.height = 1200.0
+                this.width = 1000.0
+                this.height = 800.0
                 mediaPlayer.videoSurface().set(TornadoFXVideoSurface())
                 mediaPlayer.media().play(fileLoaderController.getCurrentSelectedFile()?.absolutePath)
                 this.widthProperty()
@@ -74,7 +71,7 @@ class MediaPlayerView : View() {
     }
 
     private fun renderFrame(canvas: Canvas) {
-        frames += 1;
+        frames += 1
         val renderStart = System.currentTimeMillis()
         val graphics: GraphicsContext = canvas.graphicsContext2D
 
@@ -95,7 +92,7 @@ class MediaPlayerView : View() {
             val scaledW = imageWidth * sf
             val scaledH = imageHeight * sf
 
-            val ax: Affine = graphics.getTransform()
+            val ax: Affine = graphics.transform
 
             graphics.translate(
                 (width - scaledW) / 2,

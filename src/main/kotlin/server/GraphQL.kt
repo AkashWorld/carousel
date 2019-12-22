@@ -35,7 +35,7 @@ class GraphQLProvider(
     chatFeedRepository: ChatFeedRepository,
     userAuthentication: UserAuthentication
 ) {
-    private val logger = LoggerFactory.getLogger(this::class.qualifiedName);
+    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private var graphql: GraphQL? = null
     private val userDataFetchers = UserDataFetchers(usersRepository, userAuthentication)
     private val mediaDataFetchers = MediaDataFetchers()
@@ -56,7 +56,7 @@ class GraphQLProvider(
     fun serveGraphQLQueryMutation(query: String, user: User?): Map<String, Any>? {
         if (graphql == null) {
             logger.error("Could not initialize GraphQL")
-            return null;
+            return null
         }
         val graphqlContext: GraphQLContext? = if (user != null) GraphQLContext(user) else null
         val body: GraphQLQuery
@@ -65,7 +65,7 @@ class GraphQLProvider(
             body = gson.fromJson(query, GraphQLQuery::class.java)
         } catch (e: Exception) {
             logger.error("Could not parse general GraphQL query", e)
-            return null;
+            return null
         }
         val builder: ExecutionInput.Builder = ExecutionInput.newExecutionInput()
         builder.context(graphqlContext)
@@ -128,7 +128,7 @@ class GraphQLProvider(
         val schemaGenerator = SchemaGenerator()
         val runtimeWiring = this.getRuntimeWiring() ?: return null
         val typedefRegistry = this.getTypeDefinitionRegistry() ?: return null
-        return schemaGenerator.makeExecutableSchema(typedefRegistry, runtimeWiring);
+        return schemaGenerator.makeExecutableSchema(typedefRegistry, runtimeWiring)
     }
 
     private fun getRuntimeWiring(): RuntimeWiring? {
@@ -150,6 +150,7 @@ class GraphQLProvider(
         runtimeWiringBuilder.type("Subscription") { subscription ->
             subscription.dataFetcher("mediaActions", this.mediaDataFetchers.mediaSubscription())
             subscription.dataFetcher("chatFeed", this.chatFeedDataFetchers.subscriptionChatFeed())
+            subscription.dataFetcher("userAction", this.userDataFetchers.subscriptionUserAction())
         }
         return runtimeWiringBuilder.build()
     }
@@ -162,7 +163,7 @@ class GraphQLProvider(
                 ?.let { schemaParser.parse(it) }
         } catch (e: Exception) {
             logger.error(e.message)
-            null;
+            null
         }
     }
 

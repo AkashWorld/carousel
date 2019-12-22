@@ -9,10 +9,9 @@ import server.model.ChatFeedRepository
 import server.model.ContentType
 import server.model.Message
 import java.util.concurrent.atomic.AtomicReference
-import javax.security.sasl.AuthenticationException
 
 class ChatFeedDataFetchers(private val chatFeed: ChatFeedRepository) {
-    private val logger = LoggerFactory.getLogger(this::class.qualifiedName);
+    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val chatFeedPublisher: ChatFeedPublisher = ChatFeedPublisher()
 
     fun queryGetMessagePaginated(): DataFetcher<List<Message>> {
@@ -20,7 +19,7 @@ class ChatFeedDataFetchers(private val chatFeed: ChatFeedRepository) {
             val context = environment.getContext<GraphQLContext?>()
             if (context == null) {
                 logger.error("queryGetMessagePaginated: No context found")
-                throw AuthenticationException("queryGetMessagePaginated: No context found")
+                throw Exception("queryGetMessagePaginated: No context found")
             }
             val start = environment.getArgument<Int>("start")
             val count = environment.getArgument<Int>("count")
@@ -33,7 +32,7 @@ class ChatFeedDataFetchers(private val chatFeed: ChatFeedRepository) {
             val context = environment.getContext<GraphQLContext?>()
             if (context == null) {
                 logger.error("queryGetMessagePaginated: No context found")
-                throw AuthenticationException("queryGetMessagePaginated: No context found")
+                throw Exception("queryGetLengthOfChatFeed: No context found")
             }
             chatFeed.getNumberOfMessages()
         }
@@ -44,7 +43,7 @@ class ChatFeedDataFetchers(private val chatFeed: ChatFeedRepository) {
             val context = environment.getContext<GraphQLContext?>()
             if (context == null) {
                 logger.error("queryGetMessagePaginated: No context found")
-                throw AuthenticationException("queryGetMessagePaginated: No context found")
+                throw Exception("mutationInsertMessage: No context found")
             }
             val message = environment.getArgument<String>("message")
             chatFeedPublisher.publishMessage(chatFeed.addMessage(context.user, message, ContentType.MESSAGE))
@@ -57,7 +56,7 @@ class ChatFeedDataFetchers(private val chatFeed: ChatFeedRepository) {
             val context = environment.getContext<GraphQLContext?>()
             if (context == null) {
                 logger.error("queryGetMessagePaginated: No context found")
-                throw AuthenticationException("queryGetMessagePaginated: No context found")
+                throw Exception("mutationInsertImage: No context found")
             }
             val data = environment.getArgument<String>("data")
             chatFeedPublisher.publishMessage(chatFeed.addMessage(context.user, data, ContentType.IMAGE))
@@ -69,8 +68,8 @@ class ChatFeedDataFetchers(private val chatFeed: ChatFeedRepository) {
         return DataFetcher { environment ->
             val context = environment.getContext<GraphQLContext?>()
             if (context == null) {
-                logger.error("queryGetMessagePaginated: No context found")
-                throw AuthenticationException("queryGetMessagePaginated: No context found")
+                logger.error("subscriptionChatFeed: No context found")
+                throw Exception("subscriptionChatFeed: No context found")
             }
             chatFeedPublisher
         }

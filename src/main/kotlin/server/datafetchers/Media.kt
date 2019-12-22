@@ -10,7 +10,7 @@ import server.model.Media
 import server.model.MediaSubscriptionResult
 
 class MediaDataFetchers {
-    private val logger = LoggerFactory.getLogger(this::class.qualifiedName);
+    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val mediaActionPublisher = MediaActionPublisher()
     fun mutationPlay(): DataFetcher<Boolean?> {
         return DataFetcher { environment ->

@@ -1,30 +1,41 @@
 package client.playerpage.chatfeed
 
+import client.Styles
+import client.controllers.ChatController
+import client.controllers.ClientContextController
+import client.models.Message
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Insets
 import javafx.geometry.Pos
+import javafx.scene.control.ListView
 import javafx.scene.paint.Color
+import javafx.scene.text.FontWeight
 import org.slf4j.LoggerFactory
 import tornadofx.*
 
-private val CHAT_FONT_SIZE = 15.px
+private val CHAT_FONT_SIZE = 14.px
+private val CHAT_TEXT_COLOR = Color.valueOf("#e3e3e3")
 
-class ChatView : View() {
-    private val logger = LoggerFactory.getLogger(this::class.qualifiedName);
+class ChatView(chatController: ChatController) : View() {
+    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private var chatInput: SimpleStringProperty = SimpleStringProperty()
-    private val chatController: ChatController by inject()
+    private val clientContextController: ClientContextController by inject()
+    private var listView: ListView<Message>? = null
+
     override val root = borderpane {
         maxWidth = 370.0
         minWidth = 370.0
         style {
-            this.backgroundColor = multi(Color.valueOf("#262626"))
+            this.fontSize = CHAT_FONT_SIZE
+            this.fontFamily = "Arial"
+            this.backgroundColor = multi(Styles.chatBackgroundColor)
             this.borderColor = multi(
                 box(Color(.27, .27, .27, 1.0))
             )
         }
         top {
             hbox {
-                text("Server Address: 127.0.0.1") {
+                text("Server Address: ${clientContextController.getAddress().get()}") {
                     alignment = Pos.CENTER
                     style {
                         this.fontSize = 15.px
@@ -47,38 +58,44 @@ class ChatView : View() {
         center {
             scrollpane(fitToWidth = true, fitToHeight = true) {
                 style {
-                    this.backgroundColor = multi(Color.TRANSPARENT)
-                    this.focusColor = Color.TRANSPARENT
+                    backgroundColor = multi(Color.TRANSPARENT)
                 }
                 listview(chatController.getMessages()) {
-                    this.maxWidth = 370.0
+                    listView = this
+                    this.scrollTo(chatController.getMessages().size)
+                    this.itemsProperty().addListener { _ -> this.scrollTo(chatController.getMessages().size) }
+                    this.heightProperty().addListener { _ -> chatController.padMessages(this.height) }
                     style {
                         this.focusColor = Color.TRANSPARENT
-                        this.backgroundColor = multi(Color.valueOf("#262626"))
+                        this.backgroundColor = multi(Styles.chatBackgroundColor)
                     }
                     cellFormat {
                         style {
                             this.focusColor = Color.TRANSPARENT
-                            this.backgroundColor = multi(Color.valueOf("#262626"))
+                            this.backgroundColor = multi(Styles.chatBackgroundColor)
+                            this.padding = box(5.px)
                         }
                         graphic = textflow {
-                            text(it.username) {
+                            text(it.getUsername()) {
                                 style {
-                                    this.fill = Color.RED
-                                    this.fontSize = CHAT_FONT_SIZE
+                                    this.fill = chatController.getColor(it.getUsername())
+                                    this.fontWeight = FontWeight.BOLD
                                 }
                             }
-                            text (": ") {
+                            if (it.getUsername() != "" && it.getContent() != "") {
+                                text(": ") {
                                     style {
-                                        this.fill = Color.WHITE
-                                        this.fontSize = CHAT_FONT_SIZE
+                                        this.fill = CHAT_TEXT_COLOR
                                     }
-                            }
-                            text(it.message) {
-                                style {
-                                    this.fill = Color.WHITE
-                                    this.fontSize = CHAT_FONT_SIZE
                                 }
+                            }
+                            text(it.getContent()) {
+                                style {
+                                    this.fill = CHAT_TEXT_COLOR
+                                }
+                            }
+                            style {
+                                this.maxWidth = 335.px
                             }
                         }
                     }
@@ -90,24 +107,14 @@ class ChatView : View() {
                 this.padding = Insets(10.0)
                 this.spacing = 15.0
                 textfield(chatInput) {
-                    this.promptText = "Enter a message"
-                    style {
-                        this.backgroundColor = multi(Color.valueOf("#595959"))
-                        this.textFill = Color.WHITE
-                        this.minHeight = 45.px
-                        this.prefWidth = 310.px
-                        this.padding = box(10.px)
-                    }
+                    addClass(Styles.chatTextField)
+                    this.promptText = "Send a message"
                 }
                 borderpane {
                     right {
                         button("Chat") {
-                            style {
-                                this.prefWidth = 50.px
-                                this.prefHeight = 30.px
-                                this.focusColor = Color.TRANSPARENT
-                                this.backgroundColor = multi(Color.valueOf("#af3ddb"))
-                                this.textFill = Color.WHITE
+                            addClass(Styles.chatButton)
+                            action {
                             }
                         }
                     }
@@ -116,3 +123,4 @@ class ChatView : View() {
         }
     }
 }
+

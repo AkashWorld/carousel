@@ -1,9 +1,12 @@
 package client.playerpage
 
+import client.Styles
+import client.controllers.FileLoaderController
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
+import javafx.scene.text.FontWeight
 import tornadofx.*
 
 
@@ -14,8 +17,8 @@ class FileLoaderView: View() {
 
     override val root = vbox {
         container = this
-        prefWidth = 1600.0
-        prefHeight = 1200.0
+        prefWidth = 700.0
+        prefHeight = 900.0
         alignment = Pos.CENTER
         style {
             this.backgroundColor = multi(mainGradient)
@@ -23,16 +26,12 @@ class FileLoaderView: View() {
         text("PLAYTIME") {
             style {
                 this.fill = Color.WHITE
-                fontSize = 250.px
+                fontSize = 225.px
+                fontWeight = FontWeight.EXTRA_BOLD
             }
         }
         button("Load Video") {
-            style {
-                fontSize = 25.px
-                backgroundRadius = multi(box(50.px))
-                prefWidth = 300.px
-                prefHeight = 60.px
-            }
+            addClass(Styles.loadVideoButton)
             action {
                 val result = fileLoaderController.loadVideoFile()
                 if(result) {

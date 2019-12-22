@@ -11,7 +11,7 @@ import io.javalin.websocket.WsMessageContext
 import server.model.*
 import server.GraphQLProvider as GraphQLProvider
 
-const val DEFAULT_PORT = 57423;
+const val DEFAULT_PORT = 57423
 const val SERVER_ACCESS_HEADER = "ServerAuth"
 const val AUTH_HEADER = "Authorization"
 
@@ -90,7 +90,7 @@ class Server constructor(private val port: Int = DEFAULT_PORT) {
         val result = this.graphQLProvider.serveGraphQLQueryMutation(context.body(), user)
         if (result != null) {
             context.status(200).json(result)
-            return;
+            return
         }
         context.status(400).result("Error handling GraphQL request")
     }

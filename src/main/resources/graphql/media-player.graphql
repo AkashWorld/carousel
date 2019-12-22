@@ -19,6 +19,6 @@ type MediaAction {
   user: String!
 }
 
-type Subscription {
+extend type Subscription {
   mediaActions: MediaAction!
 }

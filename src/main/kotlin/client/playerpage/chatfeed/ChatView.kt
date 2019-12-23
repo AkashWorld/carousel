@@ -16,10 +16,9 @@ import tornadofx.*
 private val CHAT_FONT_SIZE = 14.px
 private val CHAT_TEXT_COLOR = Color.valueOf("#e3e3e3")
 
-class ChatView(chatController: ChatController) : View() {
+class ChatView(chatController: ChatController, clientContextController: ClientContextController) : View() {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private var chatInput: SimpleStringProperty = SimpleStringProperty()
-    private val clientContextController: ClientContextController by inject()
     private var listView: ListView<Message>? = null
 
     override val root = borderpane {
@@ -115,12 +114,20 @@ class ChatView(chatController: ChatController) : View() {
                         button("Chat") {
                             addClass(Styles.chatButton)
                             action {
+                                if(chatInput.get() != "") {
+                                    chatController.addMessage(chatInput.get())
+                                    chatInput.set("")
+                                }
                             }
                         }
                     }
                 }
             }
         }
+    }
+
+    init {
+        chatController.subscribeToMessages()
     }
 }
 

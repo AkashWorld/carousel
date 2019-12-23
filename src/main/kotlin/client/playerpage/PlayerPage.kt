@@ -6,6 +6,7 @@ import client.models.ChatModel
 import client.models.ClientContext
 import client.playerpage.chatfeed.ChatView
 import javafx.beans.property.SimpleStringProperty
+import javafx.scene.layout.HBox
 import javafx.scene.paint.LinearGradient
 import tornadofx.*
 
@@ -15,12 +16,14 @@ class PlayerPage : View() {
     private val clientContext = ClientContext(SimpleStringProperty("localhost:57423"), "")
     private val chatView = ChatView(ChatController(ChatModel(), clientContext), ClientContextController(clientContext))
 
-    override val root = hbox {
-        this.add(fileLoaderView)
-        this.add(chatView)
-    }
+    override val root = HBox()
 
     init {
+        with(root) {
+            this.setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE)
+            this.add(fileLoaderView)
+            this.add(chatView)
+        }
         reloadStylesheetsOnFocus()
     }
 }

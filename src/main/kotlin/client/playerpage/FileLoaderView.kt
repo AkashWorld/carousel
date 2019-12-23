@@ -17,8 +17,7 @@ class FileLoaderView: View() {
 
     override val root = vbox {
         container = this
-        prefWidth = 700.0
-        prefHeight = 900.0
+        setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE)
         alignment = Pos.CENTER
         style {
             this.backgroundColor = multi(mainGradient)
@@ -26,7 +25,7 @@ class FileLoaderView: View() {
         text("PLAYTIME") {
             style {
                 this.fill = Color.WHITE
-                fontSize = 225.px
+                fontSize = 150.px
                 fontWeight = FontWeight.EXTRA_BOLD
             }
         }

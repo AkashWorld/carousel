@@ -9,6 +9,7 @@ import client.models.Message
 import client.playerpage.chatfeed.ChatView
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import javafx.beans.property.SimpleStringProperty
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -30,15 +31,20 @@ class ChatTestFX {
 
     class EmptyView : View() {
         override val root = pane {
-            val chatModel: ChatModel = ChatModel()
-            chatModel.addMessage(Message("Lone Hunt", "Hey you, you are a good looking man"))
-            chatModel.addMessage(Message("awildwildboar", "Thanks, this is cool"))
+            val chatModel = ChatModel()
+            chatModel.addMessage(Message("Lone Hunt", "Hey :grinning:, you are a good looking man"))
+            chatModel.addMessage(Message("awildwildboar", "Thanks, this is cool :sadpepe:"))
             chatModel.addMessage(Message("Lone Hunt", "Hey what do you think about this"))
             chatModel.addMessage(Message("Lone Hunt", "Its cool right?"))
-            chatModel.addMessage(Message("dabessbeast", "yawn"))
+            chatModel.addMessage(Message("dabessbeast", "yawn :wink:"))
             chatModel.addMessage(Message("wizardofozzie", "THIS IS THE GREATEST THING OF ALL TIME OMG"))
-            chatModel.addMessage(Message("chauncey", "guys I need help starting up the copmuter"))
-            chatModel.addMessage(Message("Anikzard", "stop being trash"))
+            chatModel.addMessage(
+                Message(
+                    "chauncey",
+                    ":eggplant: :eggplant: :eggplant: :eggplant: :eggplant: :eggplant: :eggplant: "
+                )
+            )
+            chatModel.addMessage(Message("Anikzard", "stop being trash :pepe:"))
             chatModel.addMessage(Message("Lone Hunt", "???????"))
             val server = Server()
             server.initialize()
@@ -67,6 +73,7 @@ class ChatTestFX {
 
     @BeforeEach
     fun start() {
+        SvgImageLoaderFactory.install()
         launch<TestApp>()
     }
 

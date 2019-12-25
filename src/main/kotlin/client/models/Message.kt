@@ -5,13 +5,9 @@ import tornadofx.toObservable
 
 enum class ContentType {
     IMAGE,
-    MESSAGE
+    MESSAGE,
+    INFO
 }
-
-class Content(
-    private val contentType: ContentType,
-    private val content: Any
-)
 
 class Message(
     private val user: String,

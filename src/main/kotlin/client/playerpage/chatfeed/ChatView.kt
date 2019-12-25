@@ -3,26 +3,26 @@ package client.playerpage.chatfeed
 import client.Styles
 import client.controllers.ChatController
 import client.controllers.ClientContextController
+import client.models.ContentType
 import client.models.Message
+import de.jensd.fx.glyphs.materialicons.MaterialIcon
+import de.jensd.fx.glyphs.materialicons.MaterialIconView
 import javafx.beans.Observable
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Insets
 import javafx.geometry.Pos
+import javafx.scene.Node
 import javafx.scene.control.ListView
-import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.input.KeyCode
-import javafx.scene.input.KeyCombination
 import javafx.scene.input.KeyEvent
 import javafx.scene.paint.Color
+import javafx.scene.text.FontPosture
 import javafx.scene.text.FontWeight
-import javafx.scene.text.TextAlignment
+import javafx.stage.StageStyle
 import javafx.util.Duration
 import org.slf4j.LoggerFactory
 import tornadofx.*
-
-private val CHAT_FONT_SIZE = 14.px
-private val CHAT_TEXT_COLOR = Color.valueOf("#e3e3e3")
 
 class ChatView(
     private val chatController: ChatController,
@@ -31,13 +31,16 @@ class ChatView(
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private var chatInput: SimpleStringProperty = SimpleStringProperty()
     private var listView: ListView<Message>? = null
-    private var emojiLoader: Emoji = EmojiLoader()
+    private val emojiLoader: EmojiLoader by inject()
+    private val emojiPicker = find<EmojiPicker>("emojiCallback" to { alias: String ->
+        emojiAliasCallback(alias)
+    })
 
     override val root = borderpane {
         maxWidth = 370.0
-        minWidth = 370.0
+        minHeight = Double.MAX_VALUE
         style {
-            this.fontSize = CHAT_FONT_SIZE
+            this.fontSize = Styles.chatFontSize
             this.fontFamily = "Arial"
             this.backgroundColor = multi(Styles.chatBackgroundColor)
             this.borderColor = multi(
@@ -52,6 +55,22 @@ class ChatView(
                         this.fontSize = 15.px
                         this.fill = Color(.878, .878, .878, 1.0)
                     }
+                }
+                button {
+                    addClass(Styles.emojiButton)
+                    val icon = MaterialIconView(MaterialIcon.CONTENT_COPY, "30px")
+                    icon.fill = Styles.chatTextColor
+                    icon.onHover {
+                        if (it) {
+                            icon.fill = Color.DARKGRAY
+                        } else {
+                            icon.fill = Styles.chatTextColor
+                        }
+                    }
+                    action {
+                        clientContextController.addressToClipboard()
+                    }
+                    this.add(icon)
                 }
                 style {
                     this.borderColor = multi(
@@ -99,17 +118,17 @@ class ChatView(
                             if (it.getUsername() != "" && it.getContent() != "") {
                                 text(": ") {
                                     style {
-                                        this.fill = CHAT_TEXT_COLOR
+                                        this.fill = Styles.chatTextColor
                                     }
                                 }
                             }
                             it.getContent().split(" ").map {
                                 val token = it
-                                val image = emojiLoader.getEmojiFromAlias(it)
+                                val image = emojiLoader.getEmojiFromAlias(it, 20.0)
                                 if (image == null) {
                                     text(it) {
                                         style {
-                                            this.fill = CHAT_TEXT_COLOR
+                                            this.fill = Styles.chatTextColor
                                         }
                                     }
                                 } else {
@@ -156,6 +175,28 @@ class ChatView(
                             shortcut("enter")
                         }
                     }
+                    left {
+                        button {
+                            addClass(Styles.emojiButton)
+                            val icon = MaterialIconView(MaterialIcon.INSERT_EMOTICON, "30px")
+                            icon.fill = Styles.chatTextColor
+                            icon.onHover {
+                                if (it) {
+                                    icon.fill = Color.DARKGRAY
+                                } else {
+                                    icon.fill = Styles.chatTextColor
+                                }
+                            }
+                            action {
+                                val emojiStage = emojiPicker.openWindow(StageStyle.TRANSPARENT)
+                                currentStage?.scene?.setOnMouseClicked {
+                                    emojiStage?.close()
+                                    currentStage?.scene?.onMouseClicked = null
+                                }
+                            }
+                            this.add(icon)
+                        }
+                    }
                 }
             }
         }
@@ -169,6 +210,46 @@ class ChatView(
         if (chatInput.get() != null && chatInput.get() != "") {
             this.chatController.addMessage(chatInput.get())
             chatInput.set("")
+        }
+    }
+
+    private fun emojiAliasCallback(alias: String) {
+        val currentInput = chatInput.value ?: ""
+        val alias = if (currentInput == "") alias else " $alias"
+        chatInput.set(currentInput + alias)
+    }
+
+    private fun renderContent(content: String, contentType: ContentType, parent: Node) {
+        if (contentType == ContentType.INFO) {
+            text(content) {
+                style {
+                    fill = Styles.chatTextColor
+                    fontStyle = FontPosture.ITALIC
+                }
+            }
+        } else if (contentType == ContentType.MESSAGE) {
+            content.split(" ").map {
+                val token = it
+                val image = emojiLoader.getEmojiFromAlias(it, 20.0)
+                if (image == null) {
+                    text(it) {
+                        style {
+                            this.fill = Styles.chatTextColor
+                        }
+                    }
+                } else {
+                    val imageView = object : ImageView(image) {
+                        override fun getBaselineOffset(): Double {
+                            return this.image.height * 0.75
+                        }
+                    }
+                    imageView.tooltip(token) {
+                        this.showDelay = Duration.ZERO
+                    }
+                    parent.add(imageView)
+                }
+                text(" ")
+            }
         }
     }
 }

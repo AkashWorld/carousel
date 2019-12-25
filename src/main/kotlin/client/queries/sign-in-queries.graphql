@@ -1,3 +1,0 @@
-query SignInQuery($username: String!) {
-    signIn(username: $username)
-}

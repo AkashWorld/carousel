@@ -1,11 +1,18 @@
 package client.playerpage.chatfeed
 
+import com.vdurmont.emoji.EmojiManager
 import com.vdurmont.emoji.EmojiParser
+import javafx.collections.ObservableList
+import javafx.collections.transformation.SortedList
 import javafx.scene.image.Image
+import me.xdrop.fuzzywuzzy.FuzzySearch
 import org.slf4j.LoggerFactory
+import tornadofx.Controller
+import tornadofx.SortedFilteredList
 
 interface Emoji {
-    fun getEmojiFromAlias(alias: String): Image?
+    fun getEmojiFromAlias(alias: String, size: Double?): Image?
+    fun setEmojiAliasesBySearch(searchQuery: String, observableList: ObservableList<String>)
 }
 
 enum class EmojiType {
@@ -13,9 +20,9 @@ enum class EmojiType {
     CUSTOM
 }
 
-class EmojiLoader : Emoji {
+class EmojiLoader : Emoji, Controller() {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
-    val emojiCache = mutableMapOf<String, Image>()
+    val emojiCache = mutableMapOf<Pair<String, Double>, Image>()
     val customEmoji = mapOf(
         ":pepe:" to "pepe"
     )
@@ -29,9 +36,11 @@ class EmojiLoader : Emoji {
         return null
     }
 
-    override fun getEmojiFromAlias(alias: String): Image? {
-        if (emojiCache.contains(alias)) {
-            return emojiCache[alias]
+    override fun getEmojiFromAlias(alias: String, size: Double?): Image? {
+        val hw = size ?: 20.0
+        val key = Pair(alias, hw)
+        if (emojiCache.contains(key)) {
+            return emojiCache[key]
         }
         var path: String? = null
         val unicode = EmojiParser.parseToUnicode(alias)
@@ -54,12 +63,43 @@ class EmojiLoader : Emoji {
             return null
         }
         return try {
-            val image = Image(path, 20.0, 20.0, true, true, true)
-            emojiCache[alias] = image
+            val image = Image(path, hw, hw, true, true, true)
+            emojiCache[key] = image
             image
         } catch (e: Exception) {
             logger.error(e.message, e.cause)
             null
         }
+    }
+
+    fun defaultAliases(): List<String> {
+        val emojiAliases = EmojiManager.getAll().map {
+            ":${it.aliases.first()}:"
+        }
+        /**
+         * Reordering because at index 365 is when the Emoji's that should be at the start (think Smile, Laugh, etc)
+         * are. Instead, we push the first 365 to the back of the list.
+         */
+        val betterList = emojiAliases.slice(365 until emojiAliases.size).toMutableList()
+        val backList = emojiAliases.slice(0 until 365)
+        betterList.addAll(backList)
+        val customAliases = customEmoji.keys.toMutableList()
+        customAliases.addAll(betterList)
+        return customAliases
+    }
+
+    override fun setEmojiAliasesBySearch(searchQuery: String, observableList: ObservableList<String>) {
+        if (searchQuery == "") {
+            observableList.setAll(defaultAliases())
+            return
+        }
+        val fuzzyRatioList: MutableList<Pair<String, Int>> = EmojiManager.getAll().map {
+            Pair(it.aliases.first(), FuzzySearch.partialRatio(searchQuery, it.description + " " + it.aliases.first()))
+        }.filter { it.second > 70 }.toMutableList()
+        val fuzzyCustomRatioList: List<Pair<String, Int>> = customEmoji.map {
+            Pair(it.value, FuzzySearch.partialRatio(searchQuery, it.value + " " + it.key))
+        }.filter { it.second > 70 }
+        fuzzyRatioList.addAll(fuzzyCustomRatioList)
+        observableList.setAll(fuzzyRatioList.map { ":${it.first}:" })
     }
 }

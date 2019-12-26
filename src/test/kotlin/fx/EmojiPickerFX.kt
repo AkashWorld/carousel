@@ -10,29 +10,29 @@ import tornadofx.*
 import tornadofx.reloadStylesheetsOnFocus
 
 class EmojiPickerFX {
-    class TestApp : App(EmptyView::class, Styles::class) {
+    class TestApp : App(EmojiPickerTestView::class, Styles::class) {
         init {
             reloadStylesheetsOnFocus()
         }
     }
 
-    class EmptyView : View() {
-        override val root = hbox {
-            find<EmojiPicker>("emojiCallback" to { alias: String ->
+    class EmojiPickerTestView : View() {
+        override val root = pane {
+            val emojipicker = find<EmojiPicker>("emojiCallback" to { alias: String ->
                 println("Emoji Alias Recieved -> ${alias}")
-            }).openModal(StageStyle.TRANSPARENT)
+            })
+            this.add(emojipicker)
         }
     }
 
     @BeforeEach
     fun initTornadoFX() {
         SvgImageLoaderFactory.install()
-        launch<TestApp>()
     }
 
     @Test
     fun emojiPickerShow() {
-
+        launch<TestApp>()
     }
 
 }

@@ -3,6 +3,7 @@ package client.playerpage.chatfeed
 import client.Styles
 import client.controllers.ChatController
 import client.controllers.ClientContextController
+import client.models.ClientContext
 import client.models.ContentType
 import client.models.Message
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
@@ -24,21 +25,26 @@ import javafx.util.Duration
 import org.slf4j.LoggerFactory
 import tornadofx.*
 
-class ChatView(
-    private val chatController: ChatController,
-    private val clientContextController: ClientContextController
-) : View() {
+class ChatView : View() {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
-    private var chatInput: SimpleStringProperty = SimpleStringProperty()
+    private val clientContext: ClientContext by param()
+    private val clientContextController: ClientContextController by inject(params = mapOf("clientContext" to clientContext))
+    private val chatController: ChatController by inject(params = mapOf("clientContext" to clientContext))
+    private val chatInput: SimpleStringProperty = SimpleStringProperty()
+    private val serverAddress: SimpleStringProperty = SimpleStringProperty()
     private var listView: ListView<Message>? = null
     private val emojiLoader: EmojiLoader by inject()
     private val emojiPicker = find<EmojiPicker>("emojiCallback" to { alias: String ->
         emojiAliasCallback(alias)
     })
 
+    init {
+        serverAddress.value = clientContextController.getAddress()
+    }
+
     override val root = borderpane {
         maxWidth = 370.0
-        minHeight = Double.MAX_VALUE
+        minWidth = 370.0
         style {
             this.fontSize = Styles.chatFontSize
             this.fontFamily = "Arial"
@@ -49,7 +55,8 @@ class ChatView(
         }
         top {
             hbox {
-                text("Server Address: ${clientContextController.getAddress().get()}") {
+                spacing = 15.0
+                text(serverAddress) {
                     alignment = Pos.CENTER
                     style {
                         this.fontSize = 15.px
@@ -58,7 +65,7 @@ class ChatView(
                 }
                 button {
                     addClass(Styles.emojiButton)
-                    val icon = MaterialIconView(MaterialIcon.CONTENT_COPY, "30px")
+                    val icon = MaterialIconView(MaterialIcon.CONTENT_COPY, "25px")
                     icon.fill = Styles.chatTextColor
                     icon.onHover {
                         if (it) {
@@ -69,6 +76,10 @@ class ChatView(
                     }
                     action {
                         clientContextController.addressToClipboard()
+                        serverAddress.set("Copied!")
+                        runLater(Duration.millis(3000.0)) {
+                            serverAddress.set(clientContextController.getAddress())
+                        }
                     }
                     this.add(icon)
                 }
@@ -91,12 +102,11 @@ class ChatView(
                     backgroundColor = multi(Color.TRANSPARENT)
                 }
                 listview(chatController.getMessages()) {
-                    listView = this
-                    this.scrollTo(chatController.getMessages().size)
-                    this.items.addListener { _: Observable ->
-                        listView!!.scrollTo(listView!!.items.size - 1)
+                    val listView = this
+                    listView.scrollTo((chatController.getMessages().size) - 1)
+                    items.addListener { _: Observable ->
+                        listView.scrollTo((chatController.getMessages().size) - 1)
                     }
-                    this.heightProperty().addListener { _ -> chatController.padMessages(this.height) }
                     style {
                         this.focusColor = Color.TRANSPARENT
                         this.backgroundColor = multi(Styles.chatBackgroundColor)
@@ -108,41 +118,54 @@ class ChatView(
                             this.padding = box(5.px)
                         }
                         graphic = textflow {
-                            val textFlow = this
-                            text(it.getUsername()) {
-                                style {
-                                    this.fill = chatController.getColor(it.getUsername())
-                                    this.fontWeight = FontWeight.BOLD
+                            /**
+                             * Username
+                             */
+                            if (it.contentType != ContentType.NONE) {
+                                text(it.user) {
+                                    style {
+                                        this.fill = chatController.getColor(it.user)
+                                        this.fontWeight = FontWeight.BOLD
+                                    }
                                 }
-                            }
-                            if (it.getUsername() != "" && it.getContent() != "") {
                                 text(": ") {
                                     style {
                                         this.fill = Styles.chatTextColor
                                     }
                                 }
                             }
-                            it.getContent().split(" ").map {
-                                val token = it
-                                val image = emojiLoader.getEmojiFromAlias(it, 20.0)
-                                if (image == null) {
-                                    text(it) {
-                                        style {
-                                            this.fill = Styles.chatTextColor
-                                        }
+                            /**
+                             * Content
+                             */
+                            if (it.contentType == ContentType.INFO) {
+                                text(it.content) {
+                                    style {
+                                        fill = Styles.chatTextColor
+                                        fontStyle = FontPosture.ITALIC
                                     }
-                                } else {
-                                    val imageView = object : ImageView(image) {
-                                        override fun getBaselineOffset(): Double {
-                                            return this.image.height * 0.75
-                                        }
-                                    }
-                                    imageView.tooltip(token) {
-                                        this.showDelay = Duration.ZERO
-                                    }
-                                    textFlow.add(imageView)
                                 }
-                                text(" ")
+                            } else if (it.contentType == ContentType.MESSAGE) {
+                                chatController.tokenizeMessage(it.content).map {
+                                    val token = it
+                                    val image = emojiLoader.getEmojiFromAlias(it, 20.0)
+                                    if (image == null) {
+                                        text(it) {
+                                            style {
+                                                this.fill = Styles.chatTextColor
+                                            }
+                                        }
+                                    } else {
+                                        val imageView = object : ImageView(image) {
+                                            override fun getBaselineOffset(): Double {
+                                                return this.image.height * 0.75
+                                            }
+                                        }
+                                        imageView.tooltip(token) {
+                                            this.showDelay = Duration.ZERO
+                                        }
+                                        this.add(imageView)
+                                    }
+                                }
                             }
                             style {
                                 this.maxWidth = 335.px
@@ -202,10 +225,6 @@ class ChatView(
         }
     }
 
-    init {
-        chatController.subscribeToMessages()
-    }
-
     private fun sendChatMessage() {
         if (chatInput.get() != null && chatInput.get() != "") {
             this.chatController.addMessage(chatInput.get())
@@ -215,42 +234,11 @@ class ChatView(
 
     private fun emojiAliasCallback(alias: String) {
         val currentInput = chatInput.value ?: ""
-        val alias = if (currentInput == "") alias else " $alias"
         chatInput.set(currentInput + alias)
     }
 
-    private fun renderContent(content: String, contentType: ContentType, parent: Node) {
-        if (contentType == ContentType.INFO) {
-            text(content) {
-                style {
-                    fill = Styles.chatTextColor
-                    fontStyle = FontPosture.ITALIC
-                }
-            }
-        } else if (contentType == ContentType.MESSAGE) {
-            content.split(" ").map {
-                val token = it
-                val image = emojiLoader.getEmojiFromAlias(it, 20.0)
-                if (image == null) {
-                    text(it) {
-                        style {
-                            this.fill = Styles.chatTextColor
-                        }
-                    }
-                } else {
-                    val imageView = object : ImageView(image) {
-                        override fun getBaselineOffset(): Double {
-                            return this.image.height * 0.75
-                        }
-                    }
-                    imageView.tooltip(token) {
-                        this.showDelay = Duration.ZERO
-                    }
-                    parent.add(imageView)
-                }
-                text(" ")
-            }
-        }
+    init {
+        chatController.subscribeToMessages()
     }
 }
 

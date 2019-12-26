@@ -6,21 +6,15 @@ import tornadofx.toObservable
 enum class ContentType {
     IMAGE,
     MESSAGE,
-    INFO
+    INFO,
+    NONE
 }
 
 class Message(
-    private val user: String,
-    private val content: String,
-    private val contentType: ContentType = ContentType.MESSAGE
+    val user: String,
+    val content: String,
+    val contentType: ContentType = ContentType.MESSAGE
 ) {
-    fun getUsername(): String {
-        return user
-    }
-
-    fun getContent(): String {
-        return content
-    }
 }
 
 class ChatModel() {

@@ -3,7 +3,6 @@ package fx
 import client.Styles
 import client.playerpage.chatfeed.EmojiPicker
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
-import javafx.stage.StageStyle
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import tornadofx.*
@@ -34,5 +33,4 @@ class EmojiPickerFX {
     fun emojiPickerShow() {
         launch<TestApp>()
     }
-
 }

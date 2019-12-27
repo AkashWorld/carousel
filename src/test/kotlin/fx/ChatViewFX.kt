@@ -21,7 +21,11 @@ import tornadofx.*
 class ChatViewFX {
     private val server: Server = Server()
 
-    class Applicaton : App(ChatViewTest::class, stylesheet = Styles::class)
+    class Applicaton : App(ChatViewTest::class, stylesheet = Styles::class) {
+        init {
+            reloadStylesheetsOnFocus()
+        }
+    }
 
     class ChatViewTest : View() {
         private val testScope = Scope()

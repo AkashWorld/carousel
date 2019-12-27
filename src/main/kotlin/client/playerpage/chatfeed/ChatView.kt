@@ -32,7 +32,6 @@ class ChatView : View() {
     private val chatController: ChatController by inject(params = mapOf("clientContext" to clientContext))
     private val chatInput: SimpleStringProperty = SimpleStringProperty()
     private val serverAddress: SimpleStringProperty = SimpleStringProperty()
-    private var listView: ListView<Message>? = null
     private val emojiLoader: EmojiLoader by inject()
     private val emojiPicker = find<EmojiPicker>("emojiCallback" to { alias: String ->
         emojiAliasCallback(alias)
@@ -54,34 +53,38 @@ class ChatView : View() {
             )
         }
         top {
-            hbox {
-                spacing = 15.0
-                text(serverAddress) {
-                    alignment = Pos.CENTER
-                    style {
-                        this.fontSize = 15.px
-                        this.fill = Color(.878, .878, .878, 1.0)
+            borderpane {
+                center {
+                    text(serverAddress) {
+                        style {
+                            this.fontSize = 15.px
+                            this.fill = Color(.878, .878, .878, 1.0)
+                        }
                     }
                 }
-                button {
-                    addClass(Styles.emojiButton)
-                    val icon = MaterialIconView(MaterialIcon.CONTENT_COPY, "25px")
-                    icon.fill = Styles.chatTextColor
-                    icon.onHover {
-                        if (it) {
-                            icon.fill = Color.DARKGRAY
-                        } else {
-                            icon.fill = Styles.chatTextColor
+                right {
+                    paddingTop = 10
+                    paddingRight = 5
+                    button {
+                        addClass(Styles.emojiButton)
+                        val icon = MaterialIconView(MaterialIcon.CONTENT_COPY, "25px")
+                        icon.fill = Styles.chatTextColor
+                        icon.onHover {
+                            if (it) {
+                                icon.fill = Color.DARKGRAY
+                            } else {
+                                icon.fill = Styles.chatTextColor
+                            }
                         }
-                    }
-                    action {
-                        clientContextController.addressToClipboard()
-                        serverAddress.set("Copied!")
-                        runLater(Duration.millis(3000.0)) {
-                            serverAddress.set(clientContextController.getAddress())
+                        action {
+                            clientContextController.addressToClipboard()
+                            serverAddress.set("Copied!")
+                            runLater(Duration.millis(3000.0)) {
+                                serverAddress.set(clientContextController.getAddress())
+                            }
                         }
+                        this.add(icon)
                     }
-                    this.add(icon)
                 }
                 style {
                     this.borderColor = multi(
@@ -210,8 +213,11 @@ class ChatView : View() {
                                     icon.fill = Styles.chatTextColor
                                 }
                             }
-                            action {
+                            setOnMouseClicked {
                                 val emojiStage = emojiPicker.openWindow(StageStyle.TRANSPARENT)
+                                emojiStage?.isAlwaysOnTop = true
+                                emojiStage?.x = it.screenX
+                                emojiStage?.y = it.screenY - 485.0
                                 currentStage?.scene?.setOnMouseClicked {
                                     emojiStage?.close()
                                     currentStage?.scene?.onMouseClicked = null

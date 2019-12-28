@@ -34,7 +34,7 @@ class FileLoaderView: View() {
             action {
                 val result = fileLoaderController.loadVideoFile()
                 if(result) {
-                    replaceWith<MediaPlayerView>()
+                    replaceWith<MediaPlayerView>(ViewTransition.Fade(1000.millis))
                 } else {
                     loadingErrorMessage.set("Please select a media file to play!")
                 }

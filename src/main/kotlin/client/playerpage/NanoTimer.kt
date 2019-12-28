@@ -87,16 +87,3 @@ private class NanoThreadFactory : ThreadFactory {
         return thread
     }
 }
-
-private class Time {
-    fun formatTime(inputVal: Long): String {
-        var value = inputVal
-        value /= 1000
-        val hours = value.toInt() / 3600
-        var remainder = value.toInt() - hours * 3600
-        val minutes = remainder / 60
-        remainder -= minutes * 60
-        val seconds = remainder
-        return String.format("%d:%02d:%02d", hours, minutes, seconds)
-    }
-}

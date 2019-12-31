@@ -1,6 +1,5 @@
 package client.playerpage.chatfeed
 
-import client.Styles
 import client.controllers.ChatController
 import client.controllers.ClientContextController
 import client.models.ClientContext
@@ -11,8 +10,6 @@ import de.jensd.fx.glyphs.materialicons.MaterialIconView
 import javafx.beans.Observable
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Insets
-import javafx.geometry.Pos
-import javafx.scene.Node
 import javafx.scene.control.ListView
 import javafx.scene.image.ImageView
 import javafx.scene.input.KeyCode
@@ -36,6 +33,7 @@ class ChatView : View() {
     private val emojiPicker = find<EmojiPicker>("emojiCallback" to { alias: String ->
         emojiAliasCallback(alias)
     })
+    private lateinit var listView: ListView<Message>
 
     init {
         serverAddress.value = clientContextController.getAddress()
@@ -45,9 +43,9 @@ class ChatView : View() {
         maxWidth = 370.0
         minWidth = 370.0
         style {
-            this.fontSize = Styles.chatFontSize
+            this.fontSize = ChatFeedStyles.chatFontSize
             this.fontFamily = "Arial"
-            this.backgroundColor = multi(Styles.chatBackgroundColor)
+            this.backgroundColor = multi(ChatFeedStyles.chatBackgroundColor)
             this.borderColor = multi(
                 box(Color(.27, .27, .27, 1.0))
             )
@@ -55,6 +53,7 @@ class ChatView : View() {
         top {
             borderpane {
                 center {
+                    paddingBottom = 10
                     text(serverAddress) {
                         style {
                             this.fontSize = 15.px
@@ -66,14 +65,14 @@ class ChatView : View() {
                     paddingTop = 10
                     paddingRight = 5
                     button {
-                        addClass(Styles.emojiButton)
+                        addClass(ChatFeedStyles.emojiButton)
                         val icon = MaterialIconView(MaterialIcon.CONTENT_COPY, "25px")
-                        icon.fill = Styles.chatTextColor
+                        icon.fill = ChatFeedStyles.chatTextColor
                         icon.onHover {
                             if (it) {
                                 icon.fill = Color.DARKGRAY
                             } else {
-                                icon.fill = Styles.chatTextColor
+                                icon.fill = ChatFeedStyles.chatTextColor
                             }
                         }
                         action {
@@ -105,19 +104,19 @@ class ChatView : View() {
                     backgroundColor = multi(Color.TRANSPARENT)
                 }
                 listview(chatController.getMessages()) {
-                    val listView = this
+                    listView = this
                     listView.scrollTo((chatController.getMessages().size) - 1)
                     items.addListener { _: Observable ->
                         listView.scrollTo((chatController.getMessages().size) - 1)
                     }
                     style {
                         this.focusColor = Color.TRANSPARENT
-                        this.backgroundColor = multi(Styles.chatBackgroundColor)
+                        this.backgroundColor = multi(ChatFeedStyles.chatBackgroundColor)
                     }
                     cellFormat {
                         style {
                             this.focusColor = Color.TRANSPARENT
-                            this.backgroundColor = multi(Styles.chatBackgroundColor)
+                            this.backgroundColor = multi(ChatFeedStyles.chatBackgroundColor)
                             this.padding = box(5.px)
                         }
                         graphic = textflow {
@@ -133,7 +132,7 @@ class ChatView : View() {
                                 }
                                 text(": ") {
                                     style {
-                                        this.fill = Styles.chatTextColor
+                                        this.fill = ChatFeedStyles.chatTextColor
                                     }
                                 }
                             }
@@ -143,7 +142,7 @@ class ChatView : View() {
                             if (it.contentType == ContentType.INFO) {
                                 text(it.content) {
                                     style {
-                                        fill = Styles.chatTextColor
+                                        fill = ChatFeedStyles.chatTextColor
                                         fontStyle = FontPosture.ITALIC
                                     }
                                 }
@@ -154,7 +153,7 @@ class ChatView : View() {
                                     if (image == null) {
                                         text(it) {
                                             style {
-                                                this.fill = Styles.chatTextColor
+                                                this.fill = ChatFeedStyles.chatTextColor
                                             }
                                         }
                                     } else {
@@ -183,7 +182,7 @@ class ChatView : View() {
                 this.padding = Insets(10.0)
                 this.spacing = 15.0
                 textfield(chatInput) {
-                    addClass(Styles.chatTextField)
+                    addClass(ChatFeedStyles.chatTextField)
                     this.promptText = "Send a message"
                     this.addEventFilter(KeyEvent.KEY_PRESSED) {
                         if (it.code == KeyCode.ENTER) {
@@ -194,7 +193,7 @@ class ChatView : View() {
                 borderpane {
                     right {
                         button("Chat") {
-                            addClass(Styles.chatButton)
+                            addClass(ChatFeedStyles.chatButton)
                             action {
                                 sendChatMessage()
                             }
@@ -203,14 +202,14 @@ class ChatView : View() {
                     }
                     left {
                         button {
-                            addClass(Styles.emojiButton)
+                            addClass(ChatFeedStyles.emojiButton)
                             val icon = MaterialIconView(MaterialIcon.INSERT_EMOTICON, "30px")
-                            icon.fill = Styles.chatTextColor
+                            icon.fill = ChatFeedStyles.chatTextColor
                             icon.onHover {
                                 if (it) {
                                     icon.fill = Color.DARKGRAY
                                 } else {
-                                    icon.fill = Styles.chatTextColor
+                                    icon.fill = ChatFeedStyles.chatTextColor
                                 }
                             }
                             setOnMouseClicked {

@@ -17,94 +17,21 @@ import java.time.Instant
 import kotlin.random.Random
 
 class ChatController : Controller() {
-    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val clientContext: ClientContext by param()
-    private val chatModel = ChatModel()
+    private val chatModel = ChatModel(clientContext)
     private val colorMap = mutableMapOf<String, Color>()
     private val colorSet = mutableSetOf<Color>()
-
-    init {
-        for (i in 0..50) {
-            chatModel.addMessage(Message("", "", contentType = ContentType.NONE))
-        }
-    }
 
     fun getMessages(): ObservableList<Message> {
         return chatModel.getChatList()
     }
 
-    fun addMessage(content: String): Boolean {
-        if (clientContext.getContextToken() == null) {
-            logger.error("Client context not found")
-            return false
-        }
-        val gson = Gson()
-        val mutation = """
-            mutation InsertMutation(${"$"}message: String!){
-                insertMessage(message: ${"$"}message)
-            }
-        """.trimIndent()
-        val variables = mapOf("message" to content)
-        val query = mapOf("query" to mutation, "variables" to variables)
-        val body: RequestBody = gson.toJson(query).toRequestBody()
-        val request = Request.Builder().post(body)
-            .url("http://${clientContext.getServerAddress()}/graphql")
-            .header(AUTH_HEADER, clientContext.getContextToken()!!)
-            .build()
-        clientContext.client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                logger.error(e.message, e.cause)
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                logger.info(response.body.toString())
-            }
-        })
-        return true
+    fun addMessage(content: String) {
+        chatModel.addMessage(content)
     }
 
-    fun subscribeToMessages(): Boolean {
-        if (clientContext.getContextToken() == null) {
-            logger.error("Client context not found")
-            return false
-        }
-        val gson = Gson()
-        val subscription = """
-            subscription {
-                chatFeed{
-                    username
-                    content
-                }
-            }
-        """.trimIndent()
-        val variables = mapOf<String, Any>()
-        val query = gson.toJson(mapOf("query" to subscription, "variables" to variables))
-        val wsRequest: Request =
-            Request.Builder().url("ws://${clientContext.getServerAddress()}/subscription").addHeader(
-                AUTH_HEADER, clientContext.getContextToken()!!
-            ).build()
-        val wsListener: WebSocketListener = object : WebSocketListener() {
-            override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-                logger.error("WS Test Failure", t)
-            }
-
-            override fun onMessage(webSocket: WebSocket, text: String) {
-                logger.info(text)
-                try {
-                    val result: Map<String, String> =
-                        gson.fromJson(text, Map::class.java)["chatFeed"] as Map<String, String>
-                    val username = result["username"]
-                    val content = result["content"]
-                    if (username != null && content != null) {
-                        chatModel.addMessage(Message(username, content))
-                    }
-                } catch (e: Exception) {
-                    logger.error(e.message, e.cause)
-                }
-            }
-        }
-        clientContext.client.newWebSocket(wsRequest, wsListener).send(query)
-        return true
+    fun subscribeToMessages() {
+        chatModel.subscribeToMessages()
     }
 
     fun tokenizeMessage(message: String): List<String> {
@@ -121,20 +48,20 @@ class ChatController : Controller() {
                 if (!colonStart) {
                     currToken += c
                     colonStart = true
-                } else if(colonStart) {
+                } else if (colonStart) {
                     currToken += c
                     retList.add(currToken)
                     currToken = ""
                     colonStart = false
                 }
-            } else if(c == ' ' && colonStart) {
+            } else if (c == ' ' && colonStart) {
                 colonStart = false
                 currToken += c
             } else {
                 currToken += c
             }
         }
-        if(currToken != "") {
+        if (currToken != "") {
             retList.add(currToken)
         }
         return retList

@@ -1,7 +1,7 @@
 package client.playerpage
 
-import client.Styles
 import client.controllers.FileLoaderController
+import client.playerpage.FileLoaderStyles.Companion.mainGradient
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.scene.layout.VBox
@@ -10,7 +10,7 @@ import javafx.scene.text.FontWeight
 import tornadofx.*
 
 
-class FileLoaderView: View() {
+class FileLoaderView : View() {
     private val fileLoaderController: FileLoaderController by inject()
     private var container: VBox? = null
     private var loadingErrorMessage: SimpleStringProperty = SimpleStringProperty("")
@@ -30,10 +30,10 @@ class FileLoaderView: View() {
             }
         }
         button("Load Video") {
-            addClass(Styles.loadVideoButton)
+            addClass(FileLoaderStyles.loadVideoButton)
             action {
                 val result = fileLoaderController.loadVideoFile()
-                if(result) {
+                if (result) {
                     replaceWith<MediaPlayerView>(ViewTransition.Fade(1000.millis))
                 } else {
                     loadingErrorMessage.set("Please select a media file to play!")

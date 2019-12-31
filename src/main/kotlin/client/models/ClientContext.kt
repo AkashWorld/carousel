@@ -1,8 +1,6 @@
 package client.models
 
 import com.google.gson.Gson
-import javafx.beans.property.SimpleStringProperty
-import javafx.beans.value.ObservableStringValue
 import okhttp3.*
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.slf4j.LoggerFactory
@@ -10,7 +8,7 @@ import java.io.IOException
 
 class ClientContext(private val address: String) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
-    private var userToken: String? = null
+    private var usernameTokenPair: Pair<String, String>? = null
     val client = OkHttpClient()
 
     fun requestSignInToken(username: String, success: () -> Unit, error: () -> Unit) {
@@ -39,7 +37,7 @@ class ClientContext(private val address: String) {
             override fun onResponse(call: Call, response: Response) {
                 try {
                     val body = gson.fromJson(response.body?.string(), Map::class.java) as Map<*, *>
-                    userToken = (body["data"] as Map<*, *>)["signIn"] as String?
+                    usernameTokenPair = Pair(username, (body["data"] as Map<*, *>)["signIn"] as String)
                 } catch(e: Exception) {
                     logger.error(e.message, e.cause)
                     error()
@@ -55,6 +53,6 @@ class ClientContext(private val address: String) {
     }
 
     fun getContextToken(): String? {
-        return userToken
+        return usernameTokenPair?.second
     }
 }

@@ -1,5 +1,6 @@
 package client.playerpage
 
+import javafx.scene.Cursor
 import javafx.scene.paint.Color
 import tornadofx.*
 import tornadofx.Stylesheet
@@ -19,6 +20,9 @@ class MediaPlayerControlsStyles : Stylesheet() {
             backgroundColor = multi(Color.TRANSPARENT)
             maxHeight = 30.px
             padding = box(0.px)
+            and(hover) {
+                cursor = Cursor.HAND
+            }
         }
         trackSlider {
             track {
@@ -35,6 +39,7 @@ class MediaPlayerControlsStyles : Stylesheet() {
                 thumb {
                     backgroundColor = multi(Color.RED)
                 }
+                cursor = Cursor.HAND
             }
             thumb {
                 backgroundColor = multi(Color.TRANSPARENT)
@@ -65,6 +70,9 @@ class MediaPlayerControlsStyles : Stylesheet() {
             sliderValue {
                 fill = Color.TRANSPARENT
                 stroke = Color.TRANSPARENT
+            }
+            and(hover) {
+                cursor = Cursor.HAND
             }
         }
     }

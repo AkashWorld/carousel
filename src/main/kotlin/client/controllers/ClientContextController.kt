@@ -8,9 +8,6 @@ import tornadofx.Controller
 class ClientContextController : Controller() {
     private val clientContext: ClientContext by param()
 
-    init {
-    }
-
     fun getAddress(): String {
         return clientContext.getServerAddress()
     }

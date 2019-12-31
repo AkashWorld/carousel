@@ -1,6 +1,6 @@
 package fx
 
-import client.Styles
+import client.playerpage.chatfeed.ChatFeedStyles
 import client.playerpage.MediaPlayerControls
 import client.playerpage.MediaPlayerControlsStyles
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
@@ -11,7 +11,7 @@ import tornadofx.*
 
 class MediaControlsFX {
     class TestApp :
-        App(MediaControlsTestView::class, Styles::class, MediaPlayerControlsStyles::class) {
+        App(MediaControlsTestView::class, ChatFeedStyles::class, MediaPlayerControlsStyles::class) {
         init {
             reloadStylesheetsOnFocus()
         }

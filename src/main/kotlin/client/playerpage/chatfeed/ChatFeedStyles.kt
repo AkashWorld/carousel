@@ -1,21 +1,21 @@
-package client
+package client.playerpage.chatfeed
 
+import javafx.scene.Cursor
 import javafx.scene.paint.Color
 import javafx.scene.text.FontWeight
 import tornadofx.*
 
 
-class Styles : Stylesheet() {
+class ChatFeedStyles : Stylesheet() {
     companion object {
         val chatButton by cssclass()
-        val loadVideoButton by cssclass()
         val chatTextField by cssclass()
         val emojiButton by cssclass()
         val emojiPickerContainer by cssclass()
         val emojiTextField by cssclass()
 
-        val buttonColor = Color.valueOf("#661894")
-        val hoverButtonColor = Color.valueOf("#370d4f")
+        val buttonColor = Color.valueOf("#db4057")
+        val hoverButtonColor = Color.valueOf("#ff4a65")
         val chatColor = Color.valueOf("#262626")
         val chatBackgroundColor = Color.valueOf("#171717")
         val chatTextColor = Color.valueOf("#e3e3e3")
@@ -24,6 +24,14 @@ class Styles : Stylesheet() {
 
     init {
         listView {
+            listCell {
+                and(even) {
+                    backgroundColor = multi(chatBackgroundColor)
+                }
+                and(odd) {
+                    backgroundColor = multi(chatBackgroundColor)
+                }
+            }
             scrollBar {
                 backgroundColor = multi(chatColor)
                 and(vertical) {
@@ -71,19 +79,6 @@ class Styles : Stylesheet() {
                 }
             }
         }
-        loadVideoButton {
-            fontSize = 20.px
-            fontWeight = FontWeight.MEDIUM
-            backgroundRadius = multi(box(50.px))
-            prefWidth = 300.px
-            prefHeight = 60.px
-            focusColor = Color.TRANSPARENT
-            backgroundColor = multi(buttonColor)
-            textFill = Color.WHITE
-            and(hover) {
-                backgroundColor = multi(hoverButtonColor)
-            }
-        }
         chatButton {
             prefWidth = 50.px
             prefHeight = 30.px
@@ -92,6 +87,7 @@ class Styles : Stylesheet() {
             textFill = Color.WHITE
             and(hover) {
                 backgroundColor = multi(hoverButtonColor)
+                cursor = Cursor.HAND
             }
         }
         chatTextField {
@@ -102,13 +98,16 @@ class Styles : Stylesheet() {
             and(focused) {
                 borderRadius = multi(box(3.px))
                 borderWidth = multi(box(3.px))
-                borderColor = multi(box(Color.PURPLE))
+                borderColor = multi(box(buttonColor))
             }
         }
         emojiButton {
             backgroundColor = multi(Color.TRANSPARENT)
             maxHeight = 30.px
             padding = box(0.px)
+            and(hover) {
+                cursor = Cursor.HAND
+            }
         }
         emojiPickerContainer {
             prefWidth = 275.px

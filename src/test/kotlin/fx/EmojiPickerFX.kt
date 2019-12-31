@@ -1,6 +1,6 @@
 package fx
 
-import client.Styles
+import client.playerpage.chatfeed.ChatFeedStyles
 import client.playerpage.chatfeed.EmojiPicker
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import org.junit.jupiter.api.BeforeEach
@@ -9,7 +9,7 @@ import tornadofx.*
 import tornadofx.reloadStylesheetsOnFocus
 
 class EmojiPickerFX {
-    class TestApp : App(EmojiPickerTestView::class, Styles::class) {
+    class TestApp : App(EmojiPickerTestView::class, ChatFeedStyles::class) {
         init {
             reloadStylesheetsOnFocus()
         }

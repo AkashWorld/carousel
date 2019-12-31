@@ -6,29 +6,27 @@ import client.controllers.ClientContextController
 import client.models.ClientContext
 import client.models.ContentType
 import client.models.Message
+import client.playerpage.FileLoaderView
+import client.playerpage.MediaPlayerControlsStyles
 import client.playerpage.chatfeed.ChatView
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import server.Server
-import tornadofx.Scope
 import tornadofx.*
 
-class ChatViewFX {
+class MediaPageFX {
     private val server: Server = Server()
 
-    class Application : App(ChatViewTest::class, stylesheet = ChatFeedStyles::class) {
-        init {
-            reloadStylesheetsOnFocus()
-        }
+    class Application : App(MediaPageTest::class, ChatFeedStyles::class, MediaPlayerControlsStyles::class) {
     }
 
-    class ChatViewTest : View() {
+    class MediaPageTest : View() {
         private val testScope = Scope()
-        private val clientContext: ClientContext = ClientContext("localhost:57423")
+        private val chatController = ChatController()
         private val clientContextController = ClientContextController()
-        private val chatController: ChatController by inject(params = mapOf("clientContext" to clientContext))
+        private val clientContext: ClientContext = ClientContext("localhost:57423")
 
         init {
             val msglist = chatController.getMessages()
@@ -45,8 +43,11 @@ class ChatViewFX {
             Thread.sleep(1000)
         }
 
-        override val root = stackpane {
+        override val root = hbox {
+            prefWidth = 1500.0
             val chatView = find<ChatView>(scope = testScope, params = mapOf("clientContext" to clientContext))
+            val fileLoaderView = find<FileLoaderView>()
+            this.add(fileLoaderView)
             this.add(chatView)
         }
     }

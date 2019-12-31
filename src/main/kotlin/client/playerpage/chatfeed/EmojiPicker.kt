@@ -1,13 +1,11 @@
 package client.playerpage.chatfeed
 
-import client.Styles
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.jensd.fx.glyphs.materialicons.MaterialIconView
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.geometry.Orientation
 import javafx.scene.paint.Color
-import javafx.stage.StageStyle
 import tornadofx.*
 
 class EmojiPicker() : Fragment() {
@@ -20,14 +18,14 @@ class EmojiPicker() : Fragment() {
     private val totalTiles = 30
 
     override val root = borderpane {
-        addClass(Styles.emojiPickerContainer)
+        addClass(ChatFeedStyles.emojiPickerContainer)
         style {
-            backgroundColor = multi(Styles.chatBackgroundColor)
+            backgroundColor = multi(ChatFeedStyles.chatBackgroundColor)
         }
         top {
             hbox {
                 textfield(search) {
-                    addClass(Styles.emojiTextField)
+                    addClass(ChatFeedStyles.emojiTextField)
                     promptText = "Search Emoji"
                     search.onChange {
                         if (it != null) {
@@ -36,14 +34,14 @@ class EmojiPicker() : Fragment() {
                     }
                 }
                 button {
-                    addClass(Styles.emojiButton)
+                    addClass(ChatFeedStyles.emojiButton)
                     val icon = MaterialIconView(MaterialIcon.CLOSE, "30px")
-                    icon.fill = Styles.chatTextColor
+                    icon.fill = ChatFeedStyles.chatTextColor
                     icon.onHover {
                         if (it) {
                             icon.fill = Color.DARKGRAY
                         } else {
-                            icon.fill = Styles.chatTextColor
+                            icon.fill = ChatFeedStyles.chatTextColor
                         }
                     }
                     action {
@@ -64,7 +62,7 @@ class EmojiPicker() : Fragment() {
                     val tilePane = this
                     style {
                         focusColor = Color.TRANSPARENT
-                        backgroundColor = multi(Styles.chatBackgroundColor)
+                        backgroundColor = multi(ChatFeedStyles.chatBackgroundColor)
                         padding = box(10.px)
                     }
                     orientation = Orientation.HORIZONTAL
@@ -141,7 +139,7 @@ class EmojiPicker() : Fragment() {
                     style {
                         paddingTop = 5
                         fontSize = 25.px
-                        fill = Styles.chatTextColor
+                        fill = ChatFeedStyles.chatTextColor
                     }
                 }
                 hoveredEmojiAlias.onChange {
@@ -156,7 +154,7 @@ class EmojiPicker() : Fragment() {
                             style {
                                 paddingTop = 5
                                 fontSize = 25.px
-                                fill = Styles.chatTextColor
+                                fill = ChatFeedStyles.chatTextColor
                             }
                         }
                     } else {
@@ -164,7 +162,7 @@ class EmojiPicker() : Fragment() {
                             style {
                                 paddingTop = 5
                                 fontSize = 25.px
-                                fill = Styles.chatTextColor
+                                fill = ChatFeedStyles.chatTextColor
                             }
                         }
                     }

@@ -23,5 +23,3 @@ class PlayerPage : View() {
         reloadStylesheetsOnFocus()
     }
 }
-
-val mainGradient: LinearGradient = LinearGradient.valueOf("from 0% 0% to 100% 100%, #3c0054, #0b000f")

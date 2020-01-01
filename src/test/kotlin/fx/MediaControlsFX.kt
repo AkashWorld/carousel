@@ -1,8 +1,8 @@
 package fx
 
 import client.playerpage.chatfeed.ChatFeedStyles
-import client.playerpage.MediaPlayerControls
-import client.playerpage.MediaPlayerControlsStyles
+import client.playerpage.mediaplayer.MediaPlayerControls
+import client.playerpage.mediaplayer.MediaPlayerStyles
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import javafx.scene.paint.Color
 import org.junit.jupiter.api.BeforeEach
@@ -11,7 +11,7 @@ import tornadofx.*
 
 class MediaControlsFX {
     class TestApp :
-        App(MediaControlsTestView::class, ChatFeedStyles::class, MediaPlayerControlsStyles::class) {
+        App(MediaControlsTestView::class, ChatFeedStyles::class, MediaPlayerStyles::class) {
         init {
             reloadStylesheetsOnFocus()
         }

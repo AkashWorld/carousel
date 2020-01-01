@@ -8,7 +8,7 @@ import javafx.geometry.Orientation
 import javafx.scene.paint.Color
 import tornadofx.*
 
-class EmojiPicker() : Fragment() {
+class EmojiPicker : Fragment() {
     val emojiCallback: (alias: String) -> Unit by param()
     private var search = SimpleStringProperty("")
     private val emojiLoader: EmojiLoader by inject()
@@ -75,6 +75,7 @@ class EmojiPicker() : Fragment() {
                         val image = emojiLoader.getEmojiFromAlias(alias, emojiSize)
                         if (image != null) {
                             imageview(image) {
+                                addClass(ChatFeedStyles.emojiPickerButton)
                                 onHover { isHover ->
                                     if (isHover) {
                                         hoveredEmojiAlias.set(alias)
@@ -95,6 +96,7 @@ class EmojiPicker() : Fragment() {
                             val image = emojiLoader.getEmojiFromAlias(alias, emojiSize)
                             if (image != null) {
                                 imageview(image) {
+                                    addClass(ChatFeedStyles.emojiPickerButton)
                                     onHover { isHover ->
                                         if (isHover) {
                                             hoveredEmojiAlias.set(alias)

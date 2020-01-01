@@ -1,12 +1,11 @@
-package client.playerpage
+package client.playerpage.mediaplayer
 
+import client.controllers.ChatController
 import client.controllers.FileLoaderController
+import client.playerpage.FileLoaderView
+import client.playerpage.chatfeed.MessageFragment
 import javafx.application.Platform
 import javafx.beans.Observable
-import javafx.beans.property.DoubleProperty
-import javafx.beans.property.SimpleDoubleProperty
-import javafx.concurrent.ScheduledService
-import javafx.concurrent.Task
 import javafx.geometry.Pos
 import javafx.geometry.Rectangle2D
 import javafx.scene.canvas.Canvas
@@ -21,10 +20,11 @@ import javafx.scene.transform.Affine
 import org.slf4j.LoggerFactory
 import tornadofx.*
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory
-import uk.co.caprica.vlcj.media.*
+import uk.co.caprica.vlcj.media.MediaRef
+import uk.co.caprica.vlcj.media.TrackType
 import uk.co.caprica.vlcj.player.base.MediaPlayer
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventListener
-import uk.co.caprica.vlcj.player.base.State
+import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer
 import uk.co.caprica.vlcj.player.embedded.videosurface.CallbackVideoSurface
 import uk.co.caprica.vlcj.player.embedded.videosurface.VideoSurfaceAdapters
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat
@@ -33,9 +33,6 @@ import uk.co.caprica.vlcj.player.embedded.videosurface.callback.RenderCallback
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.format.RV32BufferFormat
 import java.nio.ByteBuffer
 import java.time.Instant
-import java.util.*
-import kotlin.concurrent.schedule
-import kotlin.concurrent.timerTask
 import kotlin.math.min
 
 /**
@@ -52,13 +49,14 @@ private var mediaCanvas: Canvas? = null
 
 class MediaPlayerView : View() {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
+    private val chatController: ChatController by inject()
     private val fileLoaderController: FileLoaderController by inject()
-    private val mediaPlayerFactory: MediaPlayerFactory = MediaPlayerFactory("--ffmpeg-hw")
-    private val mediaPlayer = mediaPlayerFactory.mediaPlayers().newEmbeddedMediaPlayer()
+    private var mediaPlayerFactory: MediaPlayerFactory? = null
+    private var mediaPlayer: EmbeddedMediaPlayer? = null
     private lateinit var mediaPane: StackPane
     private lateinit var controlPane: BorderPane
-    private var hoverCheckerService: ScheduledService<Unit>
     private val controls = find<MediaPlayerControls>()
+    private var canvasImageHeight = 0.0
     private var lastMouseMovedMilli = 0L
     /**
      * This exists to stop the control's time slider from asking the media player to change position, and
@@ -73,15 +71,41 @@ class MediaPlayerView : View() {
             mediaCanvas = this
             this.widthProperty().bind(mediaPane.widthProperty())
             this.heightProperty().bind(mediaPane.heightProperty())
-            mediaPlayer.videoSurface().set(TornadoFXVideoSurface())
-            this.widthProperty()
-                .addListener { _: Observable? -> if (!mediaPlayer.status().isPlaying) renderFrame(this) }
-            this.heightProperty()
-                .addListener { _: Observable? -> if (!mediaPlayer.status().isPlaying) renderFrame(this) }
         }
         controlPane = borderpane {
             bottom {
                 this.add(controls)
+                //paddingBottom = 5.0
+                mediaPane.heightProperty().addListener { _: Observable ->
+                    if (mediaPane.height == 0.0 || canvasImageHeight == 0.0) {
+                        return@addListener
+                    }
+                    val offsetFromBottom = (mediaPane.height / 2) - (canvasImageHeight / 2)
+                    this.paddingBottom = offsetFromBottom
+                }
+            }
+        }
+        vbox {
+            this.paddingLeft = 25.0
+            mediaPane.heightProperty().addListener { _: Observable ->
+                if (mediaPane.height == 0.0 || canvasImageHeight == 0.0) {
+                    return@addListener
+                }
+                val offsetFromTop = (mediaPane.height / 2) - (canvasImageHeight / 2)
+                this.paddingTop = offsetFromTop + 25.0
+            }
+            chatController.getMessages().addListener { _: Observable ->
+                if (!controls.isOverlayButtonChecked()) {
+                    return@addListener
+                }
+                val message = chatController.getMessages().last()
+                this.clear()
+                this.add(find<MessageFragment>(params = mapOf("message" to message, "textSize" to 25.0)))
+                runLater(5000.millis) {
+                    if (message == chatController.getMessages().last()) {
+                        this.clear()
+                    }
+                }
             }
         }
         /**
@@ -92,7 +116,6 @@ class MediaPlayerView : View() {
                     controlPane
                 )
             ) {
-                logger.info("OnHover - ${Instant.now().toEpochMilli()}")
                 mediaPane.add(controlPane)
             } else {
                 runLater(2000.millis) {
@@ -105,41 +128,58 @@ class MediaPlayerView : View() {
         setOnMouseMoved {
             lastMouseMovedMilli = Instant.now().toEpochMilli()
         }
+
+        style {
+            backgroundColor = multi(Color.BLACK)
+        }
     }
 
     init {
         /**
          * Scheduled service that checks if mouse is staying still
          */
-        hoverCheckerService = object : ScheduledService<Unit>() {
-            override fun createTask(): Task<Unit> {
-                return object : Task<Unit>() {
-                    override fun call() {
-                        if (Instant.now().toEpochMilli() - lastMouseMovedMilli > 5000 && mediaPane.children.contains(
-                                controlPane
-                            )
-                        ) {
-                            mediaPane.children.remove(controlPane)
-                        }
-                    }
-                }
-            }
-        }
-        hoverCheckerService.period = 5000.millis
+        //hoverCheckerService = object : ScheduledService<Unit>() {
+        //    override fun createTask(): Task<Unit> {
+        //        return object : Task<Unit>() {
+        //            override fun call() {
+        //                if (Instant.now().toEpochMilli() - lastMouseMovedMilli > 5000 && mediaPane.children.contains(
+        //                        controlPane
+        //                    )
+        //                ) {
+        //                    mediaPane.children.remove(controlPane)
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+        //hoverCheckerService.period = 5000.millis
+    }
+
+    override fun onDock() {
+        super.onDock()
+        mediaPlayerFactory = MediaPlayerFactory("--ffmpeg-hw")
+        mediaPlayer = mediaPlayerFactory?.mediaPlayers()?.newEmbeddedMediaPlayer()
+        mediaPlayer?.videoSurface()?.set(TornadoFXVideoSurface())
+        mediaCanvas?.widthProperty()
+            ?.addListener { _: Observable? -> if (!mediaPlayer?.status()?.isPlaying!!) renderFrame(mediaCanvas!!) }
+        mediaCanvas?.heightProperty()
+            ?.addListener { _: Observable? -> if (!mediaPlayer?.status()?.isPlaying!!) renderFrame(mediaCanvas!!) }
+        mediaPlayer?.media()?.play(fileLoaderController.getCurrentSelectedFile()?.absolutePath)
         controls.setOnPlayCallback {
-            mediaPlayer.controls().play()
+            mediaPlayer?.controls()?.play()
         }
         controls.setOnPauseCallback {
-            mediaPlayer.controls().pause()
+            mediaPlayer?.controls()?.pause()
         }
         controls.setOnChangeCallback {
-            mediaPlayer.controls().setPosition(it.toFloat())
+            mediaPlayer?.controls()?.setPosition(it.toFloat())
             userRecentlyChangedPosition = true
         }
         controls.setOnVolumeChange {
-            mediaPlayer.audio().setVolume(it.toInt())
+            mediaPlayer?.audio()?.setVolume(it.toInt())
         }
-        mediaPlayer.events().addMediaPlayerEventListener(object : MediaPlayerEventListener {
+
+        mediaPlayer?.events()?.addMediaPlayerEventListener(object : MediaPlayerEventListener {
             override fun positionChanged(mediaPlayer: MediaPlayer?, newPosition: Float) {
                 runLater {
                     if (!userRecentlyChangedPosition) {
@@ -191,20 +231,20 @@ class MediaPlayerView : View() {
             override fun buffering(mediaPlayer: MediaPlayer?, newCache: Float) {}
             override fun lengthChanged(mediaPlayer: MediaPlayer?, newLength: Long) {}
         })
-    }
-
-    override fun onDock() {
-        super.onDock()
-        mediaPlayer.media().play(fileLoaderController.getCurrentSelectedFile()?.absolutePath)
         startTimer()
-        hoverCheckerService.start()
+        lastMouseMovedMilli = Instant.now().toEpochMilli()
+        //hoverCheckerService.start()
     }
 
     override fun onUndock() {
         super.onUndock()
         stopTimer()
-        hoverCheckerService.cancel()
-        hoverCheckerService.reset()
+        //hoverCheckerService.cancel()
+        //hoverCheckerService.reset()
+        mediaPlayerFactory?.release()
+        mediaPlayer?.release()
+        mediaPlayerFactory = null
+        mediaPlayer = null
     }
 
     private fun renderFrame(canvas: Canvas) {
@@ -227,6 +267,8 @@ class MediaPlayerView : View() {
 
             val scaledW = imageWidth * sf
             val scaledH = imageHeight * sf
+
+            canvasImageHeight = scaledH
 
             val ax: Affine = graphics.transform
 
@@ -283,7 +325,11 @@ class MediaPlayerView : View() {
 
     class TornadoFXBufferFormatCallback : BufferFormatCallback {
         override fun allocatedBuffers(buffers: Array<out ByteBuffer>?) {
-            pixelBuffer = PixelBuffer(bufferWidth, bufferHeight, buffers?.get(0), pixelFormat)
+            pixelBuffer = PixelBuffer(
+                bufferWidth,
+                bufferHeight, buffers?.get(0),
+                pixelFormat
+            )
             img = WritableImage(pixelBuffer)
             updatedBuffer = Rectangle2D(0.0, 0.0, bufferWidth.toDouble(), bufferHeight.toDouble())
         }

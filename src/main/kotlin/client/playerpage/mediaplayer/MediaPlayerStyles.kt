@@ -1,11 +1,10 @@
-package client.playerpage
+package client.playerpage.mediaplayer
 
 import javafx.scene.Cursor
 import javafx.scene.paint.Color
 import tornadofx.*
-import tornadofx.Stylesheet
 
-class MediaPlayerControlsStyles : Stylesheet() {
+class MediaPlayerStyles : Stylesheet() {
     companion object {
         val trackSlider by cssclass()
         val volumeSlider by cssclass()

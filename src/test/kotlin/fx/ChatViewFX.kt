@@ -4,8 +4,10 @@ import client.playerpage.chatfeed.ChatFeedStyles
 import client.controllers.ChatController
 import client.controllers.ClientContextController
 import client.models.ClientContext
+import client.models.ClientContextImpl
 import client.models.ContentType
 import client.models.Message
+import client.playerpage.FileLoaderView
 import client.playerpage.chatfeed.ChatView
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import org.junit.jupiter.api.AfterEach
@@ -26,7 +28,7 @@ class ChatViewFX {
 
     class ChatViewTest : View() {
         private val testScope = Scope()
-        private val clientContext: ClientContext = ClientContext("localhost:57423")
+        private val clientContext: ClientContext = ClientContextImpl()
         private val clientContextController = ClientContextController()
         private val chatController: ChatController by inject(params = mapOf("clientContext" to clientContext))
 
@@ -41,11 +43,11 @@ class ChatViewFX {
             msglist.add(Message("Wizardofozzie", "Spiderman is the greatest dont @ me :wink:"))
             tornadofx.setInScope(chatController, testScope)
             tornadofx.setInScope(clientContextController, testScope)
-            clientContext.requestSignInToken("test", {}, {})
+            clientContext.requestSignInToken("test", "localhost", null, {}, {})
             Thread.sleep(1000)
         }
 
-        override val root = stackpane {
+        override val root = hbox {
             val chatView = find<ChatView>(scope = testScope, params = mapOf("clientContext" to clientContext))
             this.add(chatView)
         }

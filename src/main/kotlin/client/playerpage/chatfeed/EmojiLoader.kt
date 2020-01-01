@@ -3,27 +3,20 @@ package client.playerpage.chatfeed
 import com.vdurmont.emoji.EmojiManager
 import com.vdurmont.emoji.EmojiParser
 import javafx.collections.ObservableList
-import javafx.collections.transformation.SortedList
 import javafx.scene.image.Image
 import me.xdrop.fuzzywuzzy.FuzzySearch
 import org.slf4j.LoggerFactory
 import tornadofx.Controller
-import tornadofx.SortedFilteredList
-
-interface Emoji {
-    fun getEmojiFromAlias(alias: String, size: Double?): Image?
-    fun setEmojiAliasesBySearch(searchQuery: String, observableList: ObservableList<String>)
-}
 
 enum class EmojiType {
     TWITTER,
     CUSTOM
 }
 
-class EmojiLoader : Emoji, Controller() {
+class EmojiLoader : Controller() {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
-    val emojiCache = mutableMapOf<Pair<String, Double>, Image>()
-    val customEmoji = mapOf(
+    private val emojiCache = mutableMapOf<Pair<String, Double>, Image>()
+    private val customEmoji = mapOf(
         ":pepe:" to "pepe"
     )
 
@@ -36,7 +29,7 @@ class EmojiLoader : Emoji, Controller() {
         return null
     }
 
-    override fun getEmojiFromAlias(alias: String, size: Double?): Image? {
+    fun getEmojiFromAlias(alias: String, size: Double?): Image? {
         val hw = size ?: 20.0
         val key = Pair(alias, hw)
         if (emojiCache.contains(key)) {
@@ -88,7 +81,7 @@ class EmojiLoader : Emoji, Controller() {
         return customAliases
     }
 
-    override fun setEmojiAliasesBySearch(searchQuery: String, observableList: ObservableList<String>) {
+    fun setEmojiAliasesBySearch(searchQuery: String, observableList: ObservableList<String>) {
         if (searchQuery == "") {
             observableList.setAll(defaultAliases())
             return

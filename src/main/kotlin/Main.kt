@@ -1,5 +1,5 @@
 import client.playerpage.FileLoaderStyles
-import client.playerpage.MediaPlayerControlsStyles
+import client.playerpage.mediaplayer.MediaPlayerStyles
 import client.playerpage.chatfeed.ChatFeedStyles
 import client.playerpage.PlayerPage
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
@@ -11,7 +11,7 @@ class Application :
         PlayerPage::class,
         ChatFeedStyles::class,
         FileLoaderStyles::class,
-        MediaPlayerControlsStyles::class
+        MediaPlayerStyles::class
     ) {
     init {
         SvgImageLoaderFactory.install()

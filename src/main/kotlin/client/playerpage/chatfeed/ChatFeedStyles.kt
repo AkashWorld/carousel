@@ -1,8 +1,8 @@
 package client.playerpage.chatfeed
 
+import client.Styles
 import javafx.scene.Cursor
 import javafx.scene.paint.Color
-import javafx.scene.text.FontWeight
 import tornadofx.*
 
 
@@ -13,9 +13,10 @@ class ChatFeedStyles : Stylesheet() {
         val emojiButton by cssclass()
         val emojiPickerContainer by cssclass()
         val emojiTextField by cssclass()
+        val emojiPickerButton by cssclass()
 
-        val buttonColor = Color.valueOf("#db4057")
-        val hoverButtonColor = Color.valueOf("#ff4a65")
+        val buttonColor = Styles.buttonColor
+        val hoverButtonColor = Styles.lightButtonColor
         val chatColor = Color.valueOf("#262626")
         val chatBackgroundColor = Color.valueOf("#171717")
         val chatTextColor = Color.valueOf("#e3e3e3")
@@ -126,6 +127,11 @@ class ChatFeedStyles : Stylesheet() {
             prefHeight = 20.px
             prefWidth = Int.MAX_VALUE.px
             backgroundInsets = multi(box(5.px))
+        }
+        emojiPickerButton {
+            and(hover) {
+                cursor = Cursor.HAND
+            }
         }
     }
 }

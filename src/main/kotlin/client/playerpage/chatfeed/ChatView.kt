@@ -3,7 +3,6 @@ package client.playerpage.chatfeed
 import client.controllers.ChatController
 import client.controllers.ClientContextController
 import client.models.ClientContext
-import client.models.ContentType
 import client.models.Message
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.jensd.fx.glyphs.materialicons.MaterialIconView
@@ -11,12 +10,9 @@ import javafx.beans.Observable
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Insets
 import javafx.scene.control.ListView
-import javafx.scene.image.ImageView
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.paint.Color
-import javafx.scene.text.FontPosture
-import javafx.scene.text.FontWeight
 import javafx.stage.StageStyle
 import javafx.util.Duration
 import org.slf4j.LoggerFactory
@@ -52,6 +48,26 @@ class ChatView : View() {
         }
         top {
             borderpane {
+                left {
+                    paddingTop = 10
+                    paddingRight = 5
+                    button {
+                        addClass(ChatFeedStyles.emojiButton)
+                        val icon = MaterialIconView(MaterialIcon.ARROW_FORWARD, "25px")
+                        icon.fill = ChatFeedStyles.chatTextColor
+                        icon.onHover {
+                            if (it) {
+                                icon.fill = Color.DARKGRAY
+                            } else {
+                                icon.fill = ChatFeedStyles.chatTextColor
+                            }
+                        }
+                        action {
+                            chatController.setChatShown(false)
+                        }
+                        this.add(icon)
+                    }
+                }
                 center {
                     paddingBottom = 10
                     text(serverAddress) {
@@ -119,60 +135,7 @@ class ChatView : View() {
                             this.backgroundColor = multi(ChatFeedStyles.chatBackgroundColor)
                             this.padding = box(5.px)
                         }
-                        graphic = textflow {
-                            /**
-                             * Username
-                             */
-                            if (it.contentType != ContentType.NONE) {
-                                text(it.user) {
-                                    style {
-                                        this.fill = chatController.getColor(it.user)
-                                        this.fontWeight = FontWeight.BOLD
-                                    }
-                                }
-                                text(": ") {
-                                    style {
-                                        this.fill = ChatFeedStyles.chatTextColor
-                                    }
-                                }
-                            }
-                            /**
-                             * Content
-                             */
-                            if (it.contentType == ContentType.INFO) {
-                                text(it.content) {
-                                    style {
-                                        fill = ChatFeedStyles.chatTextColor
-                                        fontStyle = FontPosture.ITALIC
-                                    }
-                                }
-                            } else if (it.contentType == ContentType.MESSAGE) {
-                                chatController.tokenizeMessage(it.content).map {
-                                    val token = it
-                                    val image = emojiLoader.getEmojiFromAlias(it, 20.0)
-                                    if (image == null) {
-                                        text(it) {
-                                            style {
-                                                this.fill = ChatFeedStyles.chatTextColor
-                                            }
-                                        }
-                                    } else {
-                                        val imageView = object : ImageView(image) {
-                                            override fun getBaselineOffset(): Double {
-                                                return this.image.height * 0.75
-                                            }
-                                        }
-                                        imageView.tooltip(token) {
-                                            this.showDelay = Duration.ZERO
-                                        }
-                                        this.add(imageView)
-                                    }
-                                }
-                            }
-                            style {
-                                this.maxWidth = 335.px
-                            }
-                        }
+                        graphic = find<MessageFragment>(params = mapOf("message" to this.item, "textSize" to 15.0)).root
                     }
                 }
             }
@@ -246,4 +209,5 @@ class ChatView : View() {
         chatController.subscribeToMessages()
     }
 }
+
 

@@ -1,12 +1,13 @@
 package client.playerpage
 
+import client.ApplicationView
 import client.controllers.FileLoaderController
 import client.playerpage.FileLoaderStyles.Companion.mainGradient
+import client.playerpage.mediaplayer.MediaPlayerView
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
-import javafx.scene.text.FontWeight
 import tornadofx.*
 
 
@@ -16,18 +17,14 @@ class FileLoaderView : View() {
     private var loadingErrorMessage: SimpleStringProperty = SimpleStringProperty("")
 
     override val root = vbox {
+        isFillWidth = true
         container = this
-        setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE)
         alignment = Pos.CENTER
         style {
             this.backgroundColor = multi(mainGradient)
         }
-        text("PLAYTIME") {
-            style {
-                this.fill = Color.WHITE
-                fontSize = 150.px
-                fontWeight = FontWeight.EXTRA_BOLD
-            }
+        text(ApplicationView.APPLICATION_NAME.toUpperCase()) {
+            addClass(FileLoaderStyles.titleText)
         }
         button("Load Video") {
             addClass(FileLoaderStyles.loadVideoButton)

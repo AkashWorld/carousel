@@ -2,7 +2,8 @@ package client.controllers
 
 import javafx.stage.FileChooser
 import org.slf4j.LoggerFactory
-import tornadofx.*
+import tornadofx.Controller
+import tornadofx.chooseFile
 import java.io.File
 
 class FileLoaderController : Controller() {
@@ -12,7 +13,11 @@ class FileLoaderController : Controller() {
     private var currentFile: File? = null
 
     fun loadVideoFile(): Boolean {
-        val videoFile = chooseFile("Choose video", arrayOf(videoFilter))
+        val videoFile = chooseFile("Choose video", arrayOf(videoFilter)) {
+            val homeDir: String = System.getProperty("user.home")
+            val videoFilePath = File("$homeDir/Videos")
+            this.initialDirectory = videoFilePath
+        }
         if (videoFile.size != 1) {
             logger.error("Could not load video")
             return false

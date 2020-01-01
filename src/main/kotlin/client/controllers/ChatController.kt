@@ -2,23 +2,20 @@ package client.controllers
 
 import client.models.ChatModel
 import client.models.ClientContext
-import client.models.ContentType
 import client.models.Message
-import com.google.gson.Gson
-import tornadofx.*
+import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.value.ObservableBooleanValue
 import javafx.collections.ObservableList
 import javafx.scene.paint.Color
-import okhttp3.*
-import okhttp3.RequestBody.Companion.toRequestBody
-import org.slf4j.LoggerFactory
-import server.AUTH_HEADER
-import java.io.IOException
+import tornadofx.Controller
 import java.time.Instant
+import kotlin.collections.set
 import kotlin.random.Random
 
 class ChatController : Controller() {
     private val clientContext: ClientContext by param()
     private val chatModel = ChatModel(clientContext)
+    private val isChatShown = SimpleBooleanProperty(true)
     private val colorMap = mutableMapOf<String, Color>()
     private val colorSet = mutableSetOf<Color>()
 
@@ -96,6 +93,14 @@ class ChatController : Controller() {
         colorMap[username] = newColor
         colorSet.add(newColor)
         return newColor
+    }
+
+    fun setChatShown(chatShown: Boolean) {
+        isChatShown.value = chatShown
+    }
+
+    fun isChatShown(): ObservableBooleanValue {
+        return isChatShown
     }
 }
 

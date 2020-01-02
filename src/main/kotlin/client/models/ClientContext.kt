@@ -121,10 +121,13 @@ class ClientContextImpl private constructor() : ClientContext {
         }
         val gson = Gson()
         val queryMap = gson.toJson(mapOf("query" to query, "variables" to variables))
-        val wsRequest: Request =
-            Request.Builder().url("ws://${serverAddress}:57423/subscription").addHeader(
-                AUTH_HEADER, usernameTokenPair!!.second
-            ).build()
+        val wsRequestBuilder = Request.Builder().url("ws://${serverAddress}:57423/subscription").addHeader(
+            AUTH_HEADER, usernameTokenPair!!.second
+        )
+        if (serverPassword != null) {
+            wsRequestBuilder.addHeader(SERVER_ACCESS_HEADER, serverPassword!!)
+        }
+        val wsRequest: Request = wsRequestBuilder.build()
         val wsListener: WebSocketListener = object : WebSocketListener() {
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 logger.error("WebSocket Failure", t)
@@ -164,10 +167,13 @@ class ClientContextImpl private constructor() : ClientContext {
         val gson = Gson()
         val queryMap = mapOf("query" to query, "variables" to variables)
         val body: RequestBody = gson.toJson(queryMap).toRequestBody()
-        val request = Request.Builder().post(body)
+        val requestBuilder = Request.Builder().post(body)
             .url("http://${serverAddress}:57423/graphql")
             .header(AUTH_HEADER, usernameTokenPair!!.second)
-            .build()
+        if (serverPassword != null) {
+            requestBuilder.addHeader(SERVER_ACCESS_HEADER, serverPassword!!)
+        }
+        val request = requestBuilder.build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 logger.error(e.message, e.cause)

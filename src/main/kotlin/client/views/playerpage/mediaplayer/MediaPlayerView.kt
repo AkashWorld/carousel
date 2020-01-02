@@ -14,6 +14,8 @@ import javafx.scene.image.PixelBuffer
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
 import javafx.scene.layout.BorderPane
+import javafx.scene.layout.Pane
+import javafx.scene.layout.Priority
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.transform.Affine
@@ -53,7 +55,7 @@ class MediaPlayerView : View() {
     private val fileLoaderController: FileLoaderController by inject()
     private var mediaPlayerFactory: MediaPlayerFactory? = null
     private var mediaPlayer: EmbeddedMediaPlayer? = null
-    private lateinit var mediaPane: StackPane
+    private lateinit var mediaPane: Pane
     private lateinit var controlPane: BorderPane
     private val controls = find<MediaPlayerControls>()
     private var canvasImageHeight = 0.0
@@ -65,37 +67,19 @@ class MediaPlayerView : View() {
     private var userRecentlyChangedPosition: Boolean = false
 
     override val root = stackpane {
-        mediaPane = this
+        setMinSize(0.0, 0.0)
         alignment = Pos.CENTER
+        mediaPane = this
         canvas {
             mediaCanvas = this
             this.widthProperty().bind(mediaPane.widthProperty())
             this.heightProperty().bind(mediaPane.heightProperty())
         }
-        controlPane = borderpane {
-            bottom {
-                this.add(controls)
-                //paddingBottom = 5.0
-                mediaPane.heightProperty().addListener { _: Observable ->
-                    if (mediaPane.height == 0.0 || canvasImageHeight == 0.0) {
-                        return@addListener
-                    }
-                    val offsetFromBottom = (mediaPane.height / 2) - (canvasImageHeight / 2)
-                    this.paddingBottom = offsetFromBottom
-                }
-            }
-        }
         vbox {
             this.paddingLeft = 25.0
-            mediaPane.heightProperty().addListener { _: Observable ->
-                if (mediaPane.height == 0.0 || canvasImageHeight == 0.0) {
-                    return@addListener
-                }
-                val offsetFromTop = (mediaPane.height / 2) - (canvasImageHeight / 2)
-                this.paddingTop = offsetFromTop + 25.0
-            }
+            this.paddingTop = 25.0
             chatController.getMessages().addListener { _: Observable ->
-                if (!controls.isOverlayButtonChecked()) {
+                if (controls.isOverlayButtonChecked()) {
                     return@addListener
                 }
                 val message = chatController.getMessages().last()
@@ -106,6 +90,12 @@ class MediaPlayerView : View() {
                         this.clear()
                     }
                 }
+            }
+        }
+        controlPane = borderpane {
+            bottom {
+                this.add(controls)
+                paddingBottom = 5.0
             }
         }
         /**

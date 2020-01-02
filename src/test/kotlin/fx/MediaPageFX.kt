@@ -9,6 +9,7 @@ import client.models.ContentType
 import client.models.Message
 import client.views.playerpage.FileLoaderStyles
 import client.views.playerpage.FileLoaderView
+import client.views.playerpage.PlayerPage
 import client.views.playerpage.mediaplayer.MediaPlayerStyles
 import client.views.playerpage.chatfeed.ChatView
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
@@ -52,25 +53,8 @@ class MediaPageFX {
             Thread.sleep(1000)
         }
 
-        private val fileLoaderView = find<FileLoaderView>(scope = testScope)
-        private val chatView = find<ChatView>(scope = testScope, params = mapOf("clientContext" to clientContext))
-
-        override val root = borderpane {
-            prefWidth = 1000.0
-            prefHeight = 900.0
-            center {
-                this.add(fileLoaderView)
-            }
-            right {
-                this.add(chatView)
-                chatController.isChatShown().addListener { _, _, newValue ->
-                    if (newValue) {
-                        this.children.clear()
-                    } else {
-                        this.add(chatView)
-                    }
-                }
-            }
+        override val root = stackpane {
+            this.add(find<PlayerPage>(scope = testScope))
         }
     }
 

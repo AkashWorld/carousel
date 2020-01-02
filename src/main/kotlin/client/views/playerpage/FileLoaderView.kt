@@ -6,6 +6,7 @@ import client.views.playerpage.FileLoaderStyles.Companion.mainGradient
 import client.views.playerpage.mediaplayer.MediaPlayerView
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
+import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import tornadofx.*
@@ -17,6 +18,7 @@ class FileLoaderView : View() {
     private var loadingErrorMessage: SimpleStringProperty = SimpleStringProperty("")
 
     override val root = vbox {
+        hgrow = Priority.ALWAYS
         isFillWidth = true
         container = this
         alignment = Pos.CENTER

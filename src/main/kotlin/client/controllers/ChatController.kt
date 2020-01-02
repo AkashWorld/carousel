@@ -97,7 +97,7 @@ class ChatController : Controller() {
     }
 
     fun setChatShown(chatShown: Boolean) {
-        isChatShown.value = chatShown
+        isChatShown.set(chatShown)
     }
 
     fun isChatShown(): ObservableBooleanValue {

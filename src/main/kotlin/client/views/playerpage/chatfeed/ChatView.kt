@@ -11,6 +11,7 @@ import javafx.geometry.Insets
 import javafx.scene.control.ListView
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
+import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
 import javafx.stage.StageStyle
 import javafx.util.Duration
@@ -33,6 +34,7 @@ class ChatView : View() {
     }
 
     override val root = borderpane {
+        hgrow = Priority.NEVER
         maxWidth = 370.0
         minWidth = 370.0
         style {
@@ -45,26 +47,6 @@ class ChatView : View() {
         }
         top {
             borderpane {
-                left {
-                    paddingTop = 10
-                    paddingRight = 5
-                    button {
-                        addClass(ChatFeedStyles.emojiButton)
-                        val icon = MaterialIconView(MaterialIcon.ARROW_FORWARD, "25px")
-                        icon.fill = ChatFeedStyles.chatTextColor
-                        icon.onHover {
-                            if (it) {
-                                icon.fill = Color.DARKGRAY
-                            } else {
-                                icon.fill = ChatFeedStyles.chatTextColor
-                            }
-                        }
-                        action {
-                            chatController.setChatShown(false)
-                        }
-                        this.add(icon)
-                    }
-                }
                 center {
                     paddingBottom = 10
                     text(serverAddress) {

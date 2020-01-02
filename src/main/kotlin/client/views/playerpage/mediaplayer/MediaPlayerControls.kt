@@ -1,5 +1,6 @@
 package client.views.playerpage.mediaplayer
 
+import client.controllers.ChatController
 import com.jfoenix.controls.JFXSlider
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.jensd.fx.glyphs.materialicons.MaterialIconView
@@ -16,6 +17,7 @@ class MediaPlayerControls : Fragment() {
     private var onVolumeChange: (Double) -> Unit = {}
     private val totalTime = SimpleStringProperty("")
     private val currentTime = SimpleStringProperty("0:00")
+    private val chatController: ChatController by inject()
     private var duration: Long? = 0
     private var isPaused = false
     private var slider: JFXSlider? = null
@@ -141,6 +143,7 @@ class MediaPlayerControls : Fragment() {
                                 this.add(icon)
                                 action {
                                     isOverlayButtonChecked = !isOverlayButtonChecked
+                                    chatController.setChatShown(isOverlayButtonChecked)
                                 }
                             }
                             /**

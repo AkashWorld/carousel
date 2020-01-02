@@ -6,22 +6,8 @@ import server.Server
 class ServerTests {
     @Test
     fun initializationTest() {
-        val server = Server()
+        val server = Server.getInstance()
 
         assertTrue(server.initialize()) { "Should initialize server" }
-    }
-
-    @Test
-    fun initializationTestWithDifferentPort() {
-        val server = Server(57890)
-
-        assertTrue(server.initialize()) { "Should initialize server" }
-    }
-
-    @Test
-    fun initializeWithInvalidPort() {
-        val server = Server(-1)
-
-        assertFalse(server.initialize()) { "Should fail initialization" }
     }
 }

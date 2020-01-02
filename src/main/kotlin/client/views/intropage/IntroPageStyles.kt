@@ -1,6 +1,6 @@
-package client.intropage
+package client.views.intropage
 
-import client.Styles
+import client.views.Styles
 import javafx.scene.Cursor
 import javafx.scene.layout.BackgroundPosition
 import javafx.scene.layout.BackgroundRepeat
@@ -36,7 +36,7 @@ class IntroPageStyles : Stylesheet() {
             )
         }
         titleText {
-            fontSize = 200.px
+            fontSize = 150.px
             fill = Color.WHITE
             fontWeight = FontWeight.EXTRA_BOLD
         }

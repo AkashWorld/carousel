@@ -1,6 +1,7 @@
 package server.model
 
 import org.slf4j.LoggerFactory
+import java.util.concurrent.atomic.AtomicReference
 
 class User constructor(private val username: String) {
     private var media: Media? = null
@@ -20,40 +21,45 @@ class User constructor(private val username: String) {
 
 class UsersRepository {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
-    private val usersList: MutableList<User> = ArrayList()
-    private val usersSet: MutableSet<String> = HashSet()
+    private val usersList: AtomicReference<MutableList<User>> = AtomicReference(ArrayList())
+    private val usersSet: AtomicReference<MutableSet<String>> = AtomicReference(HashSet())
 
     fun addUser(user: User): Boolean {
-        if(usersSet.contains(user.getUsername())) {
+        if (usersSet.get().contains(user.getUsername())) {
             return false
         }
-        usersList.add(user)
-        usersSet.add(user.getUsername())
+        usersList.get().add(user)
+        usersSet.get().add(user.getUsername())
         logger.info("Added user ${user.getUsername()}")
         return true
     }
 
     fun getAllUsers(): List<User> {
-        return usersList
+        return usersList.get()
     }
 
     fun getUser(username: String): User? {
-        if(!usersSet.contains(username)) {
+        if (!usersSet.get().contains(username)) {
             return null
         }
-        return usersList.find{it.getUsername() == username}
+        return usersList.get().find { it.getUsername() == username }
     }
 
     fun removeUser(user: User): Boolean {
-        if(!usersSet.contains(user.getUsername())) {
+        if (!usersSet.get().contains(user.getUsername())) {
             return false
         }
-        usersList.removeIf {
+        usersList.get().removeIf {
             it.getUsername() == user.getUsername()
         }
-        usersSet.remove(user.getUsername())
+        usersSet.get().remove(user.getUsername())
         logger.info("Removed user ${user.getUsername()}")
         return true
+    }
+
+    fun clear() {
+        usersList.get().clear()
+        usersSet.get().clear()
     }
 }
 

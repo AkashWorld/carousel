@@ -16,13 +16,14 @@ const val SERVER_ACCESS_HEADER = "ServerAuth"
 const val AUTH_HEADER = "Authorization"
 
 
-class Server constructor(private val port: Int = DEFAULT_PORT) {
+class Server private constructor(private val port: Int = DEFAULT_PORT) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val server: Javalin = Javalin.create()
     private val usersRepository = UsersRepository()
     private val chatFeedRepository = ChatFeedRepository()
     private val userAuthentication = UserAuthenticationImpl(usersRepository)
-    private var graphQLProvider: GraphQLProvider = GraphQLProvider(usersRepository, chatFeedRepository, userAuthentication)
+    private var graphQLProvider: GraphQLProvider =
+        GraphQLProvider(usersRepository, chatFeedRepository, userAuthentication)
     private val serverAuthentication = ServerAuthentication()
 
     init {
@@ -72,6 +73,9 @@ class Server constructor(private val port: Int = DEFAULT_PORT) {
     }
 
     fun close() {
+        usersRepository.clear()
+        chatFeedRepository.clear()
+        serverAuthentication.setServerPassword(null)
         server.stop()
     }
 
@@ -106,6 +110,24 @@ class Server constructor(private val port: Int = DEFAULT_PORT) {
         if (!result) {
             logger.error("Server access denied - ServerAuth: $serverAccessHeader")
             throw ForbiddenResponse("There isn't any popcorn here!")
+        }
+    }
+
+    /**
+     * Lazy init singleton server
+     */
+    companion object {
+        private var server: Server? = null
+
+        fun getInstance(): Server {
+            if (server == null) {
+                server = Server()
+            }
+            return server as Server
+        }
+
+        fun clear() {
+            server?.close()
         }
     }
 }

@@ -1,4 +1,4 @@
-package client.playerpage.chatfeed
+package client.views.playerpage.chatfeed
 
 import com.vdurmont.emoji.EmojiManager
 import com.vdurmont.emoji.EmojiParser

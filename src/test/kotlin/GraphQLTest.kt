@@ -16,13 +16,13 @@ class GraphQLTest {
 
     @BeforeEach
     fun setUpServer() {
-        server = Server()
+        server = Server.getInstance()
         server.initialize()
     }
 
     @AfterEach
     fun closeServer() {
-        server.close()
+        Server.clear()
     }
 
     @Test

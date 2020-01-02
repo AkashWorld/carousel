@@ -1,14 +1,13 @@
 package fx
 
-import client.playerpage.chatfeed.ChatFeedStyles
+import client.views.playerpage.chatfeed.ChatFeedStyles
 import client.controllers.ChatController
 import client.controllers.ClientContextController
 import client.models.ClientContext
 import client.models.ClientContextImpl
 import client.models.ContentType
 import client.models.Message
-import client.playerpage.FileLoaderView
-import client.playerpage.chatfeed.ChatView
+import client.views.playerpage.chatfeed.ChatView
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -18,7 +17,7 @@ import tornadofx.Scope
 import tornadofx.*
 
 class ChatViewFX {
-    private val server: Server = Server()
+    private val server: Server = Server.getInstance()
 
     class Application : App(ChatViewTest::class, stylesheet = ChatFeedStyles::class) {
         init {
@@ -28,7 +27,7 @@ class ChatViewFX {
 
     class ChatViewTest : View() {
         private val testScope = Scope()
-        private val clientContext: ClientContext = ClientContextImpl()
+        private val clientContext: ClientContext = ClientContextImpl.getInstance()
         private val clientContextController = ClientContextController()
         private val chatController: ChatController by inject(params = mapOf("clientContext" to clientContext))
 
@@ -61,7 +60,7 @@ class ChatViewFX {
 
     @AfterEach
     private fun close() {
-        server.close()
+        Server.clear()
     }
 
     @Test

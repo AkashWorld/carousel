@@ -1,11 +1,12 @@
 package client.controllers
 
 import client.models.ClientContext
+import client.models.ClientContextImpl
 import javafx.scene.input.ClipboardContent
 import tornadofx.Controller
 
 class ClientContextController : Controller() {
-    private val clientContext: ClientContext by param()
+    private val clientContext: ClientContext = ClientContextImpl.getInstance()
 
     fun getAddress(): String {
         return clientContext.getServerAddress() ?: "Error"

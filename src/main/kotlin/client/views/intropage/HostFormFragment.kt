@@ -1,6 +1,6 @@
-package client.intropage
+package client.views.intropage
 
-import client.controllers.ConnectController
+import client.controllers.HostController
 import com.jfoenix.controls.JFXButton
 import com.jfoenix.controls.JFXDialog
 import com.jfoenix.controls.JFXDialogLayout
@@ -14,39 +14,32 @@ import javafx.scene.text.Text
 import org.slf4j.LoggerFactory
 import tornadofx.*
 
-class ConnectFormFragment : Fragment() {
+class HostFormFragment : Fragment() {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
-    private val connectController: ConnectController by inject()
+    private val hostController: HostController by inject()
     private val usernameErrorMessage = SimpleStringProperty("")
     private lateinit var form: VBox
 
     override val root = stackpane {
+        addClass(IntroPageStyles.rightFormPanel)
         form = vbox {
             alignment = Pos.CENTER
             spacing = 50.0
-            addClass(IntroPageStyles.rightFormPanel)
-            text("Connect to a friend's server!") {
+            imageview(this::class.java.classLoader.getResource("icons/CarousalIcon256.png")?.toString())
+            text("Host a server for your friends!") {
                 addClass(IntroPageStyles.formTitle)
-            }
-            textfield(connectController.serverAddressProperty) {
-                addClass(IntroPageStyles.introPageTextFields)
-                promptText = "Server Address"
-            }
-            passwordfield(connectController.passwordProperty) {
-                addClass(IntroPageStyles.introPageTextFields)
-                promptText = "Server Password"
             }
             vbox {
                 alignment = Pos.CENTER
-                textfield(connectController.usernameProperty) {
+                textfield(hostController.usernameProperty) {
                     addClass(IntroPageStyles.introPageTextFields)
                     promptText = "Username"
                     this.setOnKeyReleased {
-                        if (!connectController.validateUsername(connectController.usernameProperty.value)
-                            && connectController.usernameProperty.value != ""
+                        if (!hostController.validateUsername(hostController.usernameProperty.value)
+                            && !hostController.usernameProperty.value.isNullOrEmpty()
                         ) {
                             usernameErrorMessage.value = "Only alphanumeric characters are allowed"
-                        } else if (connectController.usernameProperty.value.length > 25) {
+                        } else if (hostController.usernameProperty.value.length > 25) {
                             usernameErrorMessage.value = "Username must be less than 25 characters"
                         } else {
                             usernameErrorMessage.value = ""
@@ -57,12 +50,24 @@ class ConnectFormFragment : Fragment() {
                     addClass(IntroPageStyles.errorMessage)
                 }
             }
-            val connectButton = JFXButton("Connect")
-            connectButton.addClass(IntroPageStyles.formButton)
-            connectButton.setOnAction {
-                connectToServer()
+            passwordfield(hostController.passwordProperty) {
+                addClass(IntroPageStyles.introPageTextFields)
+                promptText = "New Server Password"
             }
-            this.add(connectButton)
+            val hostButton = JFXButton("Host")
+            hostButton.addClass(IntroPageStyles.formButton)
+            hostButton.setOnAction {
+                if (hostController.usernameProperty.value.isNullOrEmpty()) {
+                    showErrorDialog("Username must not be empty")
+                } else if (!hostController.validateUsername(hostController.usernameProperty.value)) {
+                    showErrorDialog("Username must contain only alphanumeric characters")
+                } else if (hostController.usernameProperty.value.length >= 25) {
+                    showErrorDialog("Username must contain less that 25 characters")
+                } else {
+                    hostNewServer()
+                }
+            }
+            this.add(hostButton)
         }
     }
 
@@ -76,7 +81,7 @@ class ConnectFormFragment : Fragment() {
         return container
     }
 
-    private fun showConnectForm() {
+    private fun showHostForm() {
         root.children.clear()
         root.add(form)
     }
@@ -85,9 +90,9 @@ class ConnectFormFragment : Fragment() {
         if (message == null) {
             return
         }
-        showConnectForm()
+        showHostForm()
         val layout = JFXDialogLayout()
-        val dialog = JFXDialog(currentStage?.scene?.root as StackPane, layout, JFXDialog.DialogTransition.CENTER, true)
+        val dialog = JFXDialog(primaryStage.scene.root as StackPane, layout, JFXDialog.DialogTransition.CENTER, true)
         layout.setHeading(Text("Error"))
         layout.setBody(Text(message))
         val closeButton = JFXButton("Okay")
@@ -96,9 +101,9 @@ class ConnectFormFragment : Fragment() {
         dialog.show()
     }
 
-    private fun connectToServer() {
+    private fun hostNewServer() {
         root.children.clear()
         root.add(getSpinnerNode())
-        connectController.signInRequest({ find<IntroPage>().transitionToPlayerPage() }, { showErrorDialog(it) })
+        hostController.hostNewServer({ find<IntroPage>().transitionToPlayerPage() }, { showErrorDialog(it) })
     }
 }

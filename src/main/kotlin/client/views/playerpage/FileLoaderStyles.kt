@@ -1,6 +1,6 @@
-package client.playerpage
+package client.views.playerpage
 
-import client.Styles
+import client.views.Styles
 import javafx.scene.Cursor
 import javafx.scene.paint.Color
 import javafx.scene.paint.LinearGradient

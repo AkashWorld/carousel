@@ -1,4 +1,4 @@
-package client.playerpage.mediaplayer
+package client.views.playerpage.mediaplayer
 
 import javafx.concurrent.ScheduledService
 import javafx.concurrent.Task

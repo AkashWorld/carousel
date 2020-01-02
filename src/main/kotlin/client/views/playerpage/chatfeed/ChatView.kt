@@ -1,8 +1,7 @@
-package client.playerpage.chatfeed
+package client.views.playerpage.chatfeed
 
 import client.controllers.ChatController
 import client.controllers.ClientContextController
-import client.models.ClientContext
 import client.models.Message
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.jensd.fx.glyphs.materialicons.MaterialIconView
@@ -20,12 +19,10 @@ import tornadofx.*
 
 class ChatView : View() {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
-    private val clientContext: ClientContext by param()
-    private val clientContextController: ClientContextController by inject(params = mapOf("clientContext" to clientContext))
-    private val chatController: ChatController by inject(params = mapOf("clientContext" to clientContext))
+    private val clientContextController: ClientContextController by inject()
+    private val chatController: ChatController by inject()
     private val chatInput: SimpleStringProperty = SimpleStringProperty()
     private val serverAddress: SimpleStringProperty = SimpleStringProperty()
-    private val emojiLoader: EmojiLoader by inject()
     private val emojiPicker = find<EmojiPicker>("emojiCallback" to { alias: String ->
         emojiAliasCallback(alias)
     })

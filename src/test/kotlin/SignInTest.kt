@@ -18,14 +18,14 @@ class SignInTest {
 
     @BeforeEach
     fun setUpServer() {
-        server = Server()
+        server = Server.getInstance()
         server.setServerPassword("PASSWORD")
         server.initialize()
     }
 
     @AfterEach
     fun closeServer() {
-        server.close()
+        Server.clear()
     }
 
     @Test

@@ -1,16 +1,14 @@
-package client.playerpage
+package client.views.playerpage
 
 import client.controllers.ChatController
-import client.models.ClientContext
-import client.playerpage.chatfeed.ChatView
+import client.views.playerpage.chatfeed.ChatView
 import tornadofx.*
 
 class PlayerPage : View() {
 
     private val fileLoaderView: FileLoaderView by inject()
-    private val clientContext: ClientContext by param()
     private val chatController: ChatController by inject()
-    private val chatView: ChatView by inject(params = mapOf("clientContext" to clientContext))
+    private val chatView: ChatView by inject()
 
     override val root = borderpane()
 

@@ -1,28 +1,25 @@
-import client.playerpage.FileLoaderStyles
-import client.playerpage.mediaplayer.MediaPlayerStyles
-import client.playerpage.chatfeed.ChatFeedStyles
-import client.playerpage.PlayerPage
+import client.views.ApplicationView
+import client.views.intropage.IntroPageStyles
+import client.views.playerpage.FileLoaderStyles
+import client.views.playerpage.mediaplayer.MediaPlayerStyles
+import client.views.playerpage.chatfeed.ChatFeedStyles
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
-import server.Server
 import tornadofx.*
 
 class Application :
     App(
-        PlayerPage::class,
+        ApplicationView::class,
         ChatFeedStyles::class,
         FileLoaderStyles::class,
-        MediaPlayerStyles::class
+        MediaPlayerStyles::class,
+        IntroPageStyles::class
     ) {
     init {
         SvgImageLoaderFactory.install()
-        reloadStylesheetsOnFocus()
-        reloadViewsOnFocus()
     }
 }
 
 fun main(args: Array<String>) {
-    val server = Server()
-    server.initialize()
     launch<Application>()
 }
 

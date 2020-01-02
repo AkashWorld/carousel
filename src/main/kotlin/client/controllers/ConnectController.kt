@@ -1,11 +1,12 @@
 package client.controllers
 
-import client.models.Client
+import client.models.ClientContext
+import client.models.ClientContextImpl
 import javafx.beans.property.SimpleStringProperty
 import tornadofx.Controller
 
 class ConnectController : Controller() {
-    private val clientContext = Client.clientContext
+    private val clientContext: ClientContext = ClientContextImpl.getInstance()
     val usernameProperty = SimpleStringProperty("")
     val serverAddressProperty = SimpleStringProperty("")
     val passwordProperty = SimpleStringProperty("")
@@ -16,13 +17,13 @@ class ConnectController : Controller() {
 
     fun signInRequest(success: () -> Unit, error: (String?) -> Unit) {
         if (usernameProperty.value.isNullOrEmpty() || serverAddressProperty.value.isNullOrEmpty()) {
-            error("Username or Server Address must not be empty!")
+            error(null)
             return
-        } else if (usernameProperty.value.length > 25) {
-            error("Username length must be less than 25")
+        } else if (usernameProperty.value.length >= 25) {
+            error(null)
             return
         } else if (!validateUsername(usernameProperty.value)) {
-            error("Only alphanumeric characters are allowed for the username")
+            error(null)
             return
         }
         clientContext.requestSignInToken(

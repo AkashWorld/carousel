@@ -1,8 +1,8 @@
 package fx
 
-import client.Styles
+import client.views.Styles
 import client.controllers.ConnectController
-import client.playerpage.mediaplayer.getMillisecondsToHHMMSS
+import client.views.playerpage.mediaplayer.getMillisecondsToHHMMSS
 import org.junit.jupiter.api.Test
 
 class UtilTests {

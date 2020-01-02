@@ -1,4 +1,4 @@
-package client.playerpage.mediaplayer
+package client.views.playerpage.mediaplayer
 
 import com.jfoenix.controls.JFXSlider
 import de.jensd.fx.glyphs.materialicons.MaterialIcon

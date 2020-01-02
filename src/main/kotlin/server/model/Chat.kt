@@ -34,4 +34,8 @@ class ChatFeedRepository {
     fun getNumberOfMessages(): Int {
         return messages.get().size
     }
+
+    fun clear() {
+        messages.get().clear()
+    }
 }

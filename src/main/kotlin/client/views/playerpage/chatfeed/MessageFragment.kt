@@ -1,4 +1,4 @@
-package client.playerpage.chatfeed
+package client.views.playerpage.chatfeed
 
 import client.controllers.ChatController
 import client.models.ContentType

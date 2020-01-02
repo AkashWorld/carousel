@@ -1,4 +1,4 @@
-package client.playerpage.chatfeed
+package client.views.playerpage.chatfeed
 
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.jensd.fx.glyphs.materialicons.MaterialIconView

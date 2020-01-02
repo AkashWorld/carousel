@@ -1,4 +1,4 @@
-package client
+package client.views
 
 import javafx.scene.paint.Color
 import javafx.scene.paint.LinearGradient
@@ -21,6 +21,10 @@ class Styles {
             val rand = Random(Instant.now().nano)
             val chosen = rand.nextInt(0, backgrounds.size)
             return backgrounds[chosen].toURI()
+        }
+
+        fun getIconPath(): String? {
+            return this::class.java.classLoader.getResource("icons/CarousalIcon32.png")?.toString()
         }
     }
 }

@@ -1,6 +1,6 @@
-package client.playerpage.chatfeed
+package client.views.playerpage.chatfeed
 
-import client.Styles
+import client.views.Styles
 import javafx.scene.Cursor
 import javafx.scene.paint.Color
 import tornadofx.*

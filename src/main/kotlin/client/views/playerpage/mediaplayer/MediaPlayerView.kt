@@ -1,9 +1,9 @@
-package client.playerpage.mediaplayer
+package client.views.playerpage.mediaplayer
 
 import client.controllers.ChatController
 import client.controllers.FileLoaderController
-import client.playerpage.FileLoaderView
-import client.playerpage.chatfeed.MessageFragment
+import client.views.playerpage.FileLoaderView
+import client.views.playerpage.chatfeed.MessageFragment
 import javafx.application.Platform
 import javafx.beans.Observable
 import javafx.geometry.Pos

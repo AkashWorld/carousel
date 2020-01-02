@@ -1,8 +1,8 @@
 package fx
 
-import client.playerpage.chatfeed.ChatFeedStyles
-import client.playerpage.mediaplayer.MediaPlayerControls
-import client.playerpage.mediaplayer.MediaPlayerStyles
+import client.views.playerpage.chatfeed.ChatFeedStyles
+import client.views.playerpage.mediaplayer.MediaPlayerControls
+import client.views.playerpage.mediaplayer.MediaPlayerStyles
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import javafx.scene.paint.Color
 import org.junit.jupiter.api.BeforeEach

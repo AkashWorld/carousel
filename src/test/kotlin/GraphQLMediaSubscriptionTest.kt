@@ -18,13 +18,13 @@ class GraphQLMediaSubscriptionTest {
 
     @BeforeEach
     fun setUpServer() {
-        server = Server()
+        server = Server.getInstance()
         server.initialize()
     }
 
     @AfterEach
     fun closeServer() {
-        server.close()
+        Server.clear()
     }
 
     private fun signInMutation(): String {

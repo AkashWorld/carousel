@@ -1,10 +1,12 @@
-package client.intropage
+package client.views.intropage
 
-import client.ApplicationView
-import client.playerpage.PlayerPage
+import client.views.ApplicationView
+import client.models.ClientContextImpl
+import client.views.playerpage.PlayerPage
 import javafx.geometry.Pos
 import javafx.scene.control.ToggleGroup
 import org.slf4j.LoggerFactory
+import server.Server
 import tornadofx.*
 
 class IntroPage : View() {
@@ -69,6 +71,12 @@ class IntroPage : View() {
 
     fun transitionToPlayerPage() {
         root.replaceWith(find<PlayerPage>().root, ViewTransition.Fade(1000.millis))
+    }
+
+    override fun onDock() {
+        super.onDock()
+        ClientContextImpl.getInstance().clearContext()
+        Server.clear()
     }
 }
 

@@ -2,6 +2,7 @@ package client.controllers
 
 import client.models.ChatModel
 import client.models.ClientContext
+import client.models.ClientContextImpl
 import client.models.Message
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.value.ObservableBooleanValue
@@ -13,7 +14,7 @@ import kotlin.collections.set
 import kotlin.random.Random
 
 class ChatController : Controller() {
-    private val clientContext: ClientContext by param()
+    private val clientContext: ClientContext = ClientContextImpl.getInstance()
     private val chatModel = ChatModel(clientContext)
     private val isChatShown = SimpleBooleanProperty(true)
     private val colorMap = mutableMapOf<String, Color>()

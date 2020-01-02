@@ -1,9 +1,9 @@
-package client.playerpage
+package client.views.playerpage
 
-import client.ApplicationView
+import client.views.ApplicationView
 import client.controllers.FileLoaderController
-import client.playerpage.FileLoaderStyles.Companion.mainGradient
-import client.playerpage.mediaplayer.MediaPlayerView
+import client.views.playerpage.FileLoaderStyles.Companion.mainGradient
+import client.views.playerpage.mediaplayer.MediaPlayerView
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.scene.layout.VBox

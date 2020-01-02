@@ -9,12 +9,6 @@ import server.SERVER_ACCESS_HEADER
 import tornadofx.runLater
 import java.io.IOException
 
-class Client {
-    companion object {
-        val clientContext: ClientContext = ClientContextImpl()
-    }
-}
-
 /**
  * Represents the context for the client to connect to the server
  */
@@ -48,7 +42,7 @@ interface ClientContext {
     fun clearContext()
 }
 
-class ClientContextImpl : ClientContext {
+class ClientContextImpl private constructor() : ClientContext {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val client = OkHttpClient()
     private var serverAddress: String? = null
@@ -213,5 +207,13 @@ class ClientContextImpl : ClientContext {
         serverAddress = null
         serverPassword = null
         usernameTokenPair = null
+    }
+
+    companion object {
+        private val context = ClientContextImpl()
+
+        fun getInstance(): ClientContextImpl {
+            return context
+        }
     }
 }

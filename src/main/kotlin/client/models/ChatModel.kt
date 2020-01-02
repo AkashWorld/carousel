@@ -38,10 +38,6 @@ class ChatModel(private val clientContext: ClientContext) {
     }
 
     fun subscribeToMessages() {
-        if (clientContext.getContextToken() == null) {
-            logger.error("Client context not found")
-            return
-        }
         val gson = Gson()
         val subscription = """
             subscription {

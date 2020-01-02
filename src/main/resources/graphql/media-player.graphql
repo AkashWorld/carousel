@@ -1,24 +1,26 @@
 type Media {
-  id: String!
+    id: String!
 }
 
 extend type Mutation {
-  load(file: String!): Media!
-  play(currentTime: Float!): Boolean!
-  pause(currentTime: Float!): Boolean!
+    load(file: String!): Media!
+    play: Boolean!
+    pause: Boolean!
+    seek(currentTime: Float!): Boolean
 }
 
 enum Action {
-  PLAY
-  PAUSE
+    PLAY
+    PAUSE
+    SEEK
 }
 
 type MediaAction {
-  action: Action!
-  currentTime: Float!
-  user: String!
+    action: Action!
+    currentTime: Float
+    user: String!
 }
 
 extend type Subscription {
-  mediaActions: MediaAction!
+    mediaActions: MediaAction!
 }

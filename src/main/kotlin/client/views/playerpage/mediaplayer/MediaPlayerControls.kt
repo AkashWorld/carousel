@@ -6,11 +6,14 @@ import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.jensd.fx.glyphs.materialicons.MaterialIconView
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Orientation
+import javafx.scene.control.Button
 import javafx.scene.paint.Color
+import org.slf4j.LoggerFactory
 import tornadofx.*
 import java.util.concurrent.TimeUnit
 
 class MediaPlayerControls : Fragment() {
+    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private var onPlay: () -> Unit = {}
     private var onPause: () -> Unit = {}
     private var onChange: (Double) -> Unit = {}
@@ -24,6 +27,7 @@ class MediaPlayerControls : Fragment() {
     private var volSlider: JFXSlider? = null
     private var isSliderBeingDragged = false
     private var isOverlayButtonChecked = true
+    private lateinit var playPauseButton: Button
     override val root = borderpane {
         /**
          * Slider
@@ -42,11 +46,12 @@ class MediaPlayerControls : Fragment() {
                             /**
                              * Play Pause
                              */
-                            button {
+                            playPauseButton = button {
+                                val btn = this
                                 addClass(MediaPlayerStyles.mediaPlayerButton)
                                 val initIcon = MaterialIconView(MaterialIcon.PAUSE, "30px")
                                 initIcon.fill = Color.LIGHTGRAY
-                                initIcon.onHover {
+                                btn.onHover {
                                     if (it) {
                                         initIcon.fill = Color.WHITE
                                     } else {
@@ -62,17 +67,18 @@ class MediaPlayerControls : Fragment() {
                                         onPause()
                                         MaterialIconView(MaterialIcon.PLAY_ARROW, "30px")
                                     }
-                                    icon.onHover {
-                                        if (it) {
-                                            icon.fill = Color.WHITE
-                                        } else {
-                                            icon.fill = Color.LIGHTGRAY
-                                        }
-                                    }
                                     icon.fill = Color.LIGHTGRAY
-                                    isPaused = !isPaused
                                     this.getChildList()?.clear()
                                     this.add(icon)
+                                    btn.onHover {
+                                        val content = btn.getChildList()?.first() as MaterialIconView?
+                                        if (it) {
+                                            content?.fill = Color.WHITE
+                                        } else {
+                                            content?.fill = Color.LIGHTGRAY
+                                        }
+                                    }
+                                    isPaused = !isPaused
                                 }
                             }
                             hbox {
@@ -214,6 +220,16 @@ class MediaPlayerControls : Fragment() {
         slider?.value = value
     }
 
+    fun setSliderPositionByMillis(time: Long) {
+        if (duration == null) {
+            logger.error("Could not set position, duration not set")
+            return
+        }
+        currentTime.value = getMillisecondsToHHMMSS(time)
+        val pos = time.toDouble() / duration!!.toDouble()
+        slider?.value = pos
+    }
+
     fun setOnVolumeChange(cb: (value: Double) -> Unit) {
         this.onVolumeChange = cb
     }
@@ -225,6 +241,18 @@ class MediaPlayerControls : Fragment() {
     fun setTotalDuration(duration: Long) {
         this.duration = duration
         this.totalTime.value = getMillisecondsToHHMMSS(duration)
+    }
+
+    fun setPauseControls() {
+        playPauseButton.getChildList()?.clear()
+        playPauseButton.add(MaterialIconView(MaterialIcon.PAUSE, "30px"))
+        isPaused = false
+    }
+
+    fun setPlayControls() {
+        playPauseButton.getChildList()?.clear()
+        playPauseButton.add(MaterialIconView(MaterialIcon.PLAY_ARROW, "30px"))
+        isPaused = true
     }
 }
 

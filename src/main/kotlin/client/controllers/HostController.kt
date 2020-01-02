@@ -39,7 +39,17 @@ class HostController : Controller() {
                 error(message)
             }
             val password = if (passwordProperty.value.isNullOrEmpty()) null else passwordProperty.value
-            context.requestSignInToken(usernameProperty.value, "localhost", password, success, error)
+            context.requestSignInToken(usernameProperty.value, "localhost", password, {
+                ui {
+                    success()
+                }
+            }, {
+                val message = it
+                ui {
+                    error(message)
+                }
+            }
+            )
         }
     }
 

@@ -1,28 +1,28 @@
 type User {
-  username: String!
-  media: Media
+    username: String!
+    media: Media
 }
 
 enum UserAction {
-  SIGN_IN
-  SIGN_OUT
-  CHANGE_MEDIA
+    SIGN_IN
+    SIGN_OUT
+    CHANGE_MEDIA
 }
 
 type UserActionEvent {
-  action: UserAction!
-  user: User!
+    action: UserAction!
+    user: User!
 }
 
 type Mutation {
-  signIn(username: String!, password: String): String!
-  signOut: Boolean!
+    signIn(username: String!, password: String): String!
+    signOut: Boolean!
 }
 
 type Query {
-  getAllUsers: [User!]!
+    getAllUsers: [User!]!
 }
 
 type Subscription {
-  userAction: UserActionEvent!
+    userAction: UserActionEvent!
 }

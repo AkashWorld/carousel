@@ -1,25 +1,25 @@
 enum ContentType {
-  MESSAGE
-  IMAGE
+    MESSAGE
+    IMAGE
 }
 
 type Message {
-  username: String!
-  content: String!
-  type: ContentType!
-  timestamp: String!
+    username: String!
+    content: String!
+    type: ContentType!
+    timestamp: String!
 }
 
 extend type Query {
-  getMessagesPaginated(start: Int!, count: Int!): [Message!]!
-  getLengthOfChatFeed: Int!
+    getMessagesPaginated(start: Int!, count: Int!): [Message!]!
+    getLengthOfChatFeed: Int!
 }
 
 extend type Mutation {
-  insertMessage(message: String!): Boolean!
-  insertImage(data: String!): Boolean!
+    insertMessage(message: String!): Boolean!
+    insertImage(data: String!): Boolean!
 }
 
 extend type Subscription {
-  chatFeed: Message!
+    chatFeed: Message!
 }

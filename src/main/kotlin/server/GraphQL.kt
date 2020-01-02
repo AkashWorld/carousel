@@ -143,12 +143,13 @@ class GraphQLProvider(
             mutation.dataFetcher("signOut", this.userDataFetchers.mutationSignOut())
             mutation.dataFetcher("play", this.mediaDataFetchers.mutationPlay())
             mutation.dataFetcher("pause", this.mediaDataFetchers.mutationPause())
+            mutation.dataFetcher("seek", this.mediaDataFetchers.mutationSeek())
             mutation.dataFetcher("load", this.mediaDataFetchers.mutationLoad())
             mutation.dataFetcher("insertImage", this.chatFeedDataFetchers.mutationInsertImage())
             mutation.dataFetcher("insertMessage", this.chatFeedDataFetchers.mutationInsertMessage())
         }
         runtimeWiringBuilder.type("Subscription") { subscription ->
-            subscription.dataFetcher("mediaActions", this.mediaDataFetchers.mediaSubscription())
+            subscription.dataFetcher("mediaActions", this.mediaDataFetchers.subscriptionMedia())
             subscription.dataFetcher("chatFeed", this.chatFeedDataFetchers.subscriptionChatFeed())
             subscription.dataFetcher("userAction", this.userDataFetchers.subscriptionUserAction())
         }

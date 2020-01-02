@@ -50,8 +50,24 @@ class GraphQLMediaSubscriptionTest {
 
     private fun mediaPlayMutation(currentTime: Double, token: String) {
         val mediaPlayMutation = """
-            mutation MediaPlay(${"$"}currentTime: Float!) {
-                play(currentTime:${"$"}currentTime)
+            mutation MediaPlay {
+                play
+            }
+        """.trimIndent()
+        val variables = mapOf("currentTime" to currentTime.toString())
+        val query = mapOf("query" to mediaPlayMutation, "variables" to variables)
+        val body: RequestBody = gson.toJson(query).toRequestBody()
+        val request = Request.Builder().post(body)
+            .url("http://localhost:${server.port()}/graphql")
+            .header(AUTH_HEADER, token)
+            .build()
+        client.newCall(request).execute()
+    }
+
+    private fun mediaSeekMutation(currentTime: Double, token: String) {
+        val mediaPlayMutation = """
+            mutation MediaSeek(${"$"}currentTime: Float!) {
+                seek(currentTime:${"$"}currentTime)
             }
         """.trimIndent()
         val variables = mapOf("currentTime" to currentTime.toString())
@@ -97,7 +113,7 @@ class GraphQLMediaSubscriptionTest {
         Thread.sleep(100)
         mediaPlayMutation(10.5, token)
         Thread.sleep(100)
-        mediaPlayMutation(11.5, token)
+        mediaSeekMutation(11.5, token)
         Thread.sleep(100)
         mediaPlayMutation(12.5, token)
         assert(count == 3)

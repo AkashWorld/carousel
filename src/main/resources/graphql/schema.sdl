@@ -1,77 +1,79 @@
 enum ContentType {
-  MESSAGE
-  IMAGE
+    MESSAGE
+    IMAGE
 }
 
 type Message {
-  username: String!
-  content: String!
-  type: ContentType!
-  timestamp: String!
+    username: String!
+    content: String!
+    type: ContentType!
+    timestamp: String!
 }
 
 extend type Query {
-  getMessagesPaginated(start: Int!, count: Int!): [Message!]!
-  getLengthOfChatFeed: Int!
+    getMessagesPaginated(start: Int!, count: Int!): [Message!]!
+    getLengthOfChatFeed: Int!
 }
 
 extend type Mutation {
-  insertMessage(message: String!): Boolean!
-  insertImage(data: String!): Boolean!
+    insertMessage(message: String!): Boolean!
+    insertImage(data: String!): Boolean!
 }
 
 extend type Subscription {
-  chatFeed: Message!
+    chatFeed: Message!
 }
 type Media {
-  id: String!
+    id: String!
 }
 
 extend type Mutation {
-  load(file: String!): Media!
-  play(currentTime: Float!): Boolean!
-  pause(currentTime: Float!): Boolean!
+    load(file: String!): Media!
+    play: Boolean!
+    pause: Boolean!
+    seek(currentTime: Float!): Boolean
 }
 
 enum Action {
-  PLAY
-  PAUSE
+    PLAY
+    PAUSE
+    SEEK
 }
 
 type MediaAction {
-  action: Action!
-  currentTime: Float!
-  user: String!
+    action: Action!
+    currentTime: Float
+    user: String!
 }
 
 extend type Subscription {
-  mediaActions: MediaAction!
+    mediaActions: MediaAction!
 }
 type User {
-  username: String!
-  media: Media
+    username: String!
+    media: Media
 }
 
 enum UserAction {
-  SIGN_IN
-  SIGN_OUT
-  CHANGE_MEDIA
+    SIGN_IN
+    SIGN_OUT
+    CHANGE_MEDIA
 }
 
 type UserActionEvent {
-  action: UserAction!
-  user: User!
+    action: UserAction!
+    user: User!
 }
 
 type Mutation {
-  signIn(username: String!, password: String): String!
-  signOut: Boolean!
+    signIn(username: String!, password: String): String!
+    signOut: Boolean!
 }
 
 type Query {
-  getAllUsers: [User!]!
+    getAllUsers: [User!]!
 }
 
 type Subscription {
-  userAction: UserActionEvent!
+    userAction: UserActionEvent!
 }

@@ -26,12 +26,22 @@ class ConnectController : Controller() {
             error(null)
             return
         }
-        clientContext.requestSignInToken(
-            usernameProperty.value,
-            serverAddressProperty.value,
-            passwordProperty.value,
-            success,
-            error
-        )
+        runAsync {
+            clientContext.requestSignInToken(
+                usernameProperty.value,
+                serverAddressProperty.value,
+                passwordProperty.value,
+                {
+                    ui {
+                        success()
+                    }
+                }, {
+                    val message = it
+                    ui {
+                        error(message)
+                    }
+                }
+            )
+        }
     }
 }

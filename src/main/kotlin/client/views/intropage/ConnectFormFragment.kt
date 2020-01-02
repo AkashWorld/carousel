@@ -1,6 +1,7 @@
 package client.views.intropage
 
 import client.controllers.ConnectController
+import client.views.ViewUtils
 import com.jfoenix.controls.JFXButton
 import com.jfoenix.controls.JFXDialog
 import com.jfoenix.controls.JFXDialogLayout
@@ -25,7 +26,7 @@ class ConnectFormFragment : Fragment() {
             alignment = Pos.CENTER
             spacing = 50.0
             addClass(IntroPageStyles.rightFormPanel)
-            imageview(this::class.java.classLoader.getResource("icons/CarousalIcon256.png")?.toString())
+            imageview(this::class.java.classLoader.getResource("icons/CarousalIcon128.png")?.toString())
             text("Connect to a friend's server!") {
                 addClass(IntroPageStyles.formTitle)
             }
@@ -62,13 +63,25 @@ class ConnectFormFragment : Fragment() {
             connectButton.addClass(IntroPageStyles.formButton)
             connectButton.setOnAction {
                 if (connectController.serverAddressProperty.value.isNullOrEmpty()) {
-                    showErrorDialog("Server Address must not be empty!")
+                    ViewUtils.showErrorDialog(
+                        "Server Address must not be empty!",
+                        primaryStage.scene.root as StackPane
+                    )
                 } else if (connectController.usernameProperty.value.isNullOrEmpty()) {
-                    showErrorDialog("Username must not be empty!")
+                    ViewUtils.showErrorDialog(
+                        "Username must not be empty!",
+                        primaryStage.scene.root as StackPane
+                    )
                 } else if (connectController.usernameProperty.value.length >= 25) {
-                    showErrorDialog("Username length must be less than 25")
+                    ViewUtils.showErrorDialog(
+                        "Username length must be less than 25",
+                        primaryStage.scene.root as StackPane
+                    )
                 } else if (!connectController.validateUsername(connectController.usernameProperty.value)) {
-                    showErrorDialog("Only alphanumeric characters are allowed for the username")
+                    ViewUtils.showErrorDialog(
+                        "Only alphanumeric characters are allowed for the username",
+                        primaryStage.scene.root as StackPane
+                    )
                 } else {
                     connectToServer()
                 }
@@ -92,24 +105,12 @@ class ConnectFormFragment : Fragment() {
         root.add(form)
     }
 
-    private fun showErrorDialog(message: String?) {
-        if (message == null) {
-            return
-        }
-        showConnectForm()
-        val layout = JFXDialogLayout()
-        val dialog = JFXDialog(primaryStage.scene.root as StackPane, layout, JFXDialog.DialogTransition.CENTER, true)
-        layout.setHeading(Text("Error"))
-        layout.setBody(Text(message))
-        val closeButton = JFXButton("Okay")
-        closeButton.setOnAction { dialog.close() }
-        layout.setActions(closeButton)
-        dialog.show()
-    }
-
     private fun connectToServer() {
         root.children.clear()
         root.add(getSpinnerNode())
-        connectController.signInRequest({ find<IntroPage>().transitionToPlayerPage() }, { showErrorDialog(it) })
+        connectController.signInRequest({ find<IntroPage>().transitionToPlayerPage() }, {
+            showConnectForm()
+            it?.run { ViewUtils.showErrorDialog(it, primaryStage.scene.root as StackPane) }
+        })
     }
 }

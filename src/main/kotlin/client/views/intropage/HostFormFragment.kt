@@ -1,16 +1,14 @@
 package client.views.intropage
 
 import client.controllers.HostController
+import client.views.ViewUtils
 import com.jfoenix.controls.JFXButton
-import com.jfoenix.controls.JFXDialog
-import com.jfoenix.controls.JFXDialogLayout
 import com.jfoenix.controls.JFXSpinner
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.scene.layout.Pane
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
-import javafx.scene.text.Text
 import org.slf4j.LoggerFactory
 import tornadofx.*
 
@@ -25,7 +23,7 @@ class HostFormFragment : Fragment() {
         form = vbox {
             alignment = Pos.CENTER
             spacing = 50.0
-            imageview(this::class.java.classLoader.getResource("icons/CarousalIcon256.png")?.toString())
+            imageview(this::class.java.classLoader.getResource("icons/CarousalIcon128.png")?.toString())
             text("Host a server for your friends!") {
                 addClass(IntroPageStyles.formTitle)
             }
@@ -58,11 +56,17 @@ class HostFormFragment : Fragment() {
             hostButton.addClass(IntroPageStyles.formButton)
             hostButton.setOnAction {
                 if (hostController.usernameProperty.value.isNullOrEmpty()) {
-                    showErrorDialog("Username must not be empty")
+                    ViewUtils.showErrorDialog("Username must not be empty", primaryStage.scene.root as StackPane)
                 } else if (!hostController.validateUsername(hostController.usernameProperty.value)) {
-                    showErrorDialog("Username must contain only alphanumeric characters")
+                    ViewUtils.showErrorDialog(
+                        "Username must contain only alphanumeric characters",
+                        primaryStage.scene.root as StackPane
+                    )
                 } else if (hostController.usernameProperty.value.length >= 25) {
-                    showErrorDialog("Username must contain less that 25 characters")
+                    ViewUtils.showErrorDialog(
+                        "Username must contain less that 25 characters",
+                        primaryStage.scene.root as StackPane
+                    )
                 } else {
                     hostNewServer()
                 }
@@ -86,24 +90,12 @@ class HostFormFragment : Fragment() {
         root.add(form)
     }
 
-    private fun showErrorDialog(message: String?) {
-        if (message == null) {
-            return
-        }
-        showHostForm()
-        val layout = JFXDialogLayout()
-        val dialog = JFXDialog(primaryStage.scene.root as StackPane, layout, JFXDialog.DialogTransition.CENTER, true)
-        layout.setHeading(Text("Error"))
-        layout.setBody(Text(message))
-        val closeButton = JFXButton("Okay")
-        closeButton.setOnAction { dialog.close() }
-        layout.setActions(closeButton)
-        dialog.show()
-    }
-
     private fun hostNewServer() {
         root.children.clear()
         root.add(getSpinnerNode())
-        hostController.hostNewServer({ find<IntroPage>().transitionToPlayerPage() }, { showErrorDialog(it) })
+        hostController.hostNewServer({ find<IntroPage>().transitionToPlayerPage() }, {
+            showHostForm()
+            it?.run { ViewUtils.showErrorDialog(it, primaryStage.scene.root as StackPane) }
+        })
     }
 }

@@ -2,6 +2,10 @@ package client.views.playerpage.mediaplayer
 
 import client.controllers.ChatController
 import client.controllers.FileLoaderController
+import client.controllers.MediaController
+import client.models.Action
+import client.models.MediaAction
+import client.views.ViewUtils
 import client.views.playerpage.FileLoaderView
 import client.views.playerpage.chatfeed.MessageFragment
 import javafx.application.Platform
@@ -51,6 +55,7 @@ private var mediaCanvas: Canvas? = null
 
 class MediaPlayerView : View() {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
+    private val mediaController: MediaController by inject()
     private val chatController: ChatController by inject()
     private val fileLoaderController: FileLoaderController by inject()
     private var mediaPlayerFactory: MediaPlayerFactory? = null
@@ -156,18 +161,42 @@ class MediaPlayerView : View() {
             ?.addListener { _: Observable? -> if (!mediaPlayer?.status()?.isPlaying!!) renderFrame(mediaCanvas!!) }
         mediaPlayer?.media()?.play(fileLoaderController.getCurrentSelectedFile()?.absolutePath)
         controls.setOnPlayCallback {
-            mediaPlayer?.controls()?.play()
+            mediaController.playAction {
+                ViewUtils.showErrorDialog(
+                    "A connection error has occurred, could not sync video",
+                    primaryStage.scene.root as StackPane
+                )
+            }
         }
         controls.setOnPauseCallback {
-            mediaPlayer?.controls()?.pause()
+            mediaController.pauseAction {
+                ViewUtils.showErrorDialog(
+                    "A connection error has occurred, could not sync video",
+                    primaryStage.scene.root as StackPane
+                )
+            }
         }
         controls.setOnChangeCallback {
-            mediaPlayer?.controls()?.setPosition(it.toFloat())
+            val newTime = mediaPlayer?.media()?.info()?.duration()?.times(it)
+            newTime?.run {
+                mediaController.seekAction(this.toFloat()) {
+                    ViewUtils.showErrorDialog(
+                        "A connection error has occurred, could not sync video",
+                        primaryStage.scene.root as StackPane
+                    )
+                }
+            }
             userRecentlyChangedPosition = true
         }
         controls.setOnVolumeChange {
             mediaPlayer?.audio()?.setVolume(it.toInt())
         }
+        mediaController.getMediaActionObservable {
+            ViewUtils.showErrorDialog(
+                "A connection error has occurred, could not sync video",
+                primaryStage.scene.root as StackPane
+            )
+        }.addListener { _, _, newAction -> newAction?.run { handleMediaAction(newAction) } }
 
         mediaPlayer?.events()?.addMediaPlayerEventListener(object : MediaPlayerEventListener {
             override fun positionChanged(mediaPlayer: MediaPlayer?, newPosition: Float) {
@@ -207,11 +236,19 @@ class MediaPlayerView : View() {
             override fun elementaryStreamAdded(mediaPlayer: MediaPlayer?, type: TrackType?, id: Int) {}
             override fun mediaPlayerReady(mediaPlayer: MediaPlayer?) {}
             override fun videoOutput(mediaPlayer: MediaPlayer?, newCount: Int) {}
-            override fun error(mediaPlayer: MediaPlayer?) {}
+            override fun error(mediaPlayer: MediaPlayer?) {
+                runLater {
+                    ViewUtils.showErrorDialog(
+                        "An error occurred during video playback",
+                        primaryStage.scene.root as StackPane
+                    )
+                    replaceWith<FileLoaderView>(ViewTransition.Fade(1000.millis))
+                }
+            }
+
             override fun mediaChanged(mediaPlayer: MediaPlayer?, media: MediaRef?) {}
             override fun finished(mediaPlayer: MediaPlayer?) {
                 runLater {
-                    stopTimer()
                     replaceWith<FileLoaderView>(ViewTransition.Fade(1000.millis))
                 }
             }
@@ -303,6 +340,16 @@ class MediaPlayerView : View() {
             if (nanoTimer.isRunning) {
                 nanoTimer.cancel()
             }
+        }
+    }
+
+    private fun handleMediaAction(action: MediaAction) {
+        if (action.action == Action.PAUSE) {
+            mediaPlayer?.controls()?.pause()
+        } else if (action.action == Action.PLAY) {
+            mediaPlayer?.controls()?.play()
+        } else if (action.action == Action.SEEK) {
+            action.currentTime?.toLong()?.run { mediaPlayer?.controls()?.setTime(this) }
         }
     }
 

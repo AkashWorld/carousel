@@ -15,9 +15,8 @@ class MediaDataFetchers {
     fun mutationPlay(): DataFetcher<Boolean?> {
         return DataFetcher { environment ->
             val context: GraphQLContext = environment.getContext() ?: return@DataFetcher null
-            val currentTime: Float = environment.getArgument("currentTime")
-            logger.info("${context.user.getUsername()}: Play at time $currentTime")
-            mediaActionPublisher.publishPlay(context.user.getUsername(), currentTime)
+            logger.info("${context.user.getUsername()}: Play")
+            mediaActionPublisher.publishPlay(context.user.getUsername())
             return@DataFetcher true
         }
     }
@@ -25,9 +24,8 @@ class MediaDataFetchers {
     fun mutationPause(): DataFetcher<Boolean?> {
         return DataFetcher { environment ->
             val context: GraphQLContext = environment.getContext() ?: return@DataFetcher null
-            val currentTime: Float = environment.getArgument("currentTime")
-            logger.info("${context.user.getUsername()}: Pause at time $currentTime")
-            mediaActionPublisher.publishPause(context.user.getUsername(), currentTime)
+            logger.info("${context.user.getUsername()}: Pause")
+            mediaActionPublisher.publishPause(context.user.getUsername())
             return@DataFetcher true
         }
     }
@@ -41,25 +39,40 @@ class MediaDataFetchers {
         }
     }
 
-    fun mediaSubscription(): DataFetcher<Publisher<MediaSubscriptionResult>> {
+    fun mutationSeek(): DataFetcher<Boolean?> {
+        return DataFetcher { environment ->
+            val context: GraphQLContext = environment.getContext() ?: return@DataFetcher null
+            val currentTime: Float = environment.getArgument("currentTime")
+            logger.info("${context.user.getUsername()}: Seek at time $currentTime")
+            mediaActionPublisher.publishSeek(context.user.getUsername(), currentTime)
+            return@DataFetcher true
+        }
+
+    }
+
+    fun subscriptionMedia(): DataFetcher<Publisher<MediaSubscriptionResult>> {
         return DataFetcher {
             this.mediaActionPublisher
         }
     }
 }
 
-class MediaActionPublisher: Publisher<MediaSubscriptionResult> {
+class MediaActionPublisher : Publisher<MediaSubscriptionResult> {
     private var subscriber: Subscriber<in MediaSubscriptionResult>? = null
 
     override fun subscribe(subscriber: Subscriber<in MediaSubscriptionResult>?) {
         this.subscriber = subscriber
     }
 
-    fun publishPlay(user: String, currentTime: Float) {
-        subscriber?.onNext(MediaSubscriptionResult(Action.PLAY, currentTime, user))
+    fun publishPlay(user: String) {
+        subscriber?.onNext(MediaSubscriptionResult(Action.PLAY, null, user))
     }
 
-    fun publishPause(user: String, currentTime: Float) {
-        subscriber?.onNext(MediaSubscriptionResult(Action.PAUSE, currentTime, user))
+    fun publishPause(user: String) {
+        subscriber?.onNext(MediaSubscriptionResult(Action.PAUSE, null, user))
+    }
+
+    fun publishSeek(user: String, currentTime: Float) {
+        subscriber?.onNext(MediaSubscriptionResult(Action.SEEK, currentTime, user))
     }
 }

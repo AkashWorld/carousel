@@ -73,9 +73,7 @@ class ClientContextImpl private constructor() : ClientContext {
             override fun onFailure(call: Call, e: IOException) {
                 logger.error(e.message, e.cause)
                 usernameTokenPair = null
-                runLater {
-                    error(e.message)
-                }
+                error(e.message)
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -84,15 +82,11 @@ class ClientContextImpl private constructor() : ClientContext {
                     usernameTokenPair = Pair(username, (body["data"] as Map<*, *>)["signIn"] as String)
                     serverAddress = address
                     serverPassword = password
-                    runLater {
-                        success()
-                    }
+                    success()
                 } catch (e: Exception) {
                     usernameTokenPair = null
                     logger.error(e.message, e.cause)
-                    runLater {
-                        error("Received error response from the server")
-                    }
+                    error("Received error response from the server")
                 }
             }
         })
@@ -131,22 +125,21 @@ class ClientContextImpl private constructor() : ClientContext {
         val wsListener: WebSocketListener = object : WebSocketListener() {
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 logger.error("WebSocket Failure", t)
-                runLater {
-                    error()
-                }
+                error()
+            }
+
+            override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+                super.onClosed(webSocket, code, reason)
+                logger.error(reason)
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 logger.info(text)
                 try {
-                    runLater {
-                        responseHandler(text)
-                    }
+                    responseHandler(text)
                 } catch (e: Exception) {
                     logger.error(e.message, e.cause)
-                    runLater {
-                        error()
-                    }
+                    error()
                 }
             }
         }
@@ -177,29 +170,21 @@ class ClientContextImpl private constructor() : ClientContext {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 logger.error(e.message, e.cause)
-                runLater {
-                    error()
-                }
+                error()
             }
 
             override fun onResponse(call: Call, response: Response) {
                 try {
                     if (response.body == null) {
                         logger.error("Response body is null")
-                        runLater {
-                            error()
-                        }
+                        error()
                         return
                     } else {
-                        runLater {
-                            success(response.body!!.string())
-                        }
+                        success(response.body!!.string())
                     }
                 } catch (e: Exception) {
                     logger.error(e.message, e.cause)
-                    runLater {
-                        error()
-                    }
+                    error()
                 }
             }
         })

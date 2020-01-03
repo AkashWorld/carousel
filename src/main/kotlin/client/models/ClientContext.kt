@@ -30,7 +30,7 @@ interface ClientContext {
         variables: Map<String, Any>?,
         responseHandler: (String) -> Unit,
         error: () -> Unit
-    )
+    ): WebSocket?
 
     fun sendQueryOrMutationRequest(
         query: String,
@@ -108,10 +108,10 @@ class ClientContextImpl private constructor() : ClientContext {
         variables: Map<String, Any>?,
         responseHandler: (String) -> Unit,
         error: () -> Unit
-    ) {
+    ): WebSocket? {
         if (serverAddress == null || usernameTokenPair == null) {
             logger.error("Must set the server address!")
-            return
+            return null
         }
         val gson = Gson()
         val queryMap = gson.toJson(mapOf("query" to query, "variables" to variables))
@@ -143,7 +143,9 @@ class ClientContextImpl private constructor() : ClientContext {
                 }
             }
         }
-        client.newWebSocket(wsRequest, wsListener).send(queryMap)
+        val ws = client.newWebSocket(wsRequest, wsListener)
+        ws.send(queryMap)
+        return ws
     }
 
     override fun sendQueryOrMutationRequest(

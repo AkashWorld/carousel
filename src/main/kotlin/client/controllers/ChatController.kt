@@ -1,21 +1,19 @@
 package client.controllers
 
-import client.models.ChatModel
-import client.models.ClientContext
-import client.models.ClientContextImpl
-import client.models.Message
+import client.models.*
+import client.views.playerpage.mediaplayer.getMillisecondsToHHMMSS
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.value.ObservableBooleanValue
 import javafx.collections.ObservableList
 import javafx.scene.paint.Color
-import tornadofx.Controller
+import tornadofx.*
 import java.time.Instant
 import kotlin.collections.set
 import kotlin.random.Random
 
 class ChatController : Controller() {
-    private val clientContext: ClientContext = ClientContextImpl.getInstance()
-    private val chatModel = ChatModel(clientContext)
+    private val mediaController: MediaController by inject()
+    private val chatModel = ChatModel()
     private val isChatShown = SimpleBooleanProperty(true)
     private val colorMap = mutableMapOf<String, Color>()
     private val colorSet = mutableSetOf<Color>()
@@ -30,6 +28,29 @@ class ChatController : Controller() {
 
     fun subscribeToMessages() {
         chatModel.subscribeToMessages()
+        mediaController.getMediaActionObservable().addListener { _, _, newValue ->
+            newValue?.let {
+                val message = when (newValue.action) {
+                    Action.PAUSE -> {
+                        "paused the video"
+                    }
+                    Action.PLAY -> {
+                        "played the video"
+                    }
+                    Action.SEEK -> {
+                        val duration = getMillisecondsToHHMMSS(newValue.currentTime?.toLong() ?: 0L)
+                        "changed the video position to $duration"
+                    }
+                }
+                runLater {
+                    chatModel.getChatList().add(Message(newValue.user, message, ContentType.INFO))
+                }
+            }
+        }
+    }
+
+    fun cleanUp() {
+        chatModel.releaseSubscription()
     }
 
     fun tokenizeMessage(message: String): List<String> {

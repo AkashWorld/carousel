@@ -20,7 +20,17 @@ class MediaController : Controller() {
         mediaActionModel.setSeekAction(currentTime, error)
     }
 
-    fun getMediaActionObservable(error: () -> Unit): MediaActionObservable {
-        return mediaActionModel.subscribeToActions(error)
+    fun getMediaActionObservable(): MediaActionObservable {
+        return mediaActionModel.getMediaActionObservable()
+    }
+
+    fun subscribeToMediaActions(error: () -> Unit) {
+        mediaActionModel.subscribeToActions {
+            runLater(error)
+        }
+    }
+
+    fun cleanUp() {
+        mediaActionModel.releaseSubscription()
     }
 }

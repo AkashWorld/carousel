@@ -182,13 +182,7 @@ class MediaPlayerControls : Fragment() {
         slider?.setOnMouseClicked {
             slider?.value?.let { it1 -> onChange(it1) }
         }
-        slider?.setOnMouseDragEntered {
-            isSliderBeingDragged = true
-        }
-        slider?.setOnMouseDragExited {
-            isSliderBeingDragged = false
-        }
-        slider?.setOnMouseDragged {
+        slider?.setOnMouseDragReleased {
             slider?.value?.let { it1 -> onChange(it1) }
         }
         volSlider?.setOnMouseClicked {

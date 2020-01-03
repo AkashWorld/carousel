@@ -2,19 +2,27 @@ package client.models
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import okhttp3.WebSocket
 import org.slf4j.LoggerFactory
 
 interface MediaActionModel {
     fun setPauseAction(error: () -> Unit)
     fun setPlayAction(error: () -> Unit)
     fun setSeekAction(msTime: Float, error: () -> Unit)
-    fun subscribeToActions(error: () -> Unit): MediaActionObservable
+    fun subscribeToActions(error: () -> Unit)
+    fun getMediaActionObservable(): MediaActionObservable
+    fun releaseSubscription()
 }
 
 class MediaActionModelImpl : MediaActionModel {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val clientContext = ClientContextImpl.getInstance()
     private val mediaActionObservable = MediaActionObservable(null)
+    private var ws: WebSocket? = null
+
+    override fun getMediaActionObservable(): MediaActionObservable {
+        return mediaActionObservable
+    }
 
     override fun setPauseAction(error: () -> Unit) {
         val mediaPauseMutation = """
@@ -44,7 +52,10 @@ class MediaActionModelImpl : MediaActionModel {
         clientContext.sendQueryOrMutationRequest(mediaSeekMutation, variables, {}, error)
     }
 
-    override fun subscribeToActions(error: () -> Unit): MediaActionObservable {
+    override fun subscribeToActions(error: () -> Unit) {
+        if(ws != null) {
+            return
+        }
         val mediaSubscription = """
             subscription {
                 mediaActions {
@@ -55,7 +66,7 @@ class MediaActionModelImpl : MediaActionModel {
             }
         """.trimIndent()
         val variables = mapOf<String, Any>()
-        clientContext.sendSubscriptionRequest(mediaSubscription, variables, {
+        ws = clientContext.sendSubscriptionRequest(mediaSubscription, variables, {
             val gson = Gson()
             try {
                 val actionJson = gson.fromJson(it, JsonObject::class.java).get("mediaActions")
@@ -66,7 +77,16 @@ class MediaActionModelImpl : MediaActionModel {
                 error()
             }
         }, error)
-        return mediaActionObservable
+        if (ws == null) {
+            error()
+        }
+    }
+
+    override fun releaseSubscription() {
+        ws?.run {
+            this.close(1001, "Undocked")
+            ws = null
+        }
     }
 }
 

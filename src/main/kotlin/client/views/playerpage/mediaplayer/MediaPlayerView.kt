@@ -5,11 +5,14 @@ import client.controllers.FileLoaderController
 import client.controllers.MediaController
 import client.models.Action
 import client.models.MediaAction
+import client.models.MediaActionObservable
 import client.views.ViewUtils
 import client.views.playerpage.FileLoaderView
 import client.views.playerpage.chatfeed.MessageFragment
 import javafx.application.Platform
 import javafx.beans.Observable
+import javafx.beans.value.ChangeListener
+import javafx.beans.value.ObservableValue
 import javafx.geometry.Pos
 import javafx.geometry.Rectangle2D
 import javafx.scene.canvas.Canvas
@@ -63,6 +66,8 @@ class MediaPlayerView : View() {
     private lateinit var mediaPane: Pane
     private lateinit var controlPane: BorderPane
     private val controls = find<MediaPlayerControls>()
+    private var mediaActionObservable: MediaActionObservable? = null
+    private val mediaActionListener: ChangeListener<MediaAction?>
     private var canvasImageHeight = 0.0
     private var lastMouseMovedMilli = 0L
     /**
@@ -148,6 +153,9 @@ class MediaPlayerView : View() {
         //    }
         //}
         //hoverCheckerService.period = 5000.millis
+        mediaActionListener = ChangeListener { _, _, newValue ->
+            newValue?.run { handleMediaAction(this) }
+        }
     }
 
     override fun onDock() {
@@ -191,12 +199,14 @@ class MediaPlayerView : View() {
         controls.setOnVolumeChange {
             mediaPlayer?.audio()?.setVolume(it.toInt())
         }
-        mediaController.getMediaActionObservable {
+        mediaController.subscribeToMediaActions {
             ViewUtils.showErrorDialog(
                 "A connection error has occurred, could not sync video",
                 primaryStage.scene.root as StackPane
             )
-        }.addListener { _, _, newAction -> newAction?.run { handleMediaAction(newAction) } }
+        }
+        mediaActionObservable = mediaController.getMediaActionObservable()
+        mediaActionObservable?.addListener(mediaActionListener)
 
         mediaPlayer?.events()?.addMediaPlayerEventListener(object : MediaPlayerEventListener {
             override fun positionChanged(mediaPlayer: MediaPlayer?, newPosition: Float) {
@@ -272,6 +282,9 @@ class MediaPlayerView : View() {
         mediaPlayer?.release()
         mediaPlayerFactory = null
         mediaPlayer = null
+        mediaActionObservable?.removeListener(mediaActionListener)
+        mediaActionObservable = null
+        mediaController.cleanUp()
     }
 
     private fun renderFrame(canvas: Canvas) {

@@ -184,8 +184,14 @@ class ChatView : View() {
         chatInput.set(currentInput + alias)
     }
 
-    init {
+    override fun onDock() {
+        super.onDock()
         chatController.subscribeToMessages()
+    }
+
+    override fun onUndock() {
+        super.onUndock()
+        chatController.cleanUp()
     }
 }
 

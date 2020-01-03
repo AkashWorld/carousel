@@ -2,6 +2,7 @@ package client.models
 
 import com.google.gson.Gson
 import javafx.collections.ObservableList
+import okhttp3.WebSocket
 import org.slf4j.LoggerFactory
 import tornadofx.runLater
 import tornadofx.toObservable
@@ -19,9 +20,11 @@ data class Message(
 )
 
 
-class ChatModel(private val clientContext: ClientContext) {
+class ChatModel {
+    private val clientContext: ClientContext = ClientContextImpl.getInstance()
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val chatList: ObservableList<Message> = mutableListOf<Message>().toObservable()
+    private var ws: WebSocket? = null
 
     fun addMessage(content: String) {
         val mutation = """
@@ -48,7 +51,7 @@ class ChatModel(private val clientContext: ClientContext) {
             }
         """.trimIndent()
         val variables = mapOf<String, Any>()
-        clientContext.sendSubscriptionRequest(subscription, variables, { body ->
+        ws = clientContext.sendSubscriptionRequest(subscription, variables, { body ->
             val result: Map<String, String> =
                 gson.fromJson(body, Map::class.java)["chatFeed"] as Map<String, String>
             val username = result["username"]
@@ -59,5 +62,9 @@ class ChatModel(private val clientContext: ClientContext) {
                 }
             }
         }, {})
+    }
+
+    fun releaseSubscription() {
+        ws?.run { this.close(1001, "Undock") }
     }
 }

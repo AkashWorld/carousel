@@ -26,7 +26,8 @@ class MediaActionModelTests {
     fun modelSubscriptionPauseTest() {
         val firstSubResultFuture = CompletableFuture<MediaAction>()
         val mediaActionModel = MediaActionModelImpl()
-        val obs = mediaActionModel.subscribeToActions { assert(false) }
+        mediaActionModel.subscribeToActions { assert(false) }
+        val obs = mediaActionModel.getMediaActionObservable()
         obs.addListener { _, oldValue, newValue ->
             assert(oldValue == null)
             if (newValue != null) {
@@ -49,7 +50,8 @@ class MediaActionModelTests {
     fun modelSubscriptionPlayTest() {
         val firstSubResultFuture = CompletableFuture<MediaAction>()
         val mediaActionModel = MediaActionModelImpl()
-        val obs = mediaActionModel.subscribeToActions { assert(false) }
+        mediaActionModel.subscribeToActions { assert(false) }
+        val obs = mediaActionModel.getMediaActionObservable()
         obs.addListener { _, oldValue, newValue ->
             assert(oldValue == null)
             if (newValue != null) {
@@ -72,7 +74,8 @@ class MediaActionModelTests {
     fun modelSubscriptionSeekTest() {
         val firstSubResultFuture = CompletableFuture<MediaAction>()
         val mediaActionModel = MediaActionModelImpl()
-        val obs = mediaActionModel.subscribeToActions { assert(false) }
+        mediaActionModel.subscribeToActions { assert(false) }
+        val obs = mediaActionModel.getMediaActionObservable()
         obs.addListener { _, oldValue, newValue ->
             assert(oldValue == null)
             if (newValue != null) {

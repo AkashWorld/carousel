@@ -12,6 +12,8 @@ class MediaPlayerStyles : Stylesheet() {
         val coloredTrack by cssclass()
         val animatedThumb by cssclass()
         val mediaPlayerButton by cssclass()
+        val fullScreenButton by cssclass()
+        val chatSideButton by cssclass()
     }
 
     init {
@@ -19,6 +21,22 @@ class MediaPlayerStyles : Stylesheet() {
             backgroundColor = multi(Color.TRANSPARENT)
             maxHeight = 30.px
             padding = box(0.px)
+            and(hover) {
+                cursor = Cursor.HAND
+            }
+        }
+        chatSideButton {
+            backgroundColor = multi(Color.TRANSPARENT)
+            maxHeight = 30.px
+            padding = box(3.px, 0.px, 0.px, 0.px)
+            and(hover) {
+                cursor = Cursor.HAND
+            }
+        }
+        fullScreenButton {
+            backgroundColor = multi(Color.TRANSPARENT)
+            maxHeight = 30.px
+            padding = box(-5.px)
             and(hover) {
                 cursor = Cursor.HAND
             }

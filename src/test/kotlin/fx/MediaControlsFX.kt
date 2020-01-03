@@ -14,6 +14,7 @@ class MediaControlsFX {
         App(MediaControlsTestView::class, ChatFeedStyles::class, MediaPlayerStyles::class) {
         init {
             reloadStylesheetsOnFocus()
+            reloadViewsOnFocus()
         }
     }
 

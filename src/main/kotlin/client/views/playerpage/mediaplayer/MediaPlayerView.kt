@@ -12,9 +12,11 @@ import client.views.playerpage.chatfeed.MessageFragment
 import javafx.application.Platform
 import javafx.beans.Observable
 import javafx.beans.value.ChangeListener
-import javafx.beans.value.ObservableValue
+import javafx.concurrent.ScheduledService
+import javafx.concurrent.Task
 import javafx.geometry.Pos
 import javafx.geometry.Rectangle2D
+import javafx.scene.Cursor
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.image.PixelBuffer
@@ -22,7 +24,6 @@ import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Pane
-import javafx.scene.layout.Priority
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.transform.Affine
@@ -70,6 +71,7 @@ class MediaPlayerView : View() {
     private val mediaActionListener: ChangeListener<MediaAction?>
     private var canvasImageHeight = 0.0
     private var lastMouseMovedMilli = 0L
+    private val hoverCheckerService: ScheduledService<Unit>
     /**
      * This exists to stop the control's time slider from asking the media player to change position, and
      * then the media player from sending a callback to change the slider position
@@ -89,7 +91,7 @@ class MediaPlayerView : View() {
             this.paddingLeft = 25.0
             this.paddingTop = 25.0
             chatController.getMessages().addListener { _: Observable ->
-                if (controls.isOverlayButtonChecked()) {
+                if (!controls.isOverlayButtonChecked()) {
                     return@addListener
                 }
                 val message = chatController.getMessages().last()
@@ -111,22 +113,24 @@ class MediaPlayerView : View() {
         /**
          * Controls should disappear if not hovering or mouse is still for too long
          */
-        mediaPane.onHover {
-            if (it && Instant.now().toEpochMilli() - lastMouseMovedMilli < 5000 && !mediaPane.children.contains(
+        mediaPane.setOnMouseMoved {
+            lastMouseMovedMilli = Instant.now().toEpochMilli()
+            primaryStage.scene.cursor = Cursor.DEFAULT
+            if (!mediaPane.children.contains(
                     controlPane
                 )
             ) {
                 mediaPane.add(controlPane)
-            } else {
+            }
+        }
+        mediaPane.onHover {
+            if (!it) {
                 runLater(2000.millis) {
                     if (!mediaPane.isHover) {
                         mediaPane.children.remove(controlPane)
                     }
                 }
             }
-        }
-        setOnMouseMoved {
-            lastMouseMovedMilli = Instant.now().toEpochMilli()
         }
 
         style {
@@ -138,21 +142,24 @@ class MediaPlayerView : View() {
         /**
          * Scheduled service that checks if mouse is staying still
          */
-        //hoverCheckerService = object : ScheduledService<Unit>() {
-        //    override fun createTask(): Task<Unit> {
-        //        return object : Task<Unit>() {
-        //            override fun call() {
-        //                if (Instant.now().toEpochMilli() - lastMouseMovedMilli > 5000 && mediaPane.children.contains(
-        //                        controlPane
-        //                    )
-        //                ) {
-        //                    mediaPane.children.remove(controlPane)
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
-        //hoverCheckerService.period = 5000.millis
+        hoverCheckerService = object : ScheduledService<Unit>() {
+            override fun createTask(): Task<Unit> {
+                return object : Task<Unit>() {
+                    override fun call() {
+                        if (Instant.now().toEpochMilli() - lastMouseMovedMilli > 2500 && mediaPane.children.contains(
+                                controlPane
+                            )
+                        ) {
+                            runLater {
+                                primaryStage.scene.cursor = Cursor.NONE
+                                mediaPane.children.remove(controlPane)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        hoverCheckerService.period = 2500.millis
         mediaActionListener = ChangeListener { _, _, newValue ->
             newValue?.run { handleMediaAction(this) }
         }
@@ -172,14 +179,14 @@ class MediaPlayerView : View() {
         mediaActionObservable?.addListener(mediaActionListener)
 
         lastMouseMovedMilli = Instant.now().toEpochMilli()
-        //hoverCheckerService.start()
+        hoverCheckerService.start()
     }
 
     override fun onUndock() {
         super.onUndock()
         stopTimer()
-        //hoverCheckerService.cancel()
-        //hoverCheckerService.reset()
+        hoverCheckerService.cancel()
+        hoverCheckerService.reset()
         mediaPlayerFactory?.release()
         mediaPlayer?.release()
         mediaPlayerFactory = null

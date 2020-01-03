@@ -27,6 +27,7 @@ class MediaPlayerControls : Fragment() {
     private lateinit var volSlider: JFXSlider
     private var isSliderBeingDragged = false
     private var isOverlayButtonChecked = true
+    private var isChatSideBarShown = true
     private lateinit var playPauseButton: Button
     override val root = borderpane {
         /**
@@ -116,10 +117,10 @@ class MediaPlayerControls : Fragment() {
                     right {
                         hbox {
                             paddingRight = 5.0
-                            spacing = 5.0
+                            spacing = 10.0
                             button {
                                 addClass(MediaPlayerStyles.mediaPlayerButton)
-                                val icon = MaterialIconView(MaterialIcon.TEXTSMS, "23px")
+                                val icon = MaterialIconView(MaterialIcon.FEATURED_PLAY_LIST, "23px")
                                 icon.fill = Color.LIGHTGRAY
                                 icon.onHover {
                                     if (it) {
@@ -135,14 +136,36 @@ class MediaPlayerControls : Fragment() {
                                 this.add(icon)
                                 action {
                                     isOverlayButtonChecked = !isOverlayButtonChecked
-                                    chatController.setChatShown(isOverlayButtonChecked)
                                 }
+                                tooltip("Show Chat Overlay")
+                            }
+                            button {
+                                addClass(MediaPlayerStyles.chatSideButton)
+                                val icon = MaterialIconView(MaterialIcon.CHAT_BUBBLE, "23px")
+                                icon.fill = Color.LIGHTGRAY
+                                icon.onHover {
+                                    if (it) {
+                                        icon.fill = Color.WHITE
+                                    } else {
+                                        if (isChatSideBarShown) {
+                                            icon.fill = Color.LIGHTGRAY
+                                        } else {
+                                            icon.fill = Color.DIMGRAY
+                                        }
+                                    }
+                                }
+                                this.add(icon)
+                                action {
+                                    isChatSideBarShown = !isChatSideBarShown
+                                    chatController.setChatShown(isChatSideBarShown)
+                                }
+                                tooltip("Show Chat Bar")
                             }
                             /**
                              * Fullscreen
                              */
                             button {
-                                addClass(MediaPlayerStyles.mediaPlayerButton)
+                                addClass(MediaPlayerStyles.fullScreenButton)
                                 val icon = MaterialIconView(MaterialIcon.FULLSCREEN, "30px")
                                 icon.fill = Color.LIGHTGRAY
                                 icon.onHover {
@@ -201,16 +224,6 @@ class MediaPlayerControls : Fragment() {
             return
         }
         slider.value = value
-    }
-
-    fun setSliderPositionByMillis(time: Long) {
-        if (duration == null) {
-            logger.error("Could not set position, duration not set")
-            return
-        }
-        currentTime.value = getMillisecondsToHHMMSS(time)
-        val pos = time.toDouble() / duration!!.toDouble()
-        slider.value = pos
     }
 
     fun setOnVolumeChange(cb: (value: Double) -> Unit) {

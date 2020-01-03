@@ -27,6 +27,7 @@ class ChatView : View() {
     private val emojiPicker = find<EmojiPicker>("emojiCallback" to { alias: String ->
         emojiAliasCallback(alias)
     })
+    private val dropDownMenu = find<DropDownMenuFragment>()
     private lateinit var listView: ListView<Message>
 
     override val root = borderpane {
@@ -139,28 +140,52 @@ class ChatView : View() {
                         }
                     }
                     left {
-                        button {
-                            addClass(ChatFeedStyles.emojiButton)
-                            val icon = MaterialIconView(MaterialIcon.INSERT_EMOTICON, "30px")
-                            icon.fill = ChatFeedStyles.chatTextColor
-                            icon.onHover {
-                                if (it) {
-                                    icon.fill = Color.DARKGRAY
-                                } else {
-                                    icon.fill = ChatFeedStyles.chatTextColor
+                        hbox {
+                            spacing = 10.0
+                            button {
+                                addClass(ChatFeedStyles.emojiButton)
+                                val icon = MaterialIconView(MaterialIcon.INSERT_EMOTICON, "30px")
+                                icon.fill = ChatFeedStyles.chatTextColor
+                                icon.onHover {
+                                    if (it) {
+                                        icon.fill = Color.DARKGRAY
+                                    } else {
+                                        icon.fill = ChatFeedStyles.chatTextColor
+                                    }
                                 }
-                            }
-                            setOnMouseClicked {
-                                val emojiStage = emojiPicker.openWindow(StageStyle.TRANSPARENT)
-                                emojiStage?.isAlwaysOnTop = true
-                                emojiStage?.x = it.screenX
-                                emojiStage?.y = it.screenY - 485.0
-                                currentStage?.scene?.setOnMouseClicked {
-                                    emojiStage?.close()
-                                    currentStage?.scene?.onMouseClicked = null
+                                setOnMouseClicked {
+                                    val emojiStage = emojiPicker.openWindow(StageStyle.TRANSPARENT)
+                                    emojiStage?.isAlwaysOnTop = true
+                                    emojiStage?.x = it.screenX
+                                    emojiStage?.y = it.screenY - 485.0
+                                    primaryStage.scene.setOnMouseClicked {
+                                        emojiStage?.close()
+                                    }
                                 }
+                                this.add(icon)
                             }
-                            this.add(icon)
+                            button {
+                                addClass(ChatFeedStyles.emojiButton)
+                                val icon = MaterialIconView(MaterialIcon.MENU, "30px")
+                                icon.fill = ChatFeedStyles.chatTextColor
+                                icon.onHover {
+                                    if (it) {
+                                        icon.fill = Color.DARKGRAY
+                                    } else {
+                                        icon.fill = ChatFeedStyles.chatTextColor
+                                    }
+                                }
+                                setOnMouseClicked {
+                                    val dropDownMenuStage = dropDownMenu.openWindow(StageStyle.TRANSPARENT)
+                                    dropDownMenuStage?.isAlwaysOnTop = true
+                                    dropDownMenuStage?.x = it.screenX
+                                    dropDownMenuStage?.y = it.screenY - dropDownMenuStage?.height!!
+                                    primaryStage.scene.setOnMouseClicked {
+                                        dropDownMenuStage.close()
+                                    }
+                                }
+                                this.add(icon)
+                            }
                         }
                     }
                 }

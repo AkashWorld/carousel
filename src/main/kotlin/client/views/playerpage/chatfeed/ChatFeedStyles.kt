@@ -14,6 +14,7 @@ class ChatFeedStyles : Stylesheet() {
         val emojiPickerContainer by cssclass()
         val emojiTextField by cssclass()
         val emojiPickerButton by cssclass()
+        val menuListView by cssclass()
 
         val buttonColor = Styles.buttonColor
         val hoverButtonColor = Styles.lightButtonColor
@@ -96,6 +97,7 @@ class ChatFeedStyles : Stylesheet() {
             textFill = Color.WHITE
             minHeight = 45.px
             padding = box(10.px)
+            accentColor = Styles.lightButtonColor
             and(focused) {
                 borderRadius = multi(box(3.px))
                 borderWidth = multi(box(3.px))
@@ -132,6 +134,9 @@ class ChatFeedStyles : Stylesheet() {
             and(hover) {
                 cursor = Cursor.HAND
             }
+        }
+        menuListView {
+            backgroundColor = multi(Color.WHITE)
         }
     }
 }

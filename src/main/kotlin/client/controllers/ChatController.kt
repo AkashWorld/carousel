@@ -3,7 +3,9 @@ package client.controllers
 import client.models.*
 import client.views.playerpage.mediaplayer.getMillisecondsToHHMMSS
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.value.ChangeListener
 import javafx.beans.value.ObservableBooleanValue
+import javafx.beans.value.ObservableValue
 import javafx.collections.ObservableList
 import javafx.scene.paint.Color
 import tornadofx.*
@@ -13,10 +15,35 @@ import kotlin.random.Random
 
 class ChatController : Controller() {
     private val mediaController: MediaController by inject()
+    private val mediaListener: ChangeListener<MediaAction?>
     private val chatModel = ChatModel()
     private val isChatShown = SimpleBooleanProperty(true)
     private val colorMap = mutableMapOf<String, Color>()
     private val colorSet = mutableSetOf<Color>()
+
+    init {
+        mediaListener =
+            ChangeListener<MediaAction?> { _: ObservableValue<out MediaAction?>?, _: MediaAction?, newValue: MediaAction? ->
+                newValue?.let {
+                    val message = when (newValue.action) {
+                        Action.PAUSE -> {
+                            "paused the video"
+                        }
+                        Action.PLAY -> {
+                            "played the video"
+                        }
+                        Action.SEEK -> {
+                            val duration = getMillisecondsToHHMMSS(newValue.currentTime?.toLong() ?: 0L)
+                            "changed the video position to $duration"
+                        }
+                    }
+                    runLater {
+                        chatModel.getChatList().add(Message(newValue.user, message, ContentType.INFO))
+                    }
+                }
+            }
+    }
+
 
     fun getMessages(): ObservableList<Message> {
         return chatModel.getChatList()
@@ -28,29 +55,12 @@ class ChatController : Controller() {
 
     fun subscribeToMessages() {
         chatModel.subscribeToMessages()
-        mediaController.getMediaActionObservable().addListener { _, _, newValue ->
-            newValue?.let {
-                val message = when (newValue.action) {
-                    Action.PAUSE -> {
-                        "paused the video"
-                    }
-                    Action.PLAY -> {
-                        "played the video"
-                    }
-                    Action.SEEK -> {
-                        val duration = getMillisecondsToHHMMSS(newValue.currentTime?.toLong() ?: 0L)
-                        "changed the video position to $duration"
-                    }
-                }
-                runLater {
-                    chatModel.getChatList().add(Message(newValue.user, message, ContentType.INFO))
-                }
-            }
-        }
+        mediaController.getMediaActionObservable().addListener(mediaListener)
     }
 
     fun cleanUp() {
         chatModel.releaseSubscription()
+        mediaController.getMediaActionObservable().removeListener(mediaListener)
     }
 
     fun tokenizeMessage(message: String): List<String> {

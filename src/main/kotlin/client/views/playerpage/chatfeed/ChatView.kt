@@ -23,15 +23,11 @@ class ChatView : View() {
     private val clientContextController: ClientContextController by inject()
     private val chatController: ChatController by inject()
     private val chatInput: SimpleStringProperty = SimpleStringProperty()
-    private val serverAddress: SimpleStringProperty = SimpleStringProperty()
+    private val serverAddress: SimpleStringProperty = SimpleStringProperty("")
     private val emojiPicker = find<EmojiPicker>("emojiCallback" to { alias: String ->
         emojiAliasCallback(alias)
     })
     private lateinit var listView: ListView<Message>
-
-    init {
-        serverAddress.value = clientContextController.getAddress()
-    }
 
     override val root = borderpane {
         hgrow = Priority.NEVER
@@ -186,6 +182,7 @@ class ChatView : View() {
 
     override fun onDock() {
         super.onDock()
+        serverAddress.value = clientContextController.getAddress()
         chatController.subscribeToMessages()
     }
 

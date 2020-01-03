@@ -23,7 +23,7 @@ class ChatController : Controller() {
 
     init {
         mediaListener =
-            ChangeListener<MediaAction?> { _: ObservableValue<out MediaAction?>?, _: MediaAction?, newValue: MediaAction? ->
+            ChangeListener { _: ObservableValue<out MediaAction?>?, _: MediaAction?, newValue: MediaAction? ->
                 newValue?.let {
                     val message = when (newValue.action) {
                         Action.PAUSE -> {

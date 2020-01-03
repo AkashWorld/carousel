@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import okhttp3.WebSocket
 import org.slf4j.LoggerFactory
+import tornadofx.runLater
 
 interface MediaActionModel {
     fun setPauseAction(error: () -> Unit)
@@ -53,7 +54,7 @@ class MediaActionModelImpl : MediaActionModel {
     }
 
     override fun subscribeToActions(error: () -> Unit) {
-        if(ws != null) {
+        if (ws != null) {
             return
         }
         val mediaSubscription = """
@@ -71,7 +72,9 @@ class MediaActionModelImpl : MediaActionModel {
             try {
                 val actionJson = gson.fromJson(it, JsonObject::class.java).get("mediaActions")
                 val action = gson.fromJson(actionJson, MediaAction::class.java)
-                mediaActionObservable.setValue(action)
+                runLater {
+                    mediaActionObservable.setValue(action)
+                }
             } catch (e: Exception) {
                 logger.error(e.message, e.cause)
                 error()

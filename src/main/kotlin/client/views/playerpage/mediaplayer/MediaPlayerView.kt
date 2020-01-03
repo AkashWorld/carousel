@@ -54,7 +54,6 @@ private var img: WritableImage? = null
 private var updatedBuffer: Rectangle2D? = null
 private var pixelBuffer: PixelBuffer<ByteBuffer?>? = null
 private var pixelFormat = PixelFormat.getByteBgraPreInstance()
-private var mediaCanvas: Canvas? = null
 
 class MediaPlayerView : View() {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
@@ -63,6 +62,7 @@ class MediaPlayerView : View() {
     private val fileLoaderController: FileLoaderController by inject()
     private var mediaPlayerFactory: MediaPlayerFactory? = null
     private var mediaPlayer: EmbeddedMediaPlayer? = null
+    private lateinit var mediaCanvas: Canvas
     private lateinit var mediaPane: Pane
     private lateinit var controlPane: BorderPane
     private val controls = find<MediaPlayerControls>()
@@ -160,45 +160,8 @@ class MediaPlayerView : View() {
 
     override fun onDock() {
         super.onDock()
-        mediaPlayerFactory = MediaPlayerFactory("--ffmpeg-hw")
-        mediaPlayer = mediaPlayerFactory?.mediaPlayers()?.newEmbeddedMediaPlayer()
-        mediaPlayer?.videoSurface()?.set(TornadoFXVideoSurface())
-        mediaCanvas?.widthProperty()
-            ?.addListener { _: Observable? -> if (!mediaPlayer?.status()?.isPlaying!!) renderFrame(mediaCanvas!!) }
-        mediaCanvas?.heightProperty()
-            ?.addListener { _: Observable? -> if (!mediaPlayer?.status()?.isPlaying!!) renderFrame(mediaCanvas!!) }
-        mediaPlayer?.media()?.play(fileLoaderController.getCurrentSelectedFile()?.absolutePath)
-        controls.setOnPlayCallback {
-            mediaController.playAction {
-                ViewUtils.showErrorDialog(
-                    "A connection error has occurred, could not sync video",
-                    primaryStage.scene.root as StackPane
-                )
-            }
-        }
-        controls.setOnPauseCallback {
-            mediaController.pauseAction {
-                ViewUtils.showErrorDialog(
-                    "A connection error has occurred, could not sync video",
-                    primaryStage.scene.root as StackPane
-                )
-            }
-        }
-        controls.setOnChangeCallback {
-            val newTime = mediaPlayer?.media()?.info()?.duration()?.times(it)
-            newTime?.run {
-                mediaController.seekAction(this.toFloat()) {
-                    ViewUtils.showErrorDialog(
-                        "A connection error has occurred, could not sync video",
-                        primaryStage.scene.root as StackPane
-                    )
-                }
-            }
-            userRecentlyChangedPosition = true
-        }
-        controls.setOnVolumeChange {
-            mediaPlayer?.audio()?.setVolume(it.toInt())
-        }
+        setUpMediaPlayer()
+        setUpControls()
         mediaController.subscribeToMediaActions {
             ViewUtils.showErrorDialog(
                 "A connection error has occurred, could not sync video",
@@ -208,13 +171,136 @@ class MediaPlayerView : View() {
         mediaActionObservable = mediaController.getMediaActionObservable()
         mediaActionObservable?.addListener(mediaActionListener)
 
+        lastMouseMovedMilli = Instant.now().toEpochMilli()
+        //hoverCheckerService.start()
+    }
+
+    override fun onUndock() {
+        super.onUndock()
+        stopTimer()
+        //hoverCheckerService.cancel()
+        //hoverCheckerService.reset()
+        mediaPlayerFactory?.release()
+        mediaPlayer?.release()
+        mediaPlayerFactory = null
+        mediaPlayer = null
+        mediaActionObservable?.removeListener(mediaActionListener)
+        mediaActionObservable = null
+        mediaController.cleanUp()
+        clearCanvas(mediaCanvas)
+    }
+
+    private fun renderFrame(canvas: Canvas) {
+        frames += 1
+        val graphics: GraphicsContext = canvas.graphicsContext2D
+
+        val width = canvas.width
+        val height = canvas.height
+
+        graphics.fill = Color.BLACK
+        graphics.fillRect(0.0, 0.0, width, height)
+
+        if (img != null) {
+            val imageWidth = img?.width
+            val imageHeight = img?.height
+
+            val sx = width / imageWidth!!
+            val sy = height / imageHeight!!
+            val sf = min(sx, sy)
+
+            val scaledW = imageWidth * sf
+            val scaledH = imageHeight * sf
+
+            canvasImageHeight = scaledH
+
+            val ax: Affine = graphics.transform
+
+            graphics.translate(
+                (width - scaledW) / 2,
+                (height - scaledH) / 2
+            )
+
+            if (sf != 1.0) {
+                graphics.scale(sf, sf)
+            }
+            graphics.drawImage(img, 0.0, 0.0)
+            graphics.transform = ax
+        }
+    }
+
+    private fun clearCanvas(canvas: Canvas) {
+        val graphics: GraphicsContext = canvas.graphicsContext2D
+
+        val width = canvas.width
+        val height = canvas.height
+
+        graphics.fill = Color.BLACK
+        graphics.fillRect(0.0, 0.0, width, height)
+    }
+
+    private val nanoTimer: NanoTimer = object : NanoTimer(1000.0 / 60.0) {
+        override fun onSucceeded() {
+            renderFrame(mediaCanvas)
+        }
+    }
+
+    private fun startTimer() {
+        Platform.runLater {
+            if (!nanoTimer.isRunning) {
+                nanoTimer.reset()
+                nanoTimer.start()
+            }
+        }
+    }
+
+    private fun pauseTimer() {
+        Platform.runLater {
+            if (nanoTimer.isRunning) {
+                nanoTimer.cancel()
+            }
+        }
+    }
+
+    private fun stopTimer() {
+        Platform.runLater {
+            if (nanoTimer.isRunning) {
+                nanoTimer.cancel()
+            }
+        }
+    }
+
+    private fun handleMediaAction(action: MediaAction) {
+        when (action.action) {
+            Action.PAUSE -> {
+                mediaPlayer?.controls()?.pause()
+                controls.togglePause()
+            }
+            Action.PLAY -> {
+                mediaPlayer?.controls()?.play()
+                controls.togglePlay()
+            }
+            Action.SEEK -> {
+                userRecentlyChangedPosition = false
+                action.currentTime?.toLong()?.run { mediaPlayer?.controls()?.setTime(this) }
+            }
+        }
+    }
+
+    private fun setUpMediaPlayer() {
+        mediaPlayerFactory = MediaPlayerFactory("--ffmpeg-hw")
+        mediaPlayer = mediaPlayerFactory?.mediaPlayers()?.newEmbeddedMediaPlayer()
+        mediaPlayer?.videoSurface()?.set(TornadoFXVideoSurface())
+        mediaCanvas.widthProperty()
+            ?.addListener { _: Observable? -> if (!mediaPlayer?.status()?.isPlaying!!) renderFrame(mediaCanvas) }
+        mediaCanvas.heightProperty()
+            ?.addListener { _: Observable? -> if (!mediaPlayer?.status()?.isPlaying!!) renderFrame(mediaCanvas) }
+        mediaPlayer?.media()?.play(fileLoaderController.getCurrentSelectedFile()?.absolutePath)
         mediaPlayer?.events()?.addMediaPlayerEventListener(object : MediaPlayerEventListener {
             override fun positionChanged(mediaPlayer: MediaPlayer?, newPosition: Float) {
                 runLater {
                     if (!userRecentlyChangedPosition) {
                         controls.setSliderPosition(newPosition.toDouble())
                     }
-                    userRecentlyChangedPosition = false
                 }
             }
 
@@ -269,138 +355,77 @@ class MediaPlayerView : View() {
             override fun lengthChanged(mediaPlayer: MediaPlayer?, newLength: Long) {}
         })
         startTimer()
-        lastMouseMovedMilli = Instant.now().toEpochMilli()
-        //hoverCheckerService.start()
     }
 
-    override fun onUndock() {
-        super.onUndock()
-        stopTimer()
-        //hoverCheckerService.cancel()
-        //hoverCheckerService.reset()
-        mediaPlayerFactory?.release()
-        mediaPlayer?.release()
-        mediaPlayerFactory = null
-        mediaPlayer = null
-        mediaActionObservable?.removeListener(mediaActionListener)
-        mediaActionObservable = null
-        mediaController.cleanUp()
-    }
-
-    private fun renderFrame(canvas: Canvas) {
-        frames += 1
-        val graphics: GraphicsContext = canvas.graphicsContext2D
-
-        val width = canvas.width
-        val height = canvas.height
-
-        graphics.fill = Color.BLACK
-        graphics.fillRect(0.0, 0.0, width, height)
-
-        if (img != null) {
-            val imageWidth = img?.width
-            val imageHeight = img?.height
-
-            val sx = width / imageWidth!!
-            val sy = height / imageHeight!!
-            val sf = min(sx, sy)
-
-            val scaledW = imageWidth * sf
-            val scaledH = imageHeight * sf
-
-            canvasImageHeight = scaledH
-
-            val ax: Affine = graphics.transform
-
-            graphics.translate(
-                (width - scaledW) / 2,
-                (height - scaledH) / 2
-            )
-
-            if (sf != 1.0) {
-                graphics.scale(sf, sf)
-            }
-            graphics.drawImage(img, 0.0, 0.0)
-            graphics.transform = ax
-        }
-    }
-
-    private val nanoTimer: NanoTimer = object : NanoTimer(1000.0 / 60.0) {
-        override fun onSucceeded() {
-            mediaCanvas?.let { renderFrame(it) }
-        }
-    }
-
-    private fun startTimer() {
-        Platform.runLater {
-            if (!nanoTimer.isRunning) {
-                nanoTimer.reset()
-                nanoTimer.start()
+    private fun setUpControls() {
+        controls.setOnPlayCallback {
+            mediaController.playAction {
+                ViewUtils.showErrorDialog(
+                    "A connection error has occurred, could not sync video",
+                    primaryStage.scene.root as StackPane
+                )
             }
         }
-    }
-
-    private fun pauseTimer() {
-        Platform.runLater {
-            if (nanoTimer.isRunning) {
-                nanoTimer.cancel()
+        controls.setOnPauseCallback {
+            mediaController.pauseAction {
+                ViewUtils.showErrorDialog(
+                    "A connection error has occurred, could not sync video",
+                    primaryStage.scene.root as StackPane
+                )
             }
         }
-    }
-
-    private fun stopTimer() {
-        Platform.runLater {
-            if (nanoTimer.isRunning) {
-                nanoTimer.cancel()
+        controls.setOnChangeCallback {
+            val newTime = mediaPlayer?.media()?.info()?.duration()?.times(it)
+            newTime?.run {
+                mediaController.seekAction(this.toFloat()) {
+                    ViewUtils.showErrorDialog(
+                        "A connection error has occurred, could not sync video",
+                        primaryStage.scene.root as StackPane
+                    )
+                }
             }
+            userRecentlyChangedPosition = true
         }
-    }
-
-    private fun handleMediaAction(action: MediaAction) {
-        if (action.action == Action.PAUSE) {
-            mediaPlayer?.controls()?.pause()
-        } else if (action.action == Action.PLAY) {
-            mediaPlayer?.controls()?.play()
-        } else if (action.action == Action.SEEK) {
-            action.currentTime?.toLong()?.run { mediaPlayer?.controls()?.setTime(this) }
-        }
-    }
-
-    private class TornadoFXVideoSurface internal constructor() : CallbackVideoSurface(
-        TornadoFXBufferFormatCallback(),
-        TornadoFXRenderCallback(),
-        true,
-        VideoSurfaceAdapters.getVideoSurfaceAdapter()
-    )
-
-    class TornadoFXBufferFormatCallback : BufferFormatCallback {
-        override fun allocatedBuffers(buffers: Array<out ByteBuffer>?) {
-            pixelBuffer = PixelBuffer(
-                bufferWidth,
-                bufferHeight, buffers?.get(0),
-                pixelFormat
-            )
-            img = WritableImage(pixelBuffer)
-            updatedBuffer = Rectangle2D(0.0, 0.0, bufferWidth.toDouble(), bufferHeight.toDouble())
-        }
-
-        override fun getBufferFormat(sourceWidth: Int, sourceHeight: Int): BufferFormat {
-            bufferWidth = sourceWidth
-            bufferHeight = sourceHeight
-            return RV32BufferFormat(sourceWidth, sourceHeight)
-        }
-    }
-
-    class TornadoFXRenderCallback : RenderCallback {
-        override fun display(
-            mediaPlayer: MediaPlayer?,
-            nativeBuffers: Array<out ByteBuffer>?,
-            bufferFormat: BufferFormat?
-        ) {
-            runLater {
-                pixelBuffer?.updateBuffer { updatedBuffer }
-            }
+        controls.setOnVolumeChange {
+            mediaPlayer?.audio()?.setVolume(it.toInt())
         }
     }
 }
 
+
+private class TornadoFXVideoSurface internal constructor() : CallbackVideoSurface(
+    TornadoFXBufferFormatCallback(),
+    TornadoFXRenderCallback(),
+    true,
+    VideoSurfaceAdapters.getVideoSurfaceAdapter()
+)
+
+class TornadoFXBufferFormatCallback : BufferFormatCallback {
+    override fun allocatedBuffers(buffers: Array<out ByteBuffer>?) {
+        pixelBuffer = PixelBuffer(
+            bufferWidth,
+            bufferHeight, buffers?.get(0),
+            pixelFormat
+        )
+        img = WritableImage(pixelBuffer)
+        updatedBuffer = Rectangle2D(0.0, 0.0, bufferWidth.toDouble(), bufferHeight.toDouble())
+    }
+
+    override fun getBufferFormat(sourceWidth: Int, sourceHeight: Int): BufferFormat {
+        bufferWidth = sourceWidth
+        bufferHeight = sourceHeight
+        return RV32BufferFormat(sourceWidth, sourceHeight)
+    }
+}
+
+class TornadoFXRenderCallback : RenderCallback {
+    override fun display(
+        mediaPlayer: MediaPlayer?,
+        nativeBuffers: Array<out ByteBuffer>?,
+        bufferFormat: BufferFormat?
+    ) {
+        runLater {
+            pixelBuffer?.updateBuffer { updatedBuffer }
+        }
+    }
+}

@@ -23,8 +23,8 @@ class MediaPlayerControls : Fragment() {
     private val chatController: ChatController by inject()
     private var duration: Long? = 0
     private var isPaused = false
-    private var slider: JFXSlider? = null
-    private var volSlider: JFXSlider? = null
+    private lateinit var slider: JFXSlider
+    private lateinit var volSlider: JFXSlider
     private var isSliderBeingDragged = false
     private var isOverlayButtonChecked = true
     private lateinit var playPauseButton: Button
@@ -35,8 +35,8 @@ class MediaPlayerControls : Fragment() {
         center {
             vbox {
                 slider = JFXSlider(0.0, 1.0, 0.0)
-                slider?.addClass(MediaPlayerStyles.trackSlider)
-                this.add(slider!!)
+                slider.addClass(MediaPlayerStyles.trackSlider)
+                this.add(slider)
                 borderpane {
                     paddingTop = 2.5
                     left {
@@ -60,25 +60,11 @@ class MediaPlayerControls : Fragment() {
                                 }
                                 this.add(initIcon)
                                 action {
-                                    val icon: MaterialIconView = if (isPaused) {
+                                    if (isPaused) {
                                         onPlay()
-                                        MaterialIconView(MaterialIcon.PAUSE, "30px")
                                     } else {
                                         onPause()
-                                        MaterialIconView(MaterialIcon.PLAY_ARROW, "30px")
                                     }
-                                    icon.fill = Color.LIGHTGRAY
-                                    this.getChildList()?.clear()
-                                    this.add(icon)
-                                    btn.onHover {
-                                        val content = btn.getChildList()?.first() as MaterialIconView?
-                                        if (it) {
-                                            content?.fill = Color.WHITE
-                                        } else {
-                                            content?.fill = Color.LIGHTGRAY
-                                        }
-                                    }
-                                    isPaused = !isPaused
                                 }
                             }
                             hbox {
@@ -89,12 +75,12 @@ class MediaPlayerControls : Fragment() {
                                     val icon = MaterialIconView(MaterialIcon.VOLUME_UP, "28px")
                                     icon.fill = Color.LIGHTGRAY
                                     volSlider = JFXSlider(0.0, 100.0, 100.0)
-                                    volSlider?.orientation = Orientation.HORIZONTAL
-                                    volSlider?.addClass(MediaPlayerStyles.volumeSlider)
+                                    volSlider.orientation = Orientation.HORIZONTAL
+                                    volSlider.addClass(MediaPlayerStyles.volumeSlider)
                                     volBox.onHover { isHover ->
                                         if (isHover) {
                                             icon.fill = Color.WHITE
-                                            volBox.add(volSlider!!)
+                                            volBox.add(volSlider)
                                         } else {
                                             icon.fill = Color.LIGHTGRAY
                                             volBox.getChildList()?.removeIf { it == volSlider }
@@ -179,14 +165,17 @@ class MediaPlayerControls : Fragment() {
     }
 
     init {
-        slider?.setOnMouseClicked {
-            slider?.value?.let { it1 -> onChange(it1) }
+        slider.setOnMouseReleased {
+            onChange(slider.value)
         }
-        slider?.setOnMouseDragReleased {
-            slider?.value?.let { it1 -> onChange(it1) }
+        volSlider.setOnMouseClicked {
+            onVolumeChange(volSlider.value)
         }
-        volSlider?.setOnMouseClicked {
-            volSlider?.value?.let { it1 -> onVolumeChange(it1) }
+        volSlider.setOnMouseDragReleased {
+            onVolumeChange(volSlider.value)
+        }
+        volSlider.setOnMouseDragged {
+            onVolumeChange(volSlider.value)
         }
     }
 
@@ -211,7 +200,7 @@ class MediaPlayerControls : Fragment() {
         if (isSliderBeingDragged) {
             return
         }
-        slider?.value = value
+        slider.value = value
     }
 
     fun setSliderPositionByMillis(time: Long) {
@@ -221,7 +210,7 @@ class MediaPlayerControls : Fragment() {
         }
         currentTime.value = getMillisecondsToHHMMSS(time)
         val pos = time.toDouble() / duration!!.toDouble()
-        slider?.value = pos
+        slider.value = pos
     }
 
     fun setOnVolumeChange(cb: (value: Double) -> Unit) {
@@ -237,16 +226,36 @@ class MediaPlayerControls : Fragment() {
         this.totalTime.value = getMillisecondsToHHMMSS(duration)
     }
 
-    fun setPauseControls() {
+    fun togglePause() {
+        val icon = MaterialIconView(MaterialIcon.PLAY_ARROW, "30px")
+        icon.fill = Color.LIGHTGRAY
         playPauseButton.getChildList()?.clear()
-        playPauseButton.add(MaterialIconView(MaterialIcon.PAUSE, "30px"))
-        isPaused = false
+        playPauseButton.add(icon)
+        playPauseButton.onHover {
+            val content = playPauseButton.getChildList()?.first() as MaterialIconView?
+            if (it) {
+                content?.fill = Color.WHITE
+            } else {
+                content?.fill = Color.LIGHTGRAY
+            }
+        }
+        isPaused = true
     }
 
-    fun setPlayControls() {
+    fun togglePlay() {
+        val icon = MaterialIconView(MaterialIcon.PAUSE, "30px")
+        icon.fill = Color.LIGHTGRAY
         playPauseButton.getChildList()?.clear()
-        playPauseButton.add(MaterialIconView(MaterialIcon.PLAY_ARROW, "30px"))
-        isPaused = true
+        playPauseButton.add(icon)
+        playPauseButton.onHover {
+            val content = playPauseButton.getChildList()?.first() as MaterialIconView?
+            if (it) {
+                content?.fill = Color.WHITE
+            } else {
+                content?.fill = Color.LIGHTGRAY
+            }
+        }
+        isPaused = false
     }
 }
 

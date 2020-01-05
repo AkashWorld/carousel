@@ -3,6 +3,7 @@ package client.views
 import client.views.intropage.IntroPage
 import javafx.scene.image.Image
 import javafx.stage.Screen
+import server.Server
 import tornadofx.*
 
 class ApplicationView : View() {
@@ -16,8 +17,12 @@ class ApplicationView : View() {
         }
         primaryStage.title = APPLICATION_NAME
         val screenBounds = Screen.getPrimary().visualBounds
-        this.primaryStage.width = screenBounds.width * .80
-        this.primaryStage.height = screenBounds.height * .80
+        primaryStage.width = screenBounds.width * .80
+        primaryStage.height = screenBounds.height * .80
+        primaryStage.setOnCloseRequest {
+            Server.getInstance().close()
+        }
+
     }
 
     override val root = stackpane {

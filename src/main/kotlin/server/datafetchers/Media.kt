@@ -8,15 +8,17 @@ import server.GraphQLContext
 import server.model.Action
 import server.model.Media
 import server.model.MediaSubscriptionResult
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.atomic.AtomicReference
 
-class MediaDataFetchers {
+class MediaDataFetchers(private val userActionPublisher: UserActionPublisher) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val mediaActionPublisher = MediaActionPublisher()
     fun mutationPlay(): DataFetcher<Boolean?> {
         return DataFetcher { environment ->
             val context: GraphQLContext = environment.getContext() ?: return@DataFetcher null
-            logger.info("${context.user.getUsername()}: Play")
-            mediaActionPublisher.publishPlay(context.user.getUsername())
+            logger.info("${context.user.username}: Play")
+            mediaActionPublisher.publishPlay(context.user.username)
             return@DataFetcher true
         }
     }
@@ -24,8 +26,8 @@ class MediaDataFetchers {
     fun mutationPause(): DataFetcher<Boolean?> {
         return DataFetcher { environment ->
             val context: GraphQLContext = environment.getContext() ?: return@DataFetcher null
-            logger.info("${context.user.getUsername()}: Pause")
-            mediaActionPublisher.publishPause(context.user.getUsername())
+            logger.info("${context.user.username}: Pause")
+            mediaActionPublisher.publishPause(context.user.username)
             return@DataFetcher true
         }
     }
@@ -34,7 +36,9 @@ class MediaDataFetchers {
         return DataFetcher { environment ->
             val context: GraphQLContext = environment.getContext() ?: return@DataFetcher null
             val file: String = environment.getArgument("file")
-            logger.info("${context.user.getUsername()}: Loading file $file")
+            context.user.media = Media(file)
+            logger.info("${context.user.username}: Loading file $file")
+            userActionPublisher.publishUserActionEvent(context.user, UserAction.CHANGE_MEDIA)
             return@DataFetcher Media(file)
         }
     }
@@ -43,8 +47,8 @@ class MediaDataFetchers {
         return DataFetcher { environment ->
             val context: GraphQLContext = environment.getContext() ?: return@DataFetcher null
             val currentTime: Float = environment.getArgument("currentTime")
-            logger.info("${context.user.getUsername()}: Seek at time $currentTime")
-            mediaActionPublisher.publishSeek(context.user.getUsername(), currentTime)
+            logger.info("${context.user.username}: Seek at time $currentTime")
+            mediaActionPublisher.publishSeek(context.user.username, currentTime)
             return@DataFetcher true
         }
 
@@ -58,21 +62,28 @@ class MediaDataFetchers {
 }
 
 class MediaActionPublisher : Publisher<MediaSubscriptionResult> {
-    private var subscriber: Subscriber<in MediaSubscriptionResult>? = null
+    private val subscribers: ConcurrentLinkedQueue<AtomicReference<Subscriber<in MediaSubscriptionResult>?>> =
+        ConcurrentLinkedQueue()
 
     override fun subscribe(subscriber: Subscriber<in MediaSubscriptionResult>?) {
-        this.subscriber = subscriber
+        subscribers.add(AtomicReference(subscriber))
     }
 
     fun publishPlay(user: String) {
-        subscriber?.onNext(MediaSubscriptionResult(Action.PLAY, null, user))
+        subscribers.forEach {
+            it?.get()?.onNext(MediaSubscriptionResult(Action.PLAY, null, user))
+        }
     }
 
     fun publishPause(user: String) {
-        subscriber?.onNext(MediaSubscriptionResult(Action.PAUSE, null, user))
+        subscribers.forEach {
+            it?.get()?.onNext(MediaSubscriptionResult(Action.PAUSE, null, user))
+        }
     }
 
     fun publishSeek(user: String, currentTime: Float) {
-        subscriber?.onNext(MediaSubscriptionResult(Action.SEEK, currentTime, user))
+        subscribers.forEach {
+            it?.get()?.onNext(MediaSubscriptionResult(Action.SEEK, currentTime, user))
+        }
     }
 }

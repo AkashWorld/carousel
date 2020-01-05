@@ -130,7 +130,7 @@ class ClientContextImpl private constructor() : ClientContext {
 
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                 super.onClosed(webSocket, code, reason)
-                logger.error(reason)
+                logger.info(reason)
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
@@ -203,10 +203,13 @@ class ClientContextImpl private constructor() : ClientContext {
     }
 
     companion object {
-        private val context = ClientContextImpl()
+        private var context: ClientContext? = null
 
-        fun getInstance(): ClientContextImpl {
-            return context
+        fun getInstance(): ClientContext {
+            if (context == null) {
+                context = ClientContextImpl()
+            }
+            return context as ClientContext
         }
     }
 }

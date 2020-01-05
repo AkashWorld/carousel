@@ -3,21 +3,7 @@ package server.model
 import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicReference
 
-class User constructor(private val username: String) {
-    private var media: Media? = null
-
-    fun getUsername(): String {
-        return this.username
-    }
-
-    fun setMedia(id: String) {
-        this.media = Media(id)
-    }
-
-    fun getMedia(): Media? {
-        return this.media
-    }
-}
+data class User(val username: String, var media: Media?, var isReady: Boolean = false)
 
 class UsersRepository {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
@@ -25,12 +11,12 @@ class UsersRepository {
     private val usersSet: AtomicReference<MutableSet<String>> = AtomicReference(HashSet())
 
     fun addUser(user: User): Boolean {
-        if (usersSet.get().contains(user.getUsername())) {
+        if (usersSet.get().contains(user.username)) {
             return false
         }
         usersList.get().add(user)
-        usersSet.get().add(user.getUsername())
-        logger.info("Added user ${user.getUsername()}")
+        usersSet.get().add(user.username)
+        logger.info("Added user ${user.username}")
         return true
     }
 
@@ -42,18 +28,18 @@ class UsersRepository {
         if (!usersSet.get().contains(username)) {
             return null
         }
-        return usersList.get().find { it.getUsername() == username }
+        return usersList.get().find { it.username == username }
     }
 
     fun removeUser(user: User): Boolean {
-        if (!usersSet.get().contains(user.getUsername())) {
+        if (!usersSet.get().contains(user.username)) {
             return false
         }
         usersList.get().removeIf {
-            it.getUsername() == user.getUsername()
+            it.username == user.username
         }
-        usersSet.get().remove(user.getUsername())
-        logger.info("Removed user ${user.getUsername()}")
+        usersSet.get().remove(user.username)
+        logger.info("Removed user ${user.username}")
         return true
     }
 

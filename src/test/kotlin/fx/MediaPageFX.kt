@@ -7,11 +7,10 @@ import client.models.ClientContext
 import client.models.ClientContextImpl
 import client.models.ContentType
 import client.models.Message
+import client.views.intropage.IntroPageStyles
 import client.views.playerpage.FileLoaderStyles
-import client.views.playerpage.FileLoaderView
 import client.views.playerpage.PlayerPage
 import client.views.playerpage.mediaplayer.MediaPlayerStyles
-import client.views.playerpage.chatfeed.ChatView
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -22,15 +21,19 @@ import tornadofx.*
 class MediaPageFX {
     private val server: Server = Server.getInstance()
 
-    class Application :
-        App(MediaPageTest::class, FileLoaderStyles::class, ChatFeedStyles::class, MediaPlayerStyles::class) {
-    }
+    class Application : App(
+        MediaPageTest::class,
+        ChatFeedStyles::class,
+        FileLoaderStyles::class,
+        MediaPlayerStyles::class,
+        IntroPageStyles::class
+    )
 
     class MediaPageTest : View() {
         private val testScope = Scope()
         private val clientContext: ClientContext = ClientContextImpl.getInstance()
         private val clientContextController = ClientContextController()
-        private val chatController: ChatController by inject(params = mapOf("clientContext" to clientContext))
+        private val chatController: ChatController by inject()
 
         init {
             val msglist = chatController.getMessages()
@@ -66,6 +69,7 @@ class MediaPageFX {
 
     @AfterEach
     private fun close() {
+        ClientContextImpl.getInstance().clearContext()
         server.close()
     }
 

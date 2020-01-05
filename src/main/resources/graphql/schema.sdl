@@ -52,12 +52,14 @@ extend type Subscription {
 type User {
     username: String!
     media: Media
+    isReady: Boolean!
 }
 
 enum UserAction {
     SIGN_IN
     SIGN_OUT
     CHANGE_MEDIA
+    IS_READY
 }
 
 type UserActionEvent {
@@ -68,6 +70,7 @@ type UserActionEvent {
 type Mutation {
     signIn(username: String!, password: String): String!
     signOut: Boolean!
+    readyCheck(isReady: Boolean!): Boolean!
 }
 
 type Query {

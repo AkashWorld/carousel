@@ -1,14 +1,12 @@
 package server
 
-import graphql.ExecutionInput
 import io.javalin.Javalin
 import io.javalin.http.Context
 import org.slf4j.LoggerFactory
-import com.google.gson.Gson
 import io.javalin.http.ForbiddenResponse
-import io.javalin.websocket.WsContext
 import io.javalin.websocket.WsMessageContext
 import server.model.*
+import java.util.concurrent.CompletableFuture
 import server.GraphQLProvider as GraphQLProvider
 
 const val DEFAULT_PORT = 57423
@@ -19,12 +17,12 @@ const val AUTH_HEADER = "Authorization"
 class Server private constructor(private val port: Int = DEFAULT_PORT) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val server: Javalin = Javalin.create()
+    private var graphQLProvider: GraphQLProvider? = null
     private val usersRepository = UsersRepository()
-    private val chatFeedRepository = ChatFeedRepository()
     private val userAuthentication = UserAuthenticationImpl(usersRepository)
-    private var graphQLProvider: GraphQLProvider =
-        GraphQLProvider(usersRepository, chatFeedRepository, userAuthentication)
     private val serverAuthentication = ServerAuthentication()
+    private val externalIPProvider: ExternalIPProvider = ExternalIPProviderImpl()
+    private val uPnPProvider: UPnPProvider = UPnPProviderImpl(port)
 
     init {
         this.server.before("*") {
@@ -48,7 +46,7 @@ class Server private constructor(private val port: Int = DEFAULT_PORT) {
                     logger.error("WS Access denied, user token not found")
                     throw ForbiddenResponse("There isn't any popcorn here!")
                 }
-                logger.info("${user.getUsername()} connected via WS")
+                logger.info("${user.username} connected via WS")
             }
             handler.onMessage {
                 serveSubscriptionGraphQLRequest(it)
@@ -62,21 +60,45 @@ class Server private constructor(private val port: Int = DEFAULT_PORT) {
         }
     }
 
-    fun initialize(): Boolean {
+    fun initialize() {
         try {
-            this.server.start(port)
+            if (!server.server()?.started!!) {
+                this.server.start(port)
+            }
         } catch (e: Exception) {
+            uPnPProvider.release()
             logger.error(e.message)
-            return false
+            throw(e)
         }
-        return true
+        val chatFeedRepository = ChatFeedRepository()
+        graphQLProvider = GraphQLProvider(usersRepository, chatFeedRepository, userAuthentication)
+    }
+
+    fun initPortForwarding() {
+        try {
+            uPnPProvider.requestMapping()
+        } catch (e: Exception) {
+            uPnPProvider.release()
+            logger.error(e.message)
+        }
+    }
+
+    fun getExternalIP(): String {
+        val future = CompletableFuture<String>()
+        externalIPProvider.getExternalIp(future)
+        try {
+            return future.get()
+        } catch (e: Exception) {
+            uPnPProvider.release()
+            throw Exception(e.message)
+        }
     }
 
     fun close() {
+        uPnPProvider.release()
         usersRepository.clear()
-        chatFeedRepository.clear()
         serverAuthentication.setServerPassword(null)
-        server.stop()
+        graphQLProvider = null
     }
 
     fun setServerPassword(password: String?) {
@@ -91,7 +113,7 @@ class Server private constructor(private val port: Int = DEFAULT_PORT) {
         logger.info("post /graphql from ip:${context.ip()}")
         logger.info("Request query: ${context.body()}")
         val user = userAuthentication.verifyUser(context.header(AUTH_HEADER))
-        val result = this.graphQLProvider.serveGraphQLQueryMutation(context.body(), user)
+        val result = this.graphQLProvider?.serveGraphQLQueryMutation(context.body(), user)
         if (result != null) {
             context.status(200).json(result)
             return
@@ -102,7 +124,7 @@ class Server private constructor(private val port: Int = DEFAULT_PORT) {
     private fun serveSubscriptionGraphQLRequest(handler: WsMessageContext) {
         val token = handler.header(AUTH_HEADER)
         val user = userAuthentication.verifyUser(token)
-        graphQLProvider.serveGraphQLSubscription(handler, user)
+        graphQLProvider?.serveGraphQLSubscription(handler, user)
     }
 
     private fun serverAccess(serverAccessHeader: String?) {

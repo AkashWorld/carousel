@@ -108,9 +108,17 @@ class ConnectFormFragment : Fragment() {
     private fun connectToServer() {
         root.children.clear()
         root.add(getSpinnerNode())
-        connectController.signInRequest({ find<IntroPage>().transitionToPlayerPage() }, {
+        connectController.signInRequest({
+            showConnectForm()
+            find<IntroPage>().transitionToPlayerPage()
+        }, {
             showConnectForm()
             it?.run { ViewUtils.showErrorDialog(it, primaryStage.scene.root as StackPane) }
         })
+    }
+
+    override fun onUndock() {
+        super.onUndock()
+        showConnectForm()
     }
 }

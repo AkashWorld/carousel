@@ -20,6 +20,10 @@ class MediaController : Controller() {
         mediaActionModel.setSeekAction(currentTime, error)
     }
 
+    fun loadMedia(filename: String, success: () -> Unit, error: () -> Unit) {
+        mediaActionModel.loadMediaAction(filename, success, error)
+    }
+
     fun getMediaActionObservable(): MediaActionObservable {
         return mediaActionModel.getMediaActionObservable()
     }

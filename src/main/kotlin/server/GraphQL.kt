@@ -38,7 +38,7 @@ class GraphQLProvider(
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private var graphql: GraphQL? = null
     private val userDataFetchers = UserDataFetchers(usersRepository, userAuthentication)
-    private val mediaDataFetchers = MediaDataFetchers()
+    private val mediaDataFetchers = MediaDataFetchers(userDataFetchers.getUserActionPublisher())
     private val chatFeedDataFetchers = ChatFeedDataFetchers(chatFeedRepository)
 
     init {
@@ -80,7 +80,7 @@ class GraphQLProvider(
             logger.error("Could not initialize GraphQL")
             return
         }
-        val graphqlContext = if(user != null) GraphQLContext(user) else user
+        val graphqlContext = if (user != null) GraphQLContext(user) else user
         val body: GraphQLQuery
         val query = handler.message()
         logger.info(query)
@@ -147,6 +147,7 @@ class GraphQLProvider(
             mutation.dataFetcher("load", this.mediaDataFetchers.mutationLoad())
             mutation.dataFetcher("insertImage", this.chatFeedDataFetchers.mutationInsertImage())
             mutation.dataFetcher("insertMessage", this.chatFeedDataFetchers.mutationInsertMessage())
+            mutation.dataFetcher("readyCheck", this.userDataFetchers.mutationReadyCheck())
         }
         runtimeWiringBuilder.type("Subscription") { subscription ->
             subscription.dataFetcher("mediaActions", this.mediaDataFetchers.subscriptionMedia())

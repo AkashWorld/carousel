@@ -10,6 +10,7 @@ class ChatFeedStyles : Stylesheet() {
     companion object {
         val chatButton by cssclass()
         val chatTextField by cssclass()
+        val chatListView by cssclass()
         val emojiButton by cssclass()
         val emojiPickerContainer by cssclass()
         val emojiTextField by cssclass()
@@ -25,7 +26,7 @@ class ChatFeedStyles : Stylesheet() {
     }
 
     init {
-        listView {
+        chatListView {
             listCell {
                 and(even) {
                     backgroundColor = multi(chatBackgroundColor)

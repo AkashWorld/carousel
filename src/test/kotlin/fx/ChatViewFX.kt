@@ -1,5 +1,6 @@
 package fx
 
+import tornadofx.*
 import client.views.playerpage.chatfeed.ChatFeedStyles
 import client.controllers.ChatController
 import client.controllers.ClientContextController
@@ -7,14 +8,12 @@ import client.models.ClientContext
 import client.models.ClientContextImpl
 import client.models.ContentType
 import client.models.Message
-import client.views.playerpage.chatfeed.ChatView
+import client.views.playerpage.chatfeed.ChatFragment
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import server.Server
-import tornadofx.Scope
-import tornadofx.*
 
 class ChatViewFX {
     private val server: Server = Server.getInstance()
@@ -29,7 +28,7 @@ class ChatViewFX {
         private val testScope = Scope()
         private val clientContext: ClientContext = ClientContextImpl.getInstance()
         private val clientContextController = ClientContextController()
-        private val chatController: ChatController by inject(params = mapOf("clientContext" to clientContext))
+        private val chatController: ChatController by inject()
 
         init {
             val msglist = chatController.getMessages()
@@ -47,7 +46,7 @@ class ChatViewFX {
         }
 
         override val root = hbox {
-            val chatView = find<ChatView>(scope = testScope, params = mapOf("clientContext" to clientContext))
+            val chatView = find<ChatFragment>(scope = testScope)
             this.add(chatView)
         }
     }

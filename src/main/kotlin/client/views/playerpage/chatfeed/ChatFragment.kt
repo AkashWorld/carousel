@@ -2,33 +2,39 @@ package client.views.playerpage.chatfeed
 
 import client.controllers.ChatController
 import client.controllers.ClientContextController
+import client.controllers.UsersController
 import client.models.Message
+import client.views.ViewUtils
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.jensd.fx.glyphs.materialicons.MaterialIconView
 import javafx.beans.Observable
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Insets
 import javafx.scene.control.ListView
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.Priority
+import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.stage.StageStyle
 import javafx.util.Duration
+import kotlinx.coroutines.delay
 import org.slf4j.LoggerFactory
 import tornadofx.*
 
-class ChatView : View() {
+class ChatFragment : Fragment() {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val clientContextController: ClientContextController by inject()
     private val chatController: ChatController by inject()
+    private val usersController: UsersController by inject()
     private val chatInput: SimpleStringProperty = SimpleStringProperty()
     private val serverAddress: SimpleStringProperty = SimpleStringProperty("")
     private val emojiPicker = find<EmojiPicker>("emojiCallback" to { alias: String ->
         emojiAliasCallback(alias)
     })
-    private val dropDownMenu = find<DropDownMenuFragment>()
     private lateinit var listView: ListView<Message>
+    private val menuButton = find<DropDownMenuFragment>()
 
     override val root = borderpane {
         hgrow = Priority.NEVER
@@ -75,6 +81,9 @@ class ChatView : View() {
                             }
                         }
                         this.add(icon)
+                        tooltip("Only share this IP address with those you trust!") {
+                            showDelay = Duration.ZERO
+                        }
                     }
                 }
                 style {
@@ -96,6 +105,7 @@ class ChatView : View() {
                     backgroundColor = multi(Color.TRANSPARENT)
                 }
                 listview(chatController.getMessages()) {
+                    addClass(ChatFeedStyles.chatListView)
                     listView = this
                     listView.scrollTo((chatController.getMessages().size) - 1)
                     items.addListener { _: Observable ->
@@ -165,27 +175,48 @@ class ChatView : View() {
                                 this.add(icon)
                             }
                             button {
+                                val isReady = SimpleBooleanProperty(false)
                                 addClass(ChatFeedStyles.emojiButton)
-                                val icon = MaterialIconView(MaterialIcon.MENU, "30px")
-                                icon.fill = ChatFeedStyles.chatTextColor
-                                icon.onHover {
-                                    if (it) {
-                                        icon.fill = Color.DARKGRAY
+                                val icon = MaterialIconView(MaterialIcon.CHECK_CIRCLE, "30px")
+                                isReady.addListener { _, _, newValue ->
+                                    if (newValue) {
+                                        icon.fill = Color.GREEN
                                     } else {
-                                        icon.fill = ChatFeedStyles.chatTextColor
+                                        icon.fill = Color.RED
                                     }
                                 }
-                                setOnMouseClicked {
-                                    val dropDownMenuStage = dropDownMenu.openWindow(StageStyle.TRANSPARENT)
-                                    dropDownMenuStage?.isAlwaysOnTop = true
-                                    dropDownMenuStage?.x = it.screenX
-                                    dropDownMenuStage?.y = it.screenY - dropDownMenuStage?.height!!
-                                    primaryStage.scene.setOnMouseClicked {
-                                        dropDownMenuStage.close()
+                                icon.onHover {
+                                    if (it) {
+                                        if (isReady.value) {
+                                            icon.fill = Color.DARKGREEN
+                                        } else {
+                                            icon.fill = Color.DARKRED
+                                        }
+                                    } else {
+                                        if (isReady.value) {
+                                            icon.fill = Color.GREEN
+                                        } else {
+                                            icon.fill = Color.RED
+                                        }
                                     }
                                 }
                                 this.add(icon)
+                                icon.fill = Color.RED
+                                tooltip("Ready Check")
+                                setOnMouseClicked {
+                                    usersController.sendReadyCheck(
+                                        !isReady.value,
+                                        { isReady.value = it },
+                                        {
+                                            ViewUtils.showErrorDialog(
+                                                "Could not send ready check",
+                                                primaryStage.scene.root as StackPane
+                                            )
+                                        }
+                                    )
+                                }
                             }
+                            this.add(menuButton)
                         }
                     }
                 }
@@ -207,7 +238,7 @@ class ChatView : View() {
 
     override fun onDock() {
         super.onDock()
-        serverAddress.value = clientContextController.getAddress()
+        serverAddress.value = "Server Address: ${clientContextController.getAddress()}"
         chatController.subscribeToMessages()
     }
 

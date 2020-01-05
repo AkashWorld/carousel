@@ -50,6 +50,9 @@ class IntroPage : View() {
         right {
             this.add(connectForm)
             toggleGroup.selectedToggleProperty().addListener { _, _, newValue ->
+                if(newValue == null) {
+                    return@addListener
+                }
                 if (newValue.userData == ToggleEnum.HOST_PAGE) {
                     if (this.children.first() != hostForm.root) {
                         this.children.remove(connectForm.root)
@@ -70,7 +73,7 @@ class IntroPage : View() {
     }
 
     fun transitionToPlayerPage() {
-        root.replaceWith(find<PlayerPage>().root, ViewTransition.Fade(1000.millis))
+        root.replaceWith(find<PlayerPage>().root)
     }
 
     override fun onDock() {

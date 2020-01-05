@@ -72,6 +72,7 @@ class MediaPlayerView : View() {
     private var canvasImageHeight = 0.0
     private var lastMouseMovedMilli = 0L
     private val hoverCheckerService: ScheduledService<Unit>
+    private var isMouseInsideMediaPane: Boolean = false
     /**
      * This exists to stop the control's time slider from asking the media player to change position, and
      * then the media player from sending a callback to change the slider position
@@ -91,14 +92,14 @@ class MediaPlayerView : View() {
             this.paddingLeft = 25.0
             this.paddingTop = 25.0
             chatController.getMessages().addListener { _: Observable ->
-                if (!controls.isOverlayButtonChecked()) {
+                if (!controls.isOverlayButtonChecked() || chatController.getMessages().isEmpty()) {
                     return@addListener
                 }
                 val message = chatController.getMessages().last()
                 this.clear()
                 this.add(find<MessageFragment>(params = mapOf("message" to message, "textSize" to 25.0)))
                 runLater(5000.millis) {
-                    if (message == chatController.getMessages().last()) {
+                    if (chatController.getMessages().isEmpty() || message == chatController.getMessages().last()) {
                         this.clear()
                     }
                 }
@@ -123,6 +124,8 @@ class MediaPlayerView : View() {
                 mediaPane.add(controlPane)
             }
         }
+        mediaPane.setOnMouseEntered { isMouseInsideMediaPane = true }
+        mediaPane.setOnMouseExited { isMouseInsideMediaPane = false }
         mediaPane.onHover {
             if (!it) {
                 runLater(2000.millis) {
@@ -146,9 +149,8 @@ class MediaPlayerView : View() {
             override fun createTask(): Task<Unit> {
                 return object : Task<Unit>() {
                     override fun call() {
-                        if (Instant.now().toEpochMilli() - lastMouseMovedMilli > 2500 && mediaPane.children.contains(
-                                controlPane
-                            )
+                        if (Instant.now().toEpochMilli() - lastMouseMovedMilli > 2500 && isMouseInsideMediaPane
+                            && mediaPane.children.contains(controlPane)
                         ) {
                             runLater {
                                 primaryStage.scene.cursor = Cursor.NONE
@@ -194,6 +196,7 @@ class MediaPlayerView : View() {
         mediaActionObservable?.removeListener(mediaActionListener)
         mediaActionObservable = null
         mediaController.cleanUp()
+        chatController.setChatShown(true)
         clearCanvas(mediaCanvas)
     }
 

@@ -8,12 +8,14 @@ import server.GraphQLContext
 import server.model.User
 import server.model.UserAuthentication
 import server.model.UsersRepository
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicReference
 
 enum class UserAction {
     SIGN_IN,
     SIGN_OUT,
-    CHANGE_MEDIA
+    CHANGE_MEDIA,
+    IS_READY
 }
 
 data class UserActionEvent(private val action: UserAction, private val user: User)
@@ -26,9 +28,9 @@ class UserDataFetchers constructor(
     private val userActionPublisher = UserActionPublisher()
 
     fun queryGetAllUsers(): DataFetcher<List<User>?> {
-        return DataFetcher {environment ->
+        return DataFetcher { environment ->
             val context: GraphQLContext = environment.getContext() ?: return@DataFetcher null
-            logger.info("Context(${context.user.getUsername()}): getAllUsers")
+            logger.info("Context(${context.user.username}): getAllUsers")
             this.usersRepository.getAllUsers()
         }
     }
@@ -37,7 +39,7 @@ class UserDataFetchers constructor(
         return DataFetcher { environment ->
             val password: String? = environment.getArgument("password")
             val username: String = environment.getArgument("username")
-            val newUser = User(username)
+            val newUser = User(username, null)
             if (usersRepository.addUser(newUser)) {
                 this.userActionPublisher.publishUserActionEvent(newUser, UserAction.SIGN_IN)
                 userAuthentication.generateAuthToken(newUser)
@@ -53,31 +55,48 @@ class UserDataFetchers constructor(
             val context: GraphQLContext = environment.getContext() ?: return@DataFetcher null
             usersRepository.removeUser(context.user)
             this.userActionPublisher.publishUserActionEvent(context.user, UserAction.SIGN_OUT)
-            logger.info("Context(${context.user.getUsername()}): signOut")
+            logger.info("Context(${context.user.username}): signOut")
             true
         }
     }
 
+    fun mutationReadyCheck(): DataFetcher<Boolean?> {
+        return DataFetcher {
+            val context: GraphQLContext = it.getContext() ?: return@DataFetcher null
+            val isReady: Boolean = it.getArgument("isReady")
+            context.user.isReady = isReady
+            this.userActionPublisher.publishUserActionEvent(context.user, UserAction.IS_READY)
+            isReady
+        }
+    }
+
     fun subscriptionUserAction(): DataFetcher<Publisher<UserActionEvent>> {
-        return DataFetcher {environment ->
+        return DataFetcher { environment ->
             val context = environment.getContext<GraphQLContext?>()
             if (context == null) {
-                logger.error("queryGetMessagePaginated: No context found")
-                throw Exception("queryGetMessagePaginated: No context found")
+                logger.error("subscriptionUserAction: No context found")
+                throw Exception("subscriptionUserAction: No context found")
             }
             userActionPublisher
         }
     }
+
+    fun getUserActionPublisher(): UserActionPublisher {
+        return userActionPublisher
+    }
 }
 
-class UserActionPublisher: Publisher<UserActionEvent> {
-    private val s: AtomicReference<Subscriber<in UserActionEvent>?> = AtomicReference()
+class UserActionPublisher : Publisher<UserActionEvent> {
+    private val subscribers: ConcurrentLinkedQueue<AtomicReference<Subscriber<in UserActionEvent>?>> =
+        ConcurrentLinkedQueue()
 
     override fun subscribe(s: Subscriber<in UserActionEvent>?) {
-        this.s.set(s)
+        subscribers.add(AtomicReference(s))
     }
 
     fun publishUserActionEvent(user: User, event: UserAction) {
-        this.s.get()?.onNext(UserActionEvent(event, user))
+        subscribers.forEach {
+            it?.get()?.onNext(UserActionEvent(event, user))
+        }
     }
 }

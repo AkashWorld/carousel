@@ -8,6 +8,7 @@ import server.GraphQLContext
 import server.model.ChatFeedRepository
 import server.model.ContentType
 import server.model.Message
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicReference
 
 class ChatFeedDataFetchers(private val chatFeed: ChatFeedRepository) {
@@ -77,13 +78,15 @@ class ChatFeedDataFetchers(private val chatFeed: ChatFeedRepository) {
 }
 
 class ChatFeedPublisher : Publisher<Message> {
-    private val subscriber: AtomicReference<Subscriber<in Message>?> = AtomicReference()
+    private val subscribers: ConcurrentLinkedQueue<AtomicReference<Subscriber<in Message>?>> = ConcurrentLinkedQueue()
 
     override fun subscribe(s: Subscriber<in Message>?) {
-        subscriber.set(s)
+        subscribers.add(AtomicReference(s))
     }
 
     fun publishMessage(message: Message) {
-        subscriber.get()?.onNext(message)
+        subscribers.forEach {
+            it.get()?.onNext(message)
+        }
     }
 }

@@ -93,9 +93,17 @@ class HostFormFragment : Fragment() {
     private fun hostNewServer() {
         root.children.clear()
         root.add(getSpinnerNode())
-        hostController.hostNewServer({ find<IntroPage>().transitionToPlayerPage() }, {
+        hostController.hostNewServer({
+            showHostForm()
+            find<IntroPage>().transitionToPlayerPage()
+        }, {
             showHostForm()
             it?.run { ViewUtils.showErrorDialog(it, primaryStage.scene.root as StackPane) }
         })
+    }
+
+    override fun onUndock() {
+        super.onUndock()
+        showHostForm()
     }
 }

@@ -5,14 +5,17 @@ import org.slf4j.LoggerFactory
 import tornadofx.Controller
 import tornadofx.chooseFile
 import java.io.File
+import java.nio.file.Path
+import java.nio.file.Paths
 
 class FileLoaderController : Controller() {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val videoFilter =
         FileChooser.ExtensionFilter("Video Extensions", "*.mkv", "*.mp4", "*.webm", "*.ogg", "*.flv", "*.wav", "*.avi")
     private var currentFile: File? = null
+    private val mediaController: MediaController by inject()
 
-    fun loadVideoFile(): Boolean {
+    fun loadVideoFile(success: () -> Unit, error: (String?) -> Unit) {
         val videoFile = chooseFile("Choose video", arrayOf(videoFilter)) {
             val homeDir: String = System.getProperty("user.home")
             val videoFilePath = File("$homeDir/Videos")
@@ -20,11 +23,14 @@ class FileLoaderController : Controller() {
         }
         if (videoFile.size != 1) {
             logger.error("Could not load video")
-            return false
+            error("Please select a video to play")
+            return
         }
-        logger.info(videoFile.toString())
-        this.currentFile = videoFile[0]
-        return true
+        val filename = videoFile[0].name
+        mediaController.loadMedia(filename, {
+            this.currentFile = videoFile[0]
+            success()
+        }, { error("Could not sync file loading with the server") })
     }
 
     fun getCurrentSelectedFile(): File? {

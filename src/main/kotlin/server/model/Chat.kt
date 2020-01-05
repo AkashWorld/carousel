@@ -14,7 +14,7 @@ class ChatFeedRepository {
     private val messages = AtomicReference(mutableListOf<Message>())
 
     fun addMessage(user: User, content: String, contentType: ContentType): Message {
-        val message = Message(contentType, content, user.getUsername(), Instant.now().epochSecond.toString())
+        val message = Message(contentType, content, user.username, Instant.now().epochSecond.toString())
         messages.get().add(message)
         return message
     }

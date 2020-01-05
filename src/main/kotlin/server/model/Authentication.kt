@@ -16,6 +16,6 @@ class UserAuthenticationImpl(private val usersRepository: UsersRepository): User
     }
 
     override fun generateAuthToken(user: User): String {
-        return user.getUsername()
+        return user.username
     }
 }

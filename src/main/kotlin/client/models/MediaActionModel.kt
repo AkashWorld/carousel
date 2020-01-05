@@ -10,6 +10,7 @@ interface MediaActionModel {
     fun setPauseAction(error: () -> Unit)
     fun setPlayAction(error: () -> Unit)
     fun setSeekAction(msTime: Float, error: () -> Unit)
+    fun loadMediaAction(filename: String, success: () -> Unit, error: () -> Unit)
     fun subscribeToActions(error: () -> Unit)
     fun getMediaActionObservable(): MediaActionObservable
     fun releaseSubscription()
@@ -31,7 +32,7 @@ class MediaActionModelImpl : MediaActionModel {
                 pause
             }
         """.trimIndent()
-        clientContext.sendQueryOrMutationRequest(mediaPauseMutation, mapOf(), {}, error)
+        clientContext.sendQueryOrMutationRequest(mediaPauseMutation, mapOf(), {}, { runLater(error) })
     }
 
     override fun setPlayAction(error: () -> Unit) {
@@ -40,7 +41,7 @@ class MediaActionModelImpl : MediaActionModel {
                 play
             }
         """.trimIndent()
-        clientContext.sendQueryOrMutationRequest(mediaPlayMutation, mapOf(), {}, error)
+        clientContext.sendQueryOrMutationRequest(mediaPlayMutation, mapOf(), {}, { runLater(error) })
     }
 
     override fun setSeekAction(msTime: Float, error: () -> Unit) {
@@ -50,7 +51,23 @@ class MediaActionModelImpl : MediaActionModel {
             }
         """.trimIndent()
         val variables = mapOf("currentTime" to msTime.toString())
-        clientContext.sendQueryOrMutationRequest(mediaSeekMutation, variables, {}, error)
+        clientContext.sendQueryOrMutationRequest(mediaSeekMutation, variables, {}, {
+            runLater(error)
+        })
+    }
+
+    override fun loadMediaAction(filename: String, success: () -> Unit, error: () -> Unit) {
+        val loadMediaMutation = """
+            mutation MediaLoad(${"$"}file: String!) {
+                load(file:${"$"}file) {
+                    id
+                }
+            }
+        """.trimIndent()
+        val variables = mapOf("file" to filename)
+        clientContext.sendQueryOrMutationRequest(loadMediaMutation, variables, { runLater(success) }, {
+            runLater(error)
+        })
     }
 
     override fun subscribeToActions(error: () -> Unit) {
@@ -77,11 +94,15 @@ class MediaActionModelImpl : MediaActionModel {
                 }
             } catch (e: Exception) {
                 logger.error(e.message, e.cause)
-                error()
+                runLater {
+                    error()
+                }
             }
         }, error)
         if (ws == null) {
-            error()
+            runLater {
+                error()
+            }
         }
     }
 

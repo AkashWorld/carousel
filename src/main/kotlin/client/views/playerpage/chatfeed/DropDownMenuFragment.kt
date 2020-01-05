@@ -1,30 +1,50 @@
 package client.views.playerpage.chatfeed
 
+import client.views.playerpage.PlayerPage
 import com.jfoenix.controls.JFXListView
+import de.jensd.fx.glyphs.materialicons.MaterialIcon
+import de.jensd.fx.glyphs.materialicons.MaterialIconView
+import javafx.geometry.Side
+import javafx.scene.control.MenuItem
 import javafx.scene.control.SelectionMode
-import tornadofx.Fragment
-import tornadofx.addClass
-import tornadofx.stackpane
-import tornadofx.toObservable
+import javafx.scene.paint.Color
+import javafx.stage.StageStyle
+import tornadofx.*
 
 class DropDownMenuFragment : Fragment() {
-    private val options = listOf("Load Video", "Exit")
-    override val root = stackpane {
-        val list = JFXListView<String>()
-        list.addClass(ChatFeedStyles.menuListView)
-        list.selectionModel.selectionMode = SelectionMode.SINGLE
-        list.items = options.toObservable()
-        list.selectionModel.selectedItemProperty().addListener { _, _, newValue ->
-            performSelectionAction(newValue)
+    private val playerPage: PlayerPage by inject()
+
+    override val root = button {
+        addClass(ChatFeedStyles.emojiButton)
+        val icon = MaterialIconView(MaterialIcon.MENU, "30px")
+        icon.fill = ChatFeedStyles.chatTextColor
+        icon.onHover {
+            if (it) {
+                icon.fill = Color.DARKGRAY
+            } else {
+                icon.fill = ChatFeedStyles.chatTextColor
+            }
         }
-        this.add(list)
-    }
-
-    private fun performSelectionAction(selection: String) {
-        if (selection == "Load Video") {
-
-        } else if (selection == "Exit") {
-
+        val menu = contextmenu {
+            isAutoHide = true
+            item("Load View") {
+                setOnAction {
+                    playerPage.navigateToFileLoader()
+                }
+            }
+            item("Exit") {
+                setOnAction {
+                    playerPage.navigateToIntroPage()
+                }
+            }
+        }
+        this.add(icon)
+        setOnAction {
+            if (menu.isShowing) {
+                menu.hide()
+            } else {
+                menu.show(this, Side.TOP, 0.0, 0.0)
+            }
         }
     }
 }

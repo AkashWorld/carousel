@@ -90,8 +90,6 @@ class ChatController : Controller() {
     }
 
     fun cleanUp() {
-        chatModel.releaseSubscription()
-        usersController.releaseSubscription()
         mediaController.getMediaActionObservable().removeListener(mediaListener)
         usersController.getUserActionObservable().removeListener(usersActionListener)
         chatModel.clear()

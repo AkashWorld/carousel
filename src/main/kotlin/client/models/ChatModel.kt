@@ -1,7 +1,6 @@
 package client.models
 
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import javafx.collections.ObservableList
 import okhttp3.WebSocket
 import org.slf4j.LoggerFactory
@@ -29,7 +28,6 @@ class ChatModel {
     private val chatList: ObservableList<Message> = mutableListOf<Message>().toObservable()
     private val allMessages: MutableList<Message> = mutableListOf()
     private var isInfoMessageShown = true
-    private var ws: WebSocket? = null
 
     fun sendInsertMessageRequest(content: String) {
         val mutation = """
@@ -54,8 +52,7 @@ class ChatModel {
         val variables = mapOf("start" to 0, "count" to count)
         clientContext.sendQueryOrMutationRequest(mutation, variables, {
             try {
-                val gson = Gson()
-                gson.fromJson(it, GraphQLResponse::class.java).data.getMessagesPaginated.forEach { addMessage(it) }
+                Gson().fromJson(it, GraphQLResponse::class.java).data.getMessagesPaginated.forEach { addMessage(it) }
             } catch (e: Exception) {
                 logger.error(e.message, e.cause)
                 error()
@@ -88,10 +85,11 @@ class ChatModel {
             }
         """.trimIndent()
         val variables = mapOf<String, Any>()
-        ws = clientContext.sendSubscriptionRequest(subscription, variables, { body ->
+        clientContext.sendSubscriptionRequest(subscription, variables, { body ->
             try {
                 val result: Map<String, String> =
-                    gson.fromJson(body, Map::class.java)["chatFeed"] as Map<String, String>
+                    gson.fromJson(body, Map::class.java)["chatFeed"] as Map<String, String>?
+                        ?: return@sendSubscriptionRequest
                 val username = result["username"]
                 val content = result["content"]
                 if (username != null && content != null) {
@@ -101,7 +99,6 @@ class ChatModel {
                 }
             } catch (e: Exception) {
                 logger.error(e.message, e.cause)
-                error()
             }
         }, error)
     }
@@ -116,14 +113,8 @@ class ChatModel {
         }
     }
 
-    fun releaseSubscription() {
-        ws?.run { this.close(1001, "Undock") }
-    }
-
     fun clear() {
         allMessages.clear()
         chatList.clear()
-        releaseSubscription()
-        ws = null
     }
 }

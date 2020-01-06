@@ -34,8 +34,4 @@ class MediaController : Controller() {
             runLater(error)
         }
     }
-
-    fun cleanUp() {
-        mediaActionModel.releaseSubscription()
-    }
 }

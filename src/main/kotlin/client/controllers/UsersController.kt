@@ -16,10 +16,6 @@ class UsersController : Controller() {
         usersModel.subscribeToUserActions { error() }
     }
 
-    fun releaseSubscription() {
-        usersModel.releaseSubscription()
-    }
-
     fun sendReadyCheck(success: () -> Unit, error: () -> Unit) {
         usersModel.sendReadyCheck(!isReady.value, {
             if (!it) {

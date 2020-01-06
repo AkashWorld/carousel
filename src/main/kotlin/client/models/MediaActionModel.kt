@@ -13,14 +13,12 @@ interface MediaActionModel {
     fun loadMediaAction(filename: String, success: () -> Unit, error: () -> Unit)
     fun subscribeToActions(error: () -> Unit)
     fun getMediaActionObservable(): MediaActionObservable
-    fun releaseSubscription()
 }
 
 class MediaActionModelImpl : MediaActionModel {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val clientContext = ClientContextImpl.getInstance()
     private val mediaActionObservable = MediaActionObservable(null)
-    private var ws: WebSocket? = null
 
     override fun getMediaActionObservable(): MediaActionObservable {
         return mediaActionObservable
@@ -71,9 +69,6 @@ class MediaActionModelImpl : MediaActionModel {
     }
 
     override fun subscribeToActions(error: () -> Unit) {
-        if (ws != null) {
-            return
-        }
         val mediaSubscription = """
             subscription {
                 mediaActions {
@@ -84,33 +79,18 @@ class MediaActionModelImpl : MediaActionModel {
             }
         """.trimIndent()
         val variables = mapOf<String, Any>()
-        ws = clientContext.sendSubscriptionRequest(mediaSubscription, variables, {
+        clientContext.sendSubscriptionRequest(mediaSubscription, variables, {
             val gson = Gson()
             try {
                 val actionJson = gson.fromJson(it, JsonObject::class.java).get("mediaActions")
                 val action = gson.fromJson(actionJson, MediaAction::class.java)
                 runLater {
-                    mediaActionObservable.setValue(action)
+                    action?.run { mediaActionObservable.setValue(this) }
                 }
             } catch (e: Exception) {
                 logger.error(e.message, e.cause)
-                runLater {
-                    error()
-                }
             }
         }, error)
-        if (ws == null) {
-            runLater {
-                error()
-            }
-        }
-    }
-
-    override fun releaseSubscription() {
-        ws?.run {
-            this.close(1001, "Undocked")
-            ws = null
-        }
     }
 }
 

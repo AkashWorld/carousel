@@ -21,7 +21,6 @@ class UsersModel {
     private val context = ClientContextImpl.getInstance()
     private val users: ObservableList<UserObservable> = listOf<UserObservable>().toObservable()
     private val userActionObservable = UserActionObservable()
-    private var ws: WebSocket? = null
 
     fun getUsers(): ObservableList<UserObservable> {
         if (users.isEmpty()) {
@@ -111,30 +110,31 @@ class UsersModel {
                 }
             }
         """.trimIndent()
-        ws = context.sendSubscriptionRequest(query, null, {
+        context.sendSubscriptionRequest(query, null, {
             runLater {
                 val gson = Gson()
                 try {
                     val userAction = gson.fromJson(it, JsonObject::class.java).get("userAction")
                     val action = gson.fromJson(userAction, UserActionEvent::class.java)
-                    userActionObservable.setValue(action)
-                    when (action.action) {
-                        UserAction.SIGN_IN -> {
-                            addUser(action.user)
-                        }
-                        UserAction.SIGN_OUT -> {
-                            removeUser(action.user)
-                        }
-                        UserAction.CHANGE_MEDIA -> {
-                            changeMedia(action.user)
-                        }
-                        UserAction.IS_READY -> {
-                            changeIsReady(action.user)
+                    action?.run {
+                        userActionObservable.setValue(this)
+                        when (this.action) {
+                            UserAction.SIGN_IN -> {
+                                addUser(this.user)
+                            }
+                            UserAction.SIGN_OUT -> {
+                                removeUser(this.user)
+                            }
+                            UserAction.CHANGE_MEDIA -> {
+                                changeMedia(this.user)
+                            }
+                            UserAction.IS_READY -> {
+                                changeIsReady(this.user)
+                            }
                         }
                     }
                 } catch (e: Exception) {
                     logger.error(e.message, e.cause)
-                    runLater(error)
                     return@runLater
                 }
             }
@@ -161,11 +161,6 @@ class UsersModel {
 
     private fun addUser(user: User) {
         users.add(UserObservable(user))
-    }
-
-    fun releaseSubscription() {
-        ws?.close(1001, "Release")
-        ws = null
     }
 
     fun clear() {

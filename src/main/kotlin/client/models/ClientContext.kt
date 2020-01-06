@@ -6,7 +6,6 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.slf4j.LoggerFactory
 import server.AUTH_HEADER
 import server.SERVER_ACCESS_HEADER
-import tornadofx.runLater
 import java.io.IOException
 
 /**
@@ -31,7 +30,7 @@ interface ClientContext {
         variables: Map<String, Any>?,
         responseHandler: (String) -> Unit,
         error: () -> Unit
-    ): WebSocket?
+    )
 
     fun sendQueryOrMutationRequest(
         query: String,
@@ -49,6 +48,8 @@ class ClientContextImpl private constructor() : ClientContext {
     private var serverAddress: String? = null
     private var serverPassword: String? = null
     private var usernameTokenPair: Pair<String, String>? = null
+    private var gqlWebSocketListener: GQLWebSocketListener? = null
+    private var webSocket: WebSocket? = null
 
     override fun requestSignInToken(
         username: String,
@@ -83,6 +84,7 @@ class ClientContextImpl private constructor() : ClientContext {
                     usernameTokenPair = Pair(username, (body["data"] as Map<*, *>)["signIn"] as String)
                     serverAddress = address
                     serverPassword = password
+                    setUpWebSocketConnection()
                     success()
                 } catch (e: Exception) {
                     usernameTokenPair = null
@@ -92,6 +94,18 @@ class ClientContextImpl private constructor() : ClientContext {
             }
         })
 
+    }
+
+    private fun setUpWebSocketConnection() {
+        val wsRequestBuilder = Request.Builder().url("ws://${serverAddress}:57423/subscription").addHeader(
+            AUTH_HEADER, usernameTokenPair!!.second
+        )
+        if (serverPassword != null) {
+            wsRequestBuilder.addHeader(SERVER_ACCESS_HEADER, serverPassword!!)
+        }
+        val wsRequest: Request = wsRequestBuilder.build()
+        gqlWebSocketListener = GQLWebSocketListener()
+        webSocket = client.newWebSocket(wsRequest, gqlWebSocketListener!!)
     }
 
     override fun getUsername(): String? {
@@ -130,44 +144,15 @@ class ClientContextImpl private constructor() : ClientContext {
         variables: Map<String, Any>?,
         responseHandler: (String) -> Unit,
         error: () -> Unit
-    ): WebSocket? {
-        if (serverAddress == null || usernameTokenPair == null) {
-            logger.error("Must set the server address!")
-            return null
+    ) {
+        if (serverAddress == null || usernameTokenPair == null || webSocket == null || gqlWebSocketListener == null) {
+            logger.error("ClientContext websocket is not initialized")
+            error()
+            return
         }
-        val gson = Gson()
-        val queryMap = gson.toJson(mapOf("query" to query, "variables" to variables))
-        val wsRequestBuilder = Request.Builder().url("ws://${serverAddress}:57423/subscription").addHeader(
-            AUTH_HEADER, usernameTokenPair!!.second
-        )
-        if (serverPassword != null) {
-            wsRequestBuilder.addHeader(SERVER_ACCESS_HEADER, serverPassword!!)
+        if (gqlWebSocketListener?.addWebSocketHandler(query, responseHandler, error) == true) {
+            webSocket?.send(Gson().toJson(mapOf("query" to query, "variables" to variables)))
         }
-        val wsRequest: Request = wsRequestBuilder.build()
-        val wsListener: WebSocketListener = object : WebSocketListener() {
-            override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-                logger.error("WebSocket Failure", t)
-                error()
-            }
-
-            override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-                super.onClosed(webSocket, code, reason)
-                logger.info(reason)
-            }
-
-            override fun onMessage(webSocket: WebSocket, text: String) {
-                logger.info(text)
-                try {
-                    responseHandler(text)
-                } catch (e: Exception) {
-                    logger.error(e.message, e.cause)
-                    error()
-                }
-            }
-        }
-        val ws = client.newWebSocket(wsRequest, wsListener)
-        ws.send(queryMap)
-        return ws
     }
 
     override fun sendQueryOrMutationRequest(
@@ -222,6 +207,9 @@ class ClientContextImpl private constructor() : ClientContext {
         serverAddress = null
         serverPassword = null
         usernameTokenPair = null
+        webSocket?.close(1001, "Clearing Context")
+        webSocket = null
+        gqlWebSocketListener = null
     }
 
     companion object {

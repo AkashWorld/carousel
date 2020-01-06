@@ -202,7 +202,6 @@ class MediaPlayerView : View() {
         mediaPlayer = null
         mediaActionObservable?.removeListener(mediaActionListener)
         mediaActionObservable = null
-        mediaController.cleanUp()
         chatController.setChatShown(true)
         usersController.isReady.value = false
         clearCanvas(mediaCanvas)

@@ -3,6 +3,7 @@ package client.models
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import javafx.collections.ObservableList
+import okhttp3.WebSocket
 import org.slf4j.LoggerFactory
 import tornadofx.*
 
@@ -19,6 +20,8 @@ class UsersModel {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val context = ClientContextImpl.getInstance()
     private val users: ObservableList<UserObservable> = listOf<UserObservable>().toObservable()
+    private val userActionObservable = UserActionObservable()
+    private var ws: WebSocket? = null
 
     fun getUsers(): ObservableList<UserObservable> {
         if (users.isEmpty()) {
@@ -27,7 +30,11 @@ class UsersModel {
         return users
     }
 
-    private fun sendGetAllUsersRequest(error: () -> Unit) {
+    fun getUserActionObservable(): UserActionObservable {
+        return userActionObservable
+    }
+
+    fun sendGetAllUsersRequest(error: () -> Unit) {
         val query = """
             query AllUsers {
                 getAllUsers {
@@ -35,6 +42,7 @@ class UsersModel {
                     media {
                         id
                     }
+                    isReady
                 }
             }
         """.trimIndent()
@@ -98,16 +106,18 @@ class UsersModel {
                         media {
                             id
                         }
+                        isReady
                     }
                 }
             }
         """.trimIndent()
-        context.sendSubscriptionRequest(query, null, {
+        ws = context.sendSubscriptionRequest(query, null, {
             runLater {
                 val gson = Gson()
                 try {
                     val userAction = gson.fromJson(it, JsonObject::class.java).get("userAction")
                     val action = gson.fromJson(userAction, UserActionEvent::class.java)
+                    userActionObservable.setValue(action)
                     when (action.action) {
                         UserAction.SIGN_IN -> {
                             addUser(action.user)
@@ -140,7 +150,9 @@ class UsersModel {
     }
 
     private fun changeIsReady(user: User) {
-        user.isReady.run { users.find { it.value.username == user.username }?.setIsReady(this) }
+        users.find {
+            it.value.username == user.username
+        }?.setIsReady(user.isReady)
     }
 
     private fun removeUser(user: User) {
@@ -149,6 +161,11 @@ class UsersModel {
 
     private fun addUser(user: User) {
         users.add(UserObservable(user))
+    }
+
+    fun releaseSubscription() {
+        ws?.close(1001, "Release")
+        ws = null
     }
 
     fun clear() {

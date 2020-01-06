@@ -1,7 +1,7 @@
 type User {
     username: String!
+    isReady: Boolean
     media: Media
-    isReady: Boolean!
 }
 
 enum UserAction {

@@ -78,15 +78,15 @@ class ChatFeedDataFetchers(private val chatFeed: ChatFeedRepository) {
 }
 
 class ChatFeedPublisher : Publisher<Message> {
-    private val subscribers: ConcurrentLinkedQueue<AtomicReference<Subscriber<in Message>?>> = ConcurrentLinkedQueue()
+    private val subscribers: ConcurrentLinkedQueue<Subscriber<in Message>?> = ConcurrentLinkedQueue()
 
     override fun subscribe(s: Subscriber<in Message>?) {
-        subscribers.add(AtomicReference(s))
+        subscribers.add(s)
     }
 
     fun publishMessage(message: Message) {
         subscribers.forEach {
-            it.get()?.onNext(message)
+            it?.onNext(message)
         }
     }
 }

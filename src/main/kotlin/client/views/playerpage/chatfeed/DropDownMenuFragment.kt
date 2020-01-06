@@ -1,18 +1,17 @@
 package client.views.playerpage.chatfeed
 
+import client.controllers.ChatController
+import client.models.ClientContextImpl
 import client.views.playerpage.PlayerPage
-import com.jfoenix.controls.JFXListView
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.jensd.fx.glyphs.materialicons.MaterialIconView
 import javafx.geometry.Side
-import javafx.scene.control.MenuItem
-import javafx.scene.control.SelectionMode
 import javafx.scene.paint.Color
-import javafx.stage.StageStyle
 import tornadofx.*
 
 class DropDownMenuFragment : Fragment() {
     private val playerPage: PlayerPage by inject()
+    private val chatController : ChatController by inject()
 
     override val root = button {
         addClass(ChatFeedStyles.emojiButton)
@@ -32,8 +31,14 @@ class DropDownMenuFragment : Fragment() {
                     playerPage.navigateToFileLoader()
                 }
             }
+            item("Toggle Status Info") {
+                setOnAction {
+                    chatController.toggleIsInfoShown()
+                }
+            }
             item("Exit") {
                 setOnAction {
+                    ClientContextImpl.getInstance().sendSignOutRequest()
                     playerPage.navigateToIntroPage()
                 }
             }
@@ -43,7 +48,7 @@ class DropDownMenuFragment : Fragment() {
             if (menu.isShowing) {
                 menu.hide()
             } else {
-                menu.show(this, Side.TOP, 0.0, 0.0)
+                menu.show(this, Side.LEFT, 0.0, 0.0)
             }
         }
     }

@@ -21,6 +21,7 @@ interface ClientContext {
         error: (String?) -> Unit
     )
 
+    fun sendSignOutRequest()
     fun isValidContext(): Boolean
     fun getServerAddress(): String?
     fun getContextToken(): String?
@@ -102,6 +103,27 @@ class ClientContextImpl private constructor() : ClientContext {
     override fun getServerAddress(): String? {
         return serverAddress
     }
+
+    override fun sendSignOutRequest() {
+        if (this.usernameTokenPair == null) {
+            return
+        }
+        val query = """
+            mutation SignOut {
+                signOut
+            }
+        """.trimIndent()
+        val gson = Gson()
+        val queryMap = mapOf("query" to query, "variables" to null)
+        val body: RequestBody = gson.toJson(queryMap).toRequestBody()
+        val request = Request.Builder().post(body)
+            .url("http://${serverAddress}:57423/graphql")
+            .header(SERVER_ACCESS_HEADER, serverPassword ?: "")
+            .header(AUTH_HEADER, usernameTokenPair!!.second)
+            .build()
+        client.newCall(request).execute()
+    }
+
 
     override fun sendSubscriptionRequest(
         query: String,

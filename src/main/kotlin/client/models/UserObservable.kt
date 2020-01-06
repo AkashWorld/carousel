@@ -14,7 +14,7 @@ class UserObservable(private val user: User) : ObservableValue<User> {
     private val listeners: MutableList<ChangeListener<in User>> = mutableListOf()
 
     override fun removeListener(listener: ChangeListener<in User>?) {
-        listener?.run { listeners.add(this) }
+        listener?.run { listeners.remove(this) }
     }
 
     override fun addListener(listener: ChangeListener<in User>?) {
@@ -29,7 +29,6 @@ class UserObservable(private val user: User) : ObservableValue<User> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-
     override fun getValue(): User {
         return user
     }
@@ -43,4 +42,35 @@ class UserObservable(private val user: User) : ObservableValue<User> {
         user.isReady = isReady
         listeners.forEach { it.changed(this, null, user) }
     }
+}
+
+class UserActionObservable : ObservableValue<UserActionEvent> {
+    private val listeners: MutableList<ChangeListener<in UserActionEvent>> = mutableListOf()
+    private var action: UserActionEvent? = null
+
+    override fun removeListener(listener: ChangeListener<in UserActionEvent>?) {
+        listener?.run { listeners.remove(this) }
+    }
+
+    override fun addListener(listener: ChangeListener<in UserActionEvent>?) {
+        listener?.run { listeners.add(this) }
+    }
+
+    override fun removeListener(listener: InvalidationListener?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun addListener(listener: InvalidationListener?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun getValue(): UserActionEvent? {
+        return action
+    }
+
+    fun setValue(action: UserActionEvent) {
+        this.action = action
+        listeners.forEach { it.changed(this, null, this.action) }
+    }
+
 }

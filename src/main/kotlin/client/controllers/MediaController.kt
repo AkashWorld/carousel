@@ -3,6 +3,7 @@ package client.controllers
 import client.models.MediaActionModel
 import client.models.MediaActionModelImpl
 import client.models.MediaActionObservable
+import javafx.beans.property.SimpleBooleanProperty
 import tornadofx.*
 
 class MediaController : Controller() {

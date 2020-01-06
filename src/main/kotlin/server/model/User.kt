@@ -1,51 +1,37 @@
 package server.model
 
 import org.slf4j.LoggerFactory
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 
-data class User(val username: String, var media: Media?, var isReady: Boolean = false)
+data class User(val username: String, var isReady: Boolean, var media: Media?)
 
 class UsersRepository {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
-    private val usersList: AtomicReference<MutableList<User>> = AtomicReference(ArrayList())
-    private val usersSet: AtomicReference<MutableSet<String>> = AtomicReference(HashSet())
+    private val usersMap = ConcurrentHashMap<String, User>()
 
     fun addUser(user: User): Boolean {
-        if (usersSet.get().contains(user.username)) {
+        if (usersMap.contains(user.username)) {
             return false
         }
-        usersList.get().add(user)
-        usersSet.get().add(user.username)
-        logger.info("Added user ${user.username}")
+        usersMap[user.username] = user
         return true
     }
 
     fun getAllUsers(): List<User> {
-        return usersList.get()
+        return usersMap.values.toList()
     }
 
     fun getUser(username: String): User? {
-        if (!usersSet.get().contains(username)) {
-            return null
-        }
-        return usersList.get().find { it.username == username }
+        return usersMap[username]
     }
 
-    fun removeUser(user: User): Boolean {
-        if (!usersSet.get().contains(user.username)) {
-            return false
-        }
-        usersList.get().removeIf {
-            it.username == user.username
-        }
-        usersSet.get().remove(user.username)
-        logger.info("Removed user ${user.username}")
-        return true
+    fun removeUser(user: User) {
+        usersMap.remove(user.username)
     }
 
     fun clear() {
-        usersList.get().clear()
-        usersSet.get().clear()
+        usersMap.clear()
     }
 }
 

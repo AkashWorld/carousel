@@ -2,7 +2,9 @@ package client.views.playerpage.chatfeed
 
 import client.controllers.ChatController
 import client.controllers.ClientContextController
+import client.controllers.MediaController
 import client.controllers.UsersController
+import client.models.ContentType
 import client.models.Message
 import client.views.ViewUtils
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
@@ -59,9 +61,9 @@ class ChatFragment : Fragment() {
                         }
                     }
                 }
-                right {
+                left {
                     paddingTop = 10
-                    paddingRight = 5
+                    paddingLeft = 5.0
                     button {
                         addClass(ChatFeedStyles.emojiButton)
                         val icon = MaterialIconView(MaterialIcon.CONTENT_COPY, "25px")
@@ -77,7 +79,7 @@ class ChatFragment : Fragment() {
                             clientContextController.addressToClipboard()
                             serverAddress.set("Copied!")
                             runLater(Duration.millis(3000.0)) {
-                                serverAddress.set(clientContextController.getAddress())
+                                serverAddress.set("Server Address: ${clientContextController.getAddress()}")
                             }
                         }
                         this.add(icon)
@@ -85,6 +87,10 @@ class ChatFragment : Fragment() {
                             showDelay = Duration.ZERO
                         }
                     }
+                }
+                right {
+                    this.add(menuButton)
+                    paddingRight = 5.0
                 }
                 style {
                     this.borderColor = multi(
@@ -175,10 +181,9 @@ class ChatFragment : Fragment() {
                                 this.add(icon)
                             }
                             button {
-                                val isReady = SimpleBooleanProperty(false)
                                 addClass(ChatFeedStyles.emojiButton)
                                 val icon = MaterialIconView(MaterialIcon.CHECK_CIRCLE, "30px")
-                                isReady.addListener { _, _, newValue ->
+                                usersController.isReady.addListener { _, _, newValue ->
                                     if (newValue) {
                                         icon.fill = Color.GREEN
                                     } else {
@@ -187,13 +192,13 @@ class ChatFragment : Fragment() {
                                 }
                                 icon.onHover {
                                     if (it) {
-                                        if (isReady.value) {
+                                        if (usersController.isReady.value) {
                                             icon.fill = Color.DARKGREEN
                                         } else {
                                             icon.fill = Color.DARKRED
                                         }
                                     } else {
-                                        if (isReady.value) {
+                                        if (usersController.isReady.value) {
                                             icon.fill = Color.GREEN
                                         } else {
                                             icon.fill = Color.RED
@@ -205,8 +210,7 @@ class ChatFragment : Fragment() {
                                 tooltip("Ready Check")
                                 setOnMouseClicked {
                                     usersController.sendReadyCheck(
-                                        !isReady.value,
-                                        { isReady.value = it },
+                                        {},
                                         {
                                             ViewUtils.showErrorDialog(
                                                 "Could not send ready check",
@@ -216,7 +220,6 @@ class ChatFragment : Fragment() {
                                     )
                                 }
                             }
-                            this.add(menuButton)
                         }
                     }
                 }
@@ -239,12 +242,10 @@ class ChatFragment : Fragment() {
     override fun onDock() {
         super.onDock()
         serverAddress.value = "Server Address: ${clientContextController.getAddress()}"
-        chatController.subscribeToMessages()
     }
 
     override fun onUndock() {
         super.onUndock()
-        chatController.cleanUp()
     }
 }
 

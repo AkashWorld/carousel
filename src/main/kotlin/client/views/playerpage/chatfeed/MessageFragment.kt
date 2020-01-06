@@ -22,9 +22,9 @@ class MessageFragment : Fragment() {
         /**
          * Username
          */
-        text(message.user) {
+        text(message.username) {
             style {
-                this.fill = chatController.getColor(message.user)
+                this.fill = chatController.getColor(message.username)
                 this.fontWeight = FontWeight.BOLD
                 this.fontSize = textSize.px
             }

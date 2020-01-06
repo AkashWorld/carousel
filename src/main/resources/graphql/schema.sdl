@@ -1,12 +1,13 @@
 enum ContentType {
-    MESSAGE
-    IMAGE
+    IMAGE,
+    MESSAGE,
+    INFO,
 }
 
 type Message {
     username: String!
     content: String!
-    type: ContentType!
+    contentType: ContentType!
     timestamp: String!
 }
 
@@ -51,8 +52,8 @@ extend type Subscription {
 }
 type User {
     username: String!
+    isReady: Boolean
     media: Media
-    isReady: Boolean!
 }
 
 enum UserAction {

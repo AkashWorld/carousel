@@ -1,8 +1,10 @@
 package client.views.playerpage
 
 import client.controllers.ChatController
+import client.views.ViewUtils
 import client.views.intropage.IntroPage
 import client.views.playerpage.chatfeed.ChatFragment
+import javafx.scene.layout.StackPane
 import tornadofx.*
 
 class PlayerPage : View() {
@@ -42,11 +44,14 @@ class PlayerPage : View() {
     override fun onDock() {
         super.onDock()
         root.right = find<ChatFragment>().root
+        chatController.subscribeToMessages {
+            ViewUtils.showErrorDialog("Connection with chat is lost, please restart this application.", primaryStage.scene.root as StackPane)
+        }
     }
 
     override fun onUndock() {
         super.onUndock()
-        chatController.getMessages().clear()
+        chatController.cleanUp()
         root.center = fileLoaderView.root
         root.children.remove(root.right)
     }

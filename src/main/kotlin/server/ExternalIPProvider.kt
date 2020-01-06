@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 
 interface ExternalIPProvider {
     fun getExternalIp(future: CompletableFuture<String>)
@@ -76,7 +77,9 @@ class ExternalIPProviderImpl : ExternalIPProvider {
 class AmazonAWS(private val client: OkHttpClient) : ExternalIPRetriever {
     override fun retrieveIP(future: CompletableFuture<String>) {
         val request = Request.Builder().url("http://checkip.amazonaws.com").build()
-        client.newCall(request).enqueue(object : Callback {
+        val call = client.newCall(request)
+        call.timeout().deadline(2500L, TimeUnit.MILLISECONDS)
+        call.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 logger.error(e.message, e.cause)
                 future.completeExceptionally(Exception("Could not retrieve external IP"))
@@ -97,7 +100,9 @@ class AmazonAWS(private val client: OkHttpClient) : ExternalIPRetriever {
 class ICanHazIp(private val client: OkHttpClient) : ExternalIPRetriever {
     override fun retrieveIP(future: CompletableFuture<String>) {
         val request = Request.Builder().url("https://ipv4.icanhazip.com").build()
-        client.newCall(request).enqueue(object : Callback {
+        val call = client.newCall(request)
+        call.timeout().deadline(2500L, TimeUnit.MILLISECONDS)
+        call.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 logger.error(e.message, e.cause)
                 future.completeExceptionally(Exception("Could not retrieve external IP"))
@@ -118,7 +123,9 @@ class ICanHazIp(private val client: OkHttpClient) : ExternalIPRetriever {
 class MyExternalIP(private val client: OkHttpClient) : ExternalIPRetriever {
     override fun retrieveIP(future: CompletableFuture<String>) {
         val request = Request.Builder().url("http://myexternalip.com/raw").build()
-        client.newCall(request).enqueue(object : Callback {
+        val call = client.newCall(request)
+        call.timeout().deadline(2500L, TimeUnit.MILLISECONDS)
+        call.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 logger.error(e.message, e.cause)
                 future.completeExceptionally(Exception("Could not retrieve external IP"))
@@ -139,7 +146,9 @@ class MyExternalIP(private val client: OkHttpClient) : ExternalIPRetriever {
 class IPInfo(private val client: OkHttpClient) : ExternalIPRetriever {
     override fun retrieveIP(future: CompletableFuture<String>) {
         val request = Request.Builder().url("http://ipinfo.io/ip").build()
-        client.newCall(request).enqueue(object : Callback {
+        val call = client.newCall(request)
+        call.timeout().deadline(2500L, TimeUnit.MILLISECONDS)
+        call.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 logger.error(e.message, e.cause)
                 future.completeExceptionally(Exception("myexternalip failed"))

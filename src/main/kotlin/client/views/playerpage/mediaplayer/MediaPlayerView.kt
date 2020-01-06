@@ -3,6 +3,7 @@ package client.views.playerpage.mediaplayer
 import client.controllers.ChatController
 import client.controllers.FileLoaderController
 import client.controllers.MediaController
+import client.controllers.UsersController
 import client.models.Action
 import client.models.MediaAction
 import client.models.MediaActionObservable
@@ -61,6 +62,7 @@ class MediaPlayerView : View() {
     private val mediaController: MediaController by inject()
     private val chatController: ChatController by inject()
     private val fileLoaderController: FileLoaderController by inject()
+    private val usersController: UsersController by inject()
     private var mediaPlayerFactory: MediaPlayerFactory? = null
     private var mediaPlayer: EmbeddedMediaPlayer? = null
     private lateinit var mediaCanvas: Canvas
@@ -135,6 +137,11 @@ class MediaPlayerView : View() {
                 }
             }
         }
+        mediaPane.setOnMouseClicked {
+            if (it.clickCount == 2) {
+                currentStage?.isFullScreen = !currentStage?.isFullScreen!!
+            }
+        }
 
         style {
             backgroundColor = multi(Color.BLACK)
@@ -197,6 +204,7 @@ class MediaPlayerView : View() {
         mediaActionObservable = null
         mediaController.cleanUp()
         chatController.setChatShown(true)
+        usersController.isReady.value = false
         clearCanvas(mediaCanvas)
     }
 
@@ -314,15 +322,7 @@ class MediaPlayerView : View() {
                 }
             }
 
-            override fun playing(mediaPlayer: MediaPlayer?) {
-                runLater {
-                    if (mediaPlayer != null) {
-                        controls.setTotalDuration(mediaPlayer.media().info().duration())
-                        mediaPlayer.audio().setVolume(100)
-                    }
-                }
-            }
-
+            override fun playing(mediaPlayer: MediaPlayer?) {}
             override fun audioDeviceChanged(mediaPlayer: MediaPlayer?, audioDevice: String?) {}
             override fun volumeChanged(mediaPlayer: MediaPlayer?, volume: Float) {}
             override fun scrambledChanged(mediaPlayer: MediaPlayer?, newScrambled: Int) {}
@@ -340,7 +340,18 @@ class MediaPlayerView : View() {
             override fun opening(mediaPlayer: MediaPlayer?) {}
             override fun backward(mediaPlayer: MediaPlayer?) {}
             override fun elementaryStreamAdded(mediaPlayer: MediaPlayer?, type: TrackType?, id: Int) {}
-            override fun mediaPlayerReady(mediaPlayer: MediaPlayer?) {}
+            override fun mediaPlayerReady(mediaPlayer: MediaPlayer?) {
+                runLater {
+                    if (mediaPlayer != null) {
+                        mediaPlayer.controls().pause()
+                        controls.togglePause()
+                        mediaPlayer.audio().setVolume(100)
+                        controls.setVolume(100.0)
+                        controls.setTotalDuration(mediaPlayer.media().info().duration())
+                    }
+                }
+            }
+
             override fun videoOutput(mediaPlayer: MediaPlayer?, newCount: Int) {}
             override fun error(mediaPlayer: MediaPlayer?) {
                 runLater {

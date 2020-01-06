@@ -1,5 +1,6 @@
 package client.views
 
+import client.models.ClientContextImpl
 import client.views.intropage.IntroPage
 import javafx.scene.image.Image
 import javafx.stage.Screen
@@ -20,9 +21,9 @@ class ApplicationView : View() {
         primaryStage.width = screenBounds.width * .80
         primaryStage.height = screenBounds.height * .80
         primaryStage.setOnCloseRequest {
+            ClientContextImpl.getInstance().sendSignOutRequest()
             Server.getInstance().close()
         }
-
     }
 
     override val root = stackpane {

@@ -62,28 +62,28 @@ class MediaDataFetchers(private val userActionPublisher: UserActionPublisher) {
 }
 
 class MediaActionPublisher : Publisher<MediaSubscriptionResult> {
-    private val subscribers: ConcurrentLinkedQueue<AtomicReference<Subscriber<in MediaSubscriptionResult>?>> =
+    private val subscribers: ConcurrentLinkedQueue<Subscriber<in MediaSubscriptionResult>?> =
         ConcurrentLinkedQueue()
 
     override fun subscribe(subscriber: Subscriber<in MediaSubscriptionResult>?) {
-        subscribers.add(AtomicReference(subscriber))
+        subscribers.add(subscriber)
     }
 
     fun publishPlay(user: String) {
         subscribers.forEach {
-            it?.get()?.onNext(MediaSubscriptionResult(Action.PLAY, null, user))
+            it?.onNext(MediaSubscriptionResult(Action.PLAY, null, user))
         }
     }
 
     fun publishPause(user: String) {
         subscribers.forEach {
-            it?.get()?.onNext(MediaSubscriptionResult(Action.PAUSE, null, user))
+            it?.onNext(MediaSubscriptionResult(Action.PAUSE, null, user))
         }
     }
 
     fun publishSeek(user: String, currentTime: Float) {
         subscribers.forEach {
-            it?.get()?.onNext(MediaSubscriptionResult(Action.SEEK, currentTime, user))
+            it?.onNext(MediaSubscriptionResult(Action.SEEK, currentTime, user))
         }
     }
 }

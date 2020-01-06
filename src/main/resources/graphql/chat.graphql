@@ -1,12 +1,13 @@
 enum ContentType {
-    MESSAGE
-    IMAGE
+    IMAGE,
+    MESSAGE,
+    INFO,
 }
 
 type Message {
     username: String!
     content: String!
-    type: ContentType!
+    contentType: ContentType!
     timestamp: String!
 }
 

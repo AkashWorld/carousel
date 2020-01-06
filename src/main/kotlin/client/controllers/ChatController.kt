@@ -15,7 +15,9 @@ import kotlin.random.Random
 
 class ChatController : Controller() {
     private val mediaController: MediaController by inject()
+    private val usersController: UsersController by inject()
     private val mediaListener: ChangeListener<MediaAction?>
+    private val usersActionListener: ChangeListener<UserActionEvent?>
     private val chatModel = ChatModel()
     private val isChatShown = SimpleBooleanProperty(true)
     private val colorMap = mutableMapOf<String, Color>()
@@ -38,7 +40,33 @@ class ChatController : Controller() {
                         }
                     }
                     runLater {
-                        chatModel.getChatList().add(Message(newValue.user, message, ContentType.INFO))
+                        chatModel.addMessage(Message(newValue.user, message, ContentType.INFO))
+                    }
+                }
+            }
+        usersActionListener =
+            ChangeListener { _, _, newValue ->
+                newValue?.run {
+                    val message = when (this.action) {
+                        UserAction.SIGN_IN -> {
+                            "connected"
+                        }
+                        UserAction.SIGN_OUT -> {
+                            "disconnected"
+                        }
+                        UserAction.IS_READY -> {
+                            if (this.user.isReady) {
+                                "is ready"
+                            } else {
+                                "is not ready"
+                            }
+                        }
+                        UserAction.CHANGE_MEDIA -> {
+                            "loaded ${this.user.media?.id ?: "a new video"}"
+                        }
+                    }
+                    runLater {
+                        chatModel.addMessage(Message(this.user.username, message, ContentType.INFO))
                     }
                 }
             }
@@ -50,17 +78,23 @@ class ChatController : Controller() {
     }
 
     fun addMessage(content: String) {
-        chatModel.addMessage(content)
+        chatModel.sendInsertMessageRequest(content)
     }
 
-    fun subscribeToMessages() {
-        chatModel.subscribeToMessages()
+    fun subscribeToMessages(error: () -> Unit) {
+        chatModel.sendGetPaginatedMessagesRequest { runLater(error) }
+        chatModel.subscribeToMessages { runLater(error) }
+        usersController.subscribeToUsersAction { runLater(error) }
         mediaController.getMediaActionObservable().addListener(mediaListener)
+        usersController.getUserActionObservable().addListener(usersActionListener)
     }
 
     fun cleanUp() {
         chatModel.releaseSubscription()
+        usersController.releaseSubscription()
         mediaController.getMediaActionObservable().removeListener(mediaListener)
+        usersController.getUserActionObservable().removeListener(usersActionListener)
+        chatModel.clear()
     }
 
     fun tokenizeMessage(message: String): List<String> {
@@ -133,6 +167,10 @@ class ChatController : Controller() {
 
     fun isChatShown(): ObservableBooleanValue {
         return isChatShown
+    }
+
+    fun toggleIsInfoShown() {
+        chatModel.toggleIsInfoShown()
     }
 }
 

@@ -7,6 +7,8 @@ import de.jensd.fx.glyphs.materialicons.MaterialIconView
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Orientation
 import javafx.scene.control.Button
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyEvent
 import javafx.scene.paint.Color
 import org.slf4j.LoggerFactory
 import tornadofx.*
@@ -60,11 +62,19 @@ class MediaPlayerControls : Fragment() {
                                     }
                                 }
                                 this.add(initIcon)
-                                action {
+                                val sendPausePlayRequest = {
                                     if (isPaused) {
                                         onPlay()
                                     } else {
                                         onPause()
+                                    }
+                                }
+                                action {
+                                    sendPausePlayRequest()
+                                }
+                                this.addEventFilter(KeyEvent.KEY_PRESSED) {
+                                    if (it.code == KeyCode.SPACE) {
+                                        sendPausePlayRequest()
                                     }
                                 }
                             }
@@ -228,6 +238,12 @@ class MediaPlayerControls : Fragment() {
 
     fun setOnVolumeChange(cb: (value: Double) -> Unit) {
         this.onVolumeChange = cb
+    }
+
+    fun setVolume(volumeLevel: Double) {
+        if (volumeLevel >= 0 || volumeLevel <= 100.0) {
+            volSlider.value = volumeLevel
+        }
     }
 
     fun isOverlayButtonChecked(): Boolean {

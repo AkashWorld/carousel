@@ -9,7 +9,6 @@ import server.model.User
 import server.model.UserAuthentication
 import server.model.UsersRepository
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.atomic.AtomicReference
 
 enum class UserAction {
     SIGN_IN,
@@ -39,7 +38,7 @@ class UserDataFetchers constructor(
         return DataFetcher { environment ->
             val password: String? = environment.getArgument("password")
             val username: String = environment.getArgument("username")
-            val newUser = User(username, null)
+            val newUser = User(username, false, null)
             if (usersRepository.addUser(newUser)) {
                 this.userActionPublisher.publishUserActionEvent(newUser, UserAction.SIGN_IN)
                 userAuthentication.generateAuthToken(newUser)
@@ -87,16 +86,16 @@ class UserDataFetchers constructor(
 }
 
 class UserActionPublisher : Publisher<UserActionEvent> {
-    private val subscribers: ConcurrentLinkedQueue<AtomicReference<Subscriber<in UserActionEvent>?>> =
+    private val subscribers: ConcurrentLinkedQueue<Subscriber<in UserActionEvent>?> =
         ConcurrentLinkedQueue()
 
     override fun subscribe(s: Subscriber<in UserActionEvent>?) {
-        subscribers.add(AtomicReference(s))
+        subscribers.add(s)
     }
 
     fun publishUserActionEvent(user: User, event: UserAction) {
         subscribers.forEach {
-            it?.get()?.onNext(UserActionEvent(event, user))
+            it?.onNext(UserActionEvent(event, user))
         }
     }
 }

@@ -113,7 +113,7 @@ class GraphQLProvider(
 
                 override fun onNext(item: ExecutionResult?) {
                     val data = item?.getData<Any>()
-                    logger.info("ws://subscriber.onNext -> $data.toString()")
+                    logger.info("ws://subscriber.onNext -> $data")
                     data?.let { handler.send(it) }
                     subscriptionRef.get().request(Long.MAX_VALUE)
                 }
@@ -136,7 +136,7 @@ class GraphQLProvider(
         runtimeWiringBuilder.type("Query") { query ->
             query.dataFetcher("getAllUsers", this.userDataFetchers.queryGetAllUsers())
             query.dataFetcher("getLengthOfChatFeed", this.chatFeedDataFetchers.queryGetLengthOfChatFeed())
-            query.dataFetcher("getMessagePaginated", this.chatFeedDataFetchers.queryGetMessagePaginated())
+            query.dataFetcher("getMessagesPaginated", this.chatFeedDataFetchers.queryGetMessagePaginated())
         }
         runtimeWiringBuilder.type("Mutation") { mutation ->
             mutation.dataFetcher("signIn", this.userDataFetchers.mutationSignIn())

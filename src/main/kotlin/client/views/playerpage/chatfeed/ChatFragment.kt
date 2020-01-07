@@ -1,9 +1,6 @@
 package client.views.playerpage.chatfeed
 
-import client.controllers.ChatController
-import client.controllers.ClientContextController
-import client.controllers.MediaController
-import client.controllers.UsersController
+import client.controllers.*
 import client.models.ContentType
 import client.models.Message
 import client.views.ViewUtils
@@ -26,10 +23,10 @@ import org.slf4j.LoggerFactory
 import tornadofx.*
 
 class ChatFragment : Fragment() {
-    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val clientContextController: ClientContextController by inject()
     private val chatController: ChatController by inject()
     private val usersController: UsersController by inject()
+    private val imageLoaderController: ImageLoaderController by inject()
     private val chatInput: SimpleStringProperty = SimpleStringProperty()
     private val serverAddress: SimpleStringProperty = SimpleStringProperty("")
     private val emojiPicker = find<EmojiPicker>("emojiCallback" to { alias: String ->
@@ -160,28 +157,6 @@ class ChatFragment : Fragment() {
                             spacing = 10.0
                             button {
                                 addClass(ChatFeedStyles.emojiButton)
-                                val icon = MaterialIconView(MaterialIcon.INSERT_EMOTICON, "30px")
-                                icon.fill = ChatFeedStyles.chatTextColor
-                                icon.onHover {
-                                    if (it) {
-                                        icon.fill = Color.DARKGRAY
-                                    } else {
-                                        icon.fill = ChatFeedStyles.chatTextColor
-                                    }
-                                }
-                                setOnMouseClicked {
-                                    val emojiStage = emojiPicker.openWindow(StageStyle.TRANSPARENT)
-                                    emojiStage?.isAlwaysOnTop = true
-                                    emojiStage?.x = it.screenX
-                                    emojiStage?.y = it.screenY - 485.0
-                                    primaryStage.scene.setOnMouseClicked {
-                                        emojiStage?.close()
-                                    }
-                                }
-                                this.add(icon)
-                            }
-                            button {
-                                addClass(ChatFeedStyles.emojiButton)
                                 val icon = MaterialIconView(MaterialIcon.CHECK_CIRCLE, "30px")
                                 usersController.isReady.addListener { _, _, newValue ->
                                     if (newValue) {
@@ -219,6 +194,49 @@ class ChatFragment : Fragment() {
                                         }
                                     )
                                 }
+                            }
+                            button {
+                                addClass(ChatFeedStyles.emojiButton)
+                                val icon = MaterialIconView(MaterialIcon.INSERT_EMOTICON, "30px")
+                                icon.fill = ChatFeedStyles.chatTextColor
+                                icon.onHover {
+                                    if (it) {
+                                        icon.fill = Color.DARKGRAY
+                                    } else {
+                                        icon.fill = ChatFeedStyles.chatTextColor
+                                    }
+                                }
+                                setOnMouseClicked {
+                                    val emojiStage = emojiPicker.openWindow(StageStyle.TRANSPARENT)
+                                    emojiStage?.isAlwaysOnTop = true
+                                    emojiStage?.x = it.screenX
+                                    emojiStage?.y = it.screenY - 485.0
+                                    primaryStage.scene.setOnMouseClicked {
+                                        emojiStage?.close()
+                                    }
+                                }
+                                this.add(icon)
+                            }
+                            button {
+                                addClass(ChatFeedStyles.emojiButton)
+                                val icon = MaterialIconView(MaterialIcon.IMAGE, "30px")
+                                icon.fill = ChatFeedStyles.chatTextColor
+                                icon.onHover {
+                                    if (it) {
+                                        icon.fill = Color.DARKGRAY
+                                    } else {
+                                        icon.fill = ChatFeedStyles.chatTextColor
+                                    }
+                                }
+                                setOnMouseClicked {
+                                    imageLoaderController.loadImage {
+                                        ViewUtils.showErrorDialog(
+                                            "Could not upload image",
+                                            primaryStage.scene.root as StackPane
+                                        )
+                                    }
+                                }
+                                this.add(icon)
                             }
                         }
                     }

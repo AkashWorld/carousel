@@ -81,6 +81,10 @@ class ChatController : Controller() {
         chatModel.sendInsertMessageRequest(content)
     }
 
+    fun addImage(encodedImage: String, error: () -> Unit) {
+        chatModel.sendInsertImageRequest(encodedImage) { runLater(error) }
+    }
+
     fun subscribeToMessages(error: () -> Unit) {
         chatModel.sendGetPaginatedMessagesRequest { runLater(error) }
         chatModel.subscribeToMessages { runLater(error) }

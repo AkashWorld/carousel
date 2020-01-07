@@ -1,6 +1,7 @@
 package client.views.playerpage.chatfeed
 
 import client.controllers.ChatController
+import client.controllers.ImageLoaderController
 import client.models.ContentType
 import client.models.Message
 import javafx.scene.image.ImageView
@@ -13,6 +14,7 @@ class MessageFragment : Fragment() {
     private val message: Message by param()
     private val textSize: Double by param()
     private val chatController: ChatController by inject()
+    private val imageLoaderController: ImageLoaderController by inject()
 
     companion object {
         private val emojiLoader = EmojiLoader()
@@ -70,9 +72,34 @@ class MessageFragment : Fragment() {
                     this.add(iv)
                 }
             }
+        } else if (message.contentType == ContentType.IMAGE) {
+            val image = imageLoaderController.getImageFromEncoding(message.content)
+            if (image != null) {
+                try {
+                    val iv = ImageView(image)
+                    this.add(iv)
+                } catch (e: Exception) {
+                    text("could not load image") {
+                        style {
+                            this.fill = ChatFeedStyles.chatTextColor
+                            this.fontStyle = FontPosture.ITALIC
+                            this.fontSize = textSize.px
+                        }
+                    }
+                }
+            } else {
+                text("could not load image") {
+                    style {
+                        this.fill = ChatFeedStyles.chatTextColor
+                        this.fontStyle = FontPosture.ITALIC
+                        this.fontSize = textSize.px
+                    }
+                }
+            }
         }
         style {
-            this.maxWidth = 335.px
+            lineSpacing = 5.0
+            maxWidth = 335.px
         }
     }
 }

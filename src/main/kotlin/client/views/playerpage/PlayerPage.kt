@@ -1,6 +1,7 @@
 package client.views.playerpage
 
 import client.controllers.ChatController
+import client.models.ClientContextImpl
 import client.views.ViewUtils
 import client.views.intropage.IntroPage
 import client.views.playerpage.chatfeed.ChatFragment
@@ -54,5 +55,6 @@ class PlayerPage : View() {
         chatController.cleanUp()
         root.center = fileLoaderView.root
         root.children.remove(root.right)
+        ClientContextImpl.getInstance().clearContext()
     }
 }

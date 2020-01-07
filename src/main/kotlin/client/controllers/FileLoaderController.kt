@@ -21,7 +21,9 @@ class FileLoaderController : Controller() {
             val videoFilePath = File("$homeDir/Videos")
             this.initialDirectory = videoFilePath
         }
-        if (videoFile.size != 1) {
+        if (videoFile.isEmpty()) {
+            return
+        } else if (videoFile.size != 1) {
             logger.error("Could not load video")
             error("Please select a video to play")
             return

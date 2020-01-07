@@ -2,7 +2,6 @@ package client.models
 
 import com.google.gson.Gson
 import javafx.collections.ObservableList
-import okhttp3.WebSocket
 import org.slf4j.LoggerFactory
 import tornadofx.runLater
 import tornadofx.toObservable
@@ -21,6 +20,7 @@ data class Message(
 
 private data class GetMessagesPaginatedObject(val getMessagesPaginated: List<Message>)
 private data class GraphQLResponse(val data: GetMessagesPaginatedObject)
+private data class ChatFeedSubscriptionResponse(val chatFeed: Message)
 
 class ChatModel {
     private val clientContext: ClientContext = ClientContextImpl.getInstance()
@@ -37,6 +37,16 @@ class ChatModel {
         """.trimIndent()
         val variables = mapOf("message" to content)
         clientContext.sendQueryOrMutationRequest(mutation, variables, {}, {})
+    }
+
+    fun sendInsertImageRequest(encodedImage: String, error: () -> Unit) {
+        val mutation = """
+           mutation InsertImage(${"$"}data: String!){
+                insertImage(data: ${"$"}data)
+           }
+       """.trimIndent()
+        val variables = mapOf("data" to encodedImage)
+        clientContext.sendQueryOrMutationRequest(mutation, variables, {}, error)
     }
 
     fun sendGetPaginatedMessagesRequest(count: Int = 50, error: () -> Unit) {
@@ -75,26 +85,22 @@ class ChatModel {
     }
 
     fun subscribeToMessages(error: () -> Unit) {
-        val gson = Gson()
         val subscription = """
             subscription {
                 chatFeed{
                     username
                     content
+                    contentType
                 }
             }
         """.trimIndent()
         val variables = mapOf<String, Any>()
         clientContext.sendSubscriptionRequest(subscription, variables, { body ->
             try {
-                val result: Map<String, String> =
-                    gson.fromJson(body, Map::class.java)["chatFeed"] as Map<String, String>?
-                        ?: return@sendSubscriptionRequest
-                val username = result["username"]
-                val content = result["content"]
-                if (username != null && content != null) {
+                val response = Gson().fromJson(body, ChatFeedSubscriptionResponse::class.java)
+                response?.chatFeed?.run {
                     runLater {
-                        addMessage(Message(username, content))
+                        addMessage(this)
                     }
                 }
             } catch (e: Exception) {

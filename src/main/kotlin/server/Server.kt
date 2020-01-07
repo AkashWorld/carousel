@@ -25,6 +25,7 @@ class Server private constructor(private val port: Int = DEFAULT_PORT) {
     private val uPnPProvider: UPnPProvider = UPnPProviderImpl(port)
 
     init {
+        this.server.config.requestCacheSize = 20000000L
         this.server.before("*") {
             val serverAccessHeader = it.header(SERVER_ACCESS_HEADER)
             this.serverAccess(serverAccessHeader)
@@ -52,10 +53,20 @@ class Server private constructor(private val port: Int = DEFAULT_PORT) {
                 serveSubscriptionGraphQLRequest(it)
             }
             handler.onError {
-                logger.error("WS error", it.error())
+                val token = it.header(AUTH_HEADER)
+                val user = userAuthentication.verifyUser(token)
+                user?.run {
+                    usersRepository.removeUser(this)
+                    logger.error("WS error by ${this.username}", it.error())
+                }
             }
             handler.onClose {
-                logger.info("WS closed", it.reason())
+                val token = it.header(AUTH_HEADER)
+                val user = userAuthentication.verifyUser(token)
+                user?.run {
+                    usersRepository.removeUser(this)
+                    logger.info("WS closed by ${this.username}", it.reason())
+                }
             }
         }
     }

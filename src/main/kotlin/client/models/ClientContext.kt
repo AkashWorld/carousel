@@ -184,7 +184,7 @@ class ClientContextImpl private constructor() : ClientContext {
 
             override fun onResponse(call: Call, response: Response) {
                 try {
-                    if (response.body == null) {
+                    if (response.body == null || response.code != 200) {
                         logger.error("Response body is null")
                         error()
                         return

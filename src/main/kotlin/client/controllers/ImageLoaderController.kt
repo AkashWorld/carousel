@@ -15,41 +15,47 @@ class ImageLoaderController : Controller() {
     private val photoFilter =
         FileChooser.ExtensionFilter("Photos", "*.jpg", "*.jpeg", "*.png", "*.gif")
 
-    fun loadImage(error: () -> Unit) {
+    fun loadImage(success: () -> Unit, error: (String) -> Unit) {
         val returnedFiles = chooseFile("Choose image", arrayOf(photoFilter)) {
             val homeDir: String = System.getProperty("user.home")
             val imageDirPath = File("$homeDir/Pictures")
             this.initialDirectory = imageDirPath
         }
+        if (returnedFiles.isEmpty()) {
+            success()
+            return
+        } else if (returnedFiles.size != 1) {
+            error("Please choose only one image!")
+            return
+        }
+        val file = returnedFiles.first()
+        if (!file.isFile) {
+            error("Could not open file")
+            return
+        }
         runAsync {
-            if (returnedFiles.isEmpty()) {
-                return@runAsync
-            } else if (returnedFiles.size != 1) {
-                ui {
-                    error()
-                }
-                return@runAsync
-            }
-            val file = returnedFiles.first()
-            if (!file.isFile) {
-                ui {
-                    error()
-                }
-                return@runAsync
-            }
             val imagePath = file.canonicalPath
             try {
-                val encodedImage = imageLoader.getBase64EncodingOfImage(imagePath, imageBounds.width.toInt(), imageBounds.height.toInt())
+                val encodedImage = imageLoader.getBase64EncodingOfImage(
+                    imagePath,
+                    imageBounds.width.toInt(),
+                    imageBounds.height.toInt()
+                )
                 if (encodedImage == null) {
                     ui {
-                        error()
+                        error("Could not open and compress image")
+                    }
+                    return@runAsync
+                } else if (encodedImage.length * 2 > 5242880L) {
+                    ui {
+                        error("Image file size is too large")
                     }
                     return@runAsync
                 }
-                chatController.addImage(encodedImage) { ui { error() } }
+                chatController.addImage(encodedImage, { ui { success() } }, { ui { error("Could not send image") } })
             } catch (e: Exception) {
                 ui {
-                    error()
+                    error("Could not open and compress image")
                 }
                 return@runAsync
             }

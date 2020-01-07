@@ -81,8 +81,8 @@ class ChatController : Controller() {
         chatModel.sendInsertMessageRequest(content)
     }
 
-    fun addImage(encodedImage: String, error: () -> Unit) {
-        chatModel.sendInsertImageRequest(encodedImage) { runLater(error) }
+    fun addImage(encodedImage: String, success: () -> Unit, error: () -> Unit) {
+        chatModel.sendInsertImageRequest(encodedImage, success, error)
     }
 
     fun subscribeToMessages(error: () -> Unit) {

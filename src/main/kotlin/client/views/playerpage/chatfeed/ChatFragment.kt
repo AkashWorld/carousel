@@ -26,7 +26,6 @@ class ChatFragment : Fragment() {
     private val clientContextController: ClientContextController by inject()
     private val chatController: ChatController by inject()
     private val usersController: UsersController by inject()
-    private val imageLoaderController: ImageLoaderController by inject()
     private val chatInput: SimpleStringProperty = SimpleStringProperty()
     private val serverAddress: SimpleStringProperty = SimpleStringProperty("")
     private val emojiPicker = find<EmojiPicker>("emojiCallback" to { alias: String ->
@@ -217,27 +216,7 @@ class ChatFragment : Fragment() {
                                 }
                                 this.add(icon)
                             }
-                            button {
-                                addClass(ChatFeedStyles.emojiButton)
-                                val icon = MaterialIconView(MaterialIcon.IMAGE, "30px")
-                                icon.fill = ChatFeedStyles.chatTextColor
-                                icon.onHover {
-                                    if (it) {
-                                        icon.fill = Color.DARKGRAY
-                                    } else {
-                                        icon.fill = ChatFeedStyles.chatTextColor
-                                    }
-                                }
-                                setOnMouseClicked {
-                                    imageLoaderController.loadImage {
-                                        ViewUtils.showErrorDialog(
-                                            "Could not upload image",
-                                            primaryStage.scene.root as StackPane
-                                        )
-                                    }
-                                }
-                                this.add(icon)
-                            }
+                            this.add(find<InsertImageButtonFragment>())
                         }
                     }
                 }

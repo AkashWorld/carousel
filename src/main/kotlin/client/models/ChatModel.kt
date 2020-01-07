@@ -39,14 +39,14 @@ class ChatModel {
         clientContext.sendQueryOrMutationRequest(mutation, variables, {}, {})
     }
 
-    fun sendInsertImageRequest(encodedImage: String, error: () -> Unit) {
+    fun sendInsertImageRequest(encodedImage: String, success: () -> Unit, error: () -> Unit) {
         val mutation = """
            mutation InsertImage(${"$"}data: String!){
                 insertImage(data: ${"$"}data)
            }
        """.trimIndent()
         val variables = mapOf("data" to encodedImage)
-        clientContext.sendQueryOrMutationRequest(mutation, variables, {}, error)
+        clientContext.sendQueryOrMutationRequest(mutation, variables, { success() }, error)
     }
 
     fun sendGetPaginatedMessagesRequest(count: Int = 50, error: () -> Unit) {

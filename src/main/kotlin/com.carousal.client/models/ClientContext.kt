@@ -9,7 +9,7 @@ import server.SERVER_ACCESS_HEADER
 import java.io.IOException
 
 /**
- * Represents the context for the client to connect to the server
+ * Represents the context for the com.carousal.client to connect to the com.carousal.server
  */
 interface ClientContext {
     fun requestSignInToken(
@@ -89,7 +89,7 @@ class ClientContextImpl private constructor() : ClientContext {
                 } catch (e: Exception) {
                     usernameTokenPair = null
                     logger.error(e.message, e.cause)
-                    error("Received error response from the server")
+                    error("Received error response from the com.carousal.server")
                 }
             }
         })
@@ -162,7 +162,7 @@ class ClientContextImpl private constructor() : ClientContext {
         error: () -> Unit
     ) {
         if (serverAddress == null || usernameTokenPair == null) {
-            logger.error("Must set the server address!")
+            logger.error("Must set the com.carousal.server address!")
             error()
             return
         }

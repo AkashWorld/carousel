@@ -33,7 +33,7 @@ class UsersModel {
         return userActionObservable
     }
 
-    fun sendGetAllUsersRequest(error: () -> Unit) {
+    private fun sendGetAllUsersRequest(error: () -> Unit) {
         val query = """
             query AllUsers {
                 getAllUsers {

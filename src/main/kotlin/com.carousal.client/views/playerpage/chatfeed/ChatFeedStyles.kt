@@ -16,6 +16,8 @@ class ChatFeedStyles : Stylesheet() {
         val emojiTextField by cssclass()
         val emojiPickerButton by cssclass()
         val menuListView by cssclass()
+        val imageSpinner by cssclass()
+        val arc by cssclass()
 
         val buttonColor = Styles.buttonColor
         val hoverButtonColor = Styles.lightButtonColor
@@ -138,6 +140,13 @@ class ChatFeedStyles : Stylesheet() {
         }
         menuListView {
             backgroundColor = multi(Color.WHITE)
+        }
+        imageSpinner {
+            prefWidth = 25.px
+            prefHeight = 25.px
+            arc {
+                stroke = Styles.buttonColor
+            }
         }
     }
 }

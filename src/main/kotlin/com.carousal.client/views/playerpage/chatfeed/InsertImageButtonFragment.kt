@@ -41,12 +41,7 @@ class InsertImageButtonFragment : Fragment() {
     private fun handleImageLoader() {
         root.children.clear()
         val spinner = JFXSpinner()
-        spinner.style {
-            prefWidth = 25.px
-            prefHeight = 25.px
-            baseColor = ChatFeedStyles.buttonColor
-            accentColor = ChatFeedStyles.buttonColor
-        }
+        spinner.addClass(ChatFeedStyles.imageSpinner)
         root.add(spinner)
         imageLoaderController.loadImage({ reshowButton() }, {
             ViewUtils.showErrorDialog(

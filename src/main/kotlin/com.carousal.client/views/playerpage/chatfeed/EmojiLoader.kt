@@ -5,6 +5,7 @@ import com.vdurmont.emoji.EmojiParser
 import javafx.collections.ObservableList
 import javafx.scene.image.Image
 import me.xdrop.fuzzywuzzy.FuzzySearch
+import me.xdrop.fuzzywuzzy.FuzzySearch.*
 import org.slf4j.LoggerFactory
 import tornadofx.Controller
 
@@ -87,10 +88,10 @@ class EmojiLoader : Controller() {
             return
         }
         val fuzzyRatioList: MutableList<Pair<String, Int>> = EmojiManager.getAll().map {
-            Pair(it.aliases.first(), FuzzySearch.partialRatio(searchQuery, it.description + " " + it.aliases.first()))
+            Pair(it.aliases.first(), partialRatio(searchQuery, it.description + " " + it.aliases.first()))
         }.filter { it.second > 70 }.toMutableList()
         val fuzzyCustomRatioList: List<Pair<String, Int>> = customEmoji.map {
-            Pair(it.value, FuzzySearch.partialRatio(searchQuery, it.value + " " + it.key))
+            Pair(it.value, partialRatio(searchQuery, it.value + " " + it.key))
         }.filter { it.second > 70 }
         fuzzyRatioList.addAll(fuzzyCustomRatioList)
         observableList.setAll(fuzzyRatioList.map { ":${it.first}:" })

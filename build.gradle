@@ -1,24 +1,24 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.3.50'
-    id 'org.openjfx.javafxplugin' version '0.0.8'
     id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.8'
 }
 
 application {
-    mainClassName = 'MainKt'
+    mainClassName = 'com.carousal.client.MainKt'
 }
 
 javafx {
     version = "13"
-    modules = ['javafx.controls', 'javafx.base', 'javafx.fxml', 'javafx.graphics']
+    modules = ['javafx.controls', 'javafx.base', 'javafx.graphics']
 }
 
-
-group 'playtime'
+group 'akashworld'
 version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    mavenLocal()
     jcenter()
     maven {
         url "https://plugins.gradle.org/m2/"
@@ -39,11 +39,11 @@ dependencies {
     compile 'com.vdurmont:emoji-java:5.1.1'
     compile 'de.codecentric.centerdevice:javafxsvg:1.3.0'
     compile 'de.jensd:fontawesomefx-materialicons:2.2.0-9'
-    compile 'com.jfoenix:jfoenix:9.0.8'
     compile 'org.fourthline.cling:cling-core:2.1.2'
     compile 'org.fourthline.cling:cling-support:2.1.2'
     compile 'com.offbynull.portmapper:portmapper:2.0.5'
     compile 'org.imgscalr:imgscalr-lib:4.2'
+    compile 'com.jfoenix:jfoenix:9.0.8'
     implementation "com.google.guava:guava:28.2-jre"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation 'com.google.code.gson:gson:2.8.6'
@@ -68,4 +68,18 @@ compileKotlin {
 }
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+run {
+    applicationDefaultJvmArgs = ['--add-exports=javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED',
+                                 '--add-exports=javafx.graphics/com.sun.javafx.iio.common=ALL-UNNAMED',
+                                 '--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED',
+                                 '--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED',
+    ]
+
+    jvmArgs = ['--add-exports=javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED',
+               '--add-exports=javafx.graphics/com.sun.javafx.iio.common=ALL-UNNAMED',
+               '--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED',
+               '--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED',
+    ]
 }

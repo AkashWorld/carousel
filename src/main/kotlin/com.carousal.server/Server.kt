@@ -25,7 +25,10 @@ class Server private constructor(private val port: Int = DEFAULT_PORT) {
     private val uPnPProvider: UPnPProvider = UPnPProviderImpl(port)
 
     init {
-        this.server.config.requestCacheSize = 20000000L
+        /**
+         * 5.5MB cache for 5MB image limit
+         */
+        this.server.config.requestCacheSize = 5767168L
         this.server.before("*") {
             val serverAccessHeader = it.header(SERVER_ACCESS_HEADER)
             this.serverAccess(serverAccessHeader)
@@ -147,7 +150,7 @@ class Server private constructor(private val port: Int = DEFAULT_PORT) {
     }
 
     /**
-     * Lazy init singleton server
+     * Lazy init singleton com.carousal.server
      */
     companion object {
         private var server: Server? = null

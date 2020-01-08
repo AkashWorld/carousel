@@ -1,3 +1,5 @@
+package com.carousal.client
+
 import client.views.ApplicationView
 import client.views.intropage.IntroPageStyles
 import client.views.playerpage.FileLoaderStyles

@@ -20,6 +20,7 @@ class IntroPageStyles : Stylesheet() {
         val formTitle by cssclass()
         val errorMessage by cssclass()
         val progressSpinner by cssclass()
+        val arc by cssclass()
     }
 
     init {
@@ -105,7 +106,9 @@ class IntroPageStyles : Stylesheet() {
             fill = Color.WHITE
         }
         progressSpinner {
-            progressColor = Styles.lightButtonColor
+            arc {
+                stroke = Styles.lightButtonColor
+            }
         }
     }
 }

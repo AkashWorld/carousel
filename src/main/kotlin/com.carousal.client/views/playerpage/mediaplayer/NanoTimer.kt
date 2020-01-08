@@ -70,7 +70,6 @@ abstract class NanoTimer(period: Double) : ScheduledService<Void>() {
     }
 
     override fun failed() {
-        exception.printStackTrace(System.err)
         onFailed()
     }
 

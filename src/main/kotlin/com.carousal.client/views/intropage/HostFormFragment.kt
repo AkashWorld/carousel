@@ -6,6 +6,7 @@ import com.jfoenix.controls.JFXButton
 import com.jfoenix.controls.JFXSpinner
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
+import javafx.scene.image.Image
 import javafx.scene.layout.Pane
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
@@ -22,7 +23,8 @@ class HostFormFragment : Fragment() {
         form = vbox {
             alignment = Pos.CENTER
             spacing = 50.0
-            imageview(this::class.java.classLoader.getResource("icons/CarousalIcon128.png")?.toString())
+            val iconImage = Image(this::class.java.classLoader.getResourceAsStream("icons/CarousalIcon128.png"))
+            imageview(iconImage)
             text("Host a server for your friends!") {
                 addClass(IntroPageStyles.formTitle)
             }

@@ -11,7 +11,6 @@ import tornadofx.*
 
 class IntroPageStyles : Stylesheet() {
     companion object {
-        val leftIntroPanel by cssclass()
         val rightFormPanel by cssclass()
         val titleText by cssclass()
         val subText by cssclass()
@@ -24,18 +23,6 @@ class IntroPageStyles : Stylesheet() {
     }
 
     init {
-        val backgroundLocation = Styles.getRandomBackground()
-        leftIntroPanel {
-            backgroundImage = multi(backgroundLocation!!)
-            backgroundPosition = multi(BackgroundPosition.CENTER)
-            backgroundRepeat = multi(Pair(BackgroundRepeat.SPACE, BackgroundRepeat.SPACE))
-            backgroundSize = multi(
-                BackgroundSize(
-                    100.0, 100.0,
-                    true, true, false, true
-                )
-            )
-        }
         titleText {
             fontSize = 150.px
             fill = Color.WHITE

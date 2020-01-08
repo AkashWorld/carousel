@@ -23,6 +23,7 @@ import com.carousal.server.model.User
 import com.carousal.server.model.UserAuthentication
 import com.carousal.server.model.UsersRepository
 import java.io.File
+import java.io.InputStreamReader
 import java.util.concurrent.atomic.AtomicReference
 
 
@@ -160,8 +161,8 @@ class GraphQLProvider(
     private fun getTypeDefinitionRegistry(): TypeDefinitionRegistry? {
         val schemaParser = SchemaParser()
         return try {
-            return this::class.java.classLoader.getResource(GRAPHQL_SCHEMA_FILE)
-                ?.let { File(it.toURI()) }
+            return this::class.java.classLoader.getResourceAsStream(GRAPHQL_SCHEMA_FILE)
+                ?.let { InputStreamReader(it) }
                 ?.let { schemaParser.parse(it) }
         } catch (e: Exception) {
             logger.error(e.message)

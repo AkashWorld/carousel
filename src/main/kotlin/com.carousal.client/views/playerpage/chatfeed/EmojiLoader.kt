@@ -7,6 +7,7 @@ import javafx.scene.image.Image
 import me.xdrop.fuzzywuzzy.FuzzySearch.*
 import org.slf4j.LoggerFactory
 import tornadofx.Controller
+import java.io.InputStream
 
 enum class EmojiType {
     TWITTER,
@@ -16,15 +17,13 @@ enum class EmojiType {
 class EmojiLoader : Controller() {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val emojiCache = mutableMapOf<Pair<String, Double>, Image>()
-    private val customEmoji = mapOf(
-        ":pepe:" to "pepe"
-    )
+    private val customEmoji = mapOf<String, String>()
 
-    private fun getEmojiPath(emojiName: String, emojiType: EmojiType): String? {
+    private fun getEmojiInputStream(emojiName: String, emojiType: EmojiType): InputStream? {
         if (emojiType == EmojiType.TWITTER) {
-            return this::class.java.classLoader.getResource("twemoji/svg/$emojiName.svg")?.toString()
+            return this::class.java.classLoader.getResourceAsStream("twemoji/svg/$emojiName.svg")
         } else if (emojiType == EmojiType.CUSTOM) {
-            return this::class.java.classLoader.getResource("emoji/$emojiName.svg")?.toString()
+            return this::class.java.classLoader.getResourceAsStream("emoji/$emojiName.svg")
         }
         return null
     }
@@ -35,12 +34,12 @@ class EmojiLoader : Controller() {
         if (emojiCache.contains(key)) {
             return emojiCache[key]
         }
-        var path: String? = null
+        var inputStream: InputStream? = null
         val unicode = EmojiParser.parseToUnicode(alias)
         if (unicode == alias) {
             if (customEmoji.containsKey(alias)) {
                 val emojiFilename = customEmoji[alias]
-                path = if (emojiFilename != null) getEmojiPath(
+                inputStream = if (emojiFilename != null) getEmojiInputStream(
                     emojiFilename, EmojiType.CUSTOM
                 ) else null
             }
@@ -50,13 +49,13 @@ class EmojiLoader : Controller() {
              */
             val chars = unicode.toCharArray()
             val emojiFilename = Character.codePointAt(chars, 0x0).toString(16)
-            path = getEmojiPath(emojiFilename, EmojiType.TWITTER)
+            inputStream = getEmojiInputStream(emojiFilename, EmojiType.TWITTER)
         }
-        if (path == null) {
+        if (inputStream == null) {
             return null
         }
         return try {
-            val image = Image(path, hw, hw, true, true, true)
+            val image = Image(inputStream, hw, hw, true, true)
             emojiCache[key] = image
             image
         } catch (e: Exception) {

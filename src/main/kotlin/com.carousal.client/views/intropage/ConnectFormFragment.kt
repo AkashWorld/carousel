@@ -6,6 +6,7 @@ import com.jfoenix.controls.JFXButton
 import com.jfoenix.controls.JFXSpinner
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
+import javafx.scene.image.Image
 import javafx.scene.layout.Pane
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
@@ -22,7 +23,8 @@ class ConnectFormFragment : Fragment() {
             alignment = Pos.CENTER
             spacing = 50.0
             addClass(IntroPageStyles.rightFormPanel)
-            imageview(this::class.java.classLoader.getResource("icons/CarousalIcon128.png")?.toString())
+            val iconImage = Image(this::class.java.classLoader.getResourceAsStream("icons/CarousalIcon128.png"))
+            imageview(iconImage)
             text("Connect to a friend's server!") {
                 addClass(IntroPageStyles.formTitle)
             }

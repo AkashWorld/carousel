@@ -1,5 +1,5 @@
 <p align="center">
-    <img align="center" src="./src/main/resources/icons/CarousalIcon128.png" alt="Logo">
+    <img align="center" src="./resources/CarousalIcon128.png" alt="Logo">
 </p>
 
 # Carousal
@@ -7,11 +7,11 @@
 ## Intro
 This application is a self-hosted video syncing application. In scenarios where multiple people would like to watch their favorite movies/tv shows together but can't without high bandwidth stream sharing, Carousal comes to the rescue! As long as all participants has access to the same video file locally, Carousal will sync together the video timestamps and pause/play state of the video! Perfect for a good movie night when you aren't near your friends. It also includes a chat which allows you to share emojis and memes.
 
-![Sample Picture](./src/main/resources/readme-resources/SamplePic.png)
+![Sample Picture](./resources/SamplePic.png)
 
 ## How does it work?
 ### Prerequisites
-[VLC Media Player](https://www.videolan.org/vlc/index.html) must be installed as this application uses it's technology to play any media files.
+[VLC Media Player](https://www.videolan.org/vlc/index.html) must be installed as this application uses it's technology to play any media files. The person hosting the server must have Universal Plug and Play available in their network.
 
 One person (ideally the one with the best compute and network resources) hosts the server by navigating to the "Host" page. This person must have Universal Plug and Play enabled on their routers/modems (typically this is available and already enabled on most modern routers/modems). Once the server starts, share the IP address that is listed on the top left of the application with all other trusted participants and have them connect. After that, just load the video and play!
 
@@ -25,12 +25,20 @@ Largely, the architecture followed is the standard MVC architecture but it's not
 [com.carousal.server](./src/main/kotlin/com.carousal.server) is the server\
 The entry point of the server is the singleton Server.kt in com.carousal.server. It uses GraphQL to fetch data via the DataFetchers; which subsequently call the very simple models to keep the data.
 
-Tests ending with *FX.kt are not unit tests, but rather show certain view components. There are other tests that interact with the server but are likely broken.
+### How to develop
+This project was developed with JDK 11 but JDK 9 should suffice at the minimum.
 
 To run the application via the command line, simply input
 ```
 gradle run
 ```
+
+To build the distribution
+```
+gradle installDist
+```
+
+Tests ending with *FX.kt are not unit tests, but rather show certain view components. There are other tests that interact with the server but are likely broken.
 
 ## Contributers
 [Khalid Akash](https://github.com/akashworld) - Creator/Maintainer

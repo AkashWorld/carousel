@@ -13,7 +13,7 @@ class ApplicationView : View() {
     }
 
     init {
-        Styles.getIconPath()?.run {
+        Styles.getIconInputStream()?.run {
             addStageIcon(Image(this, 0.0, 0.0, true, true))
         }
         primaryStage.title = APPLICATION_NAME

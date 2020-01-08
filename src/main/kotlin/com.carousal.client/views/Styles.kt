@@ -3,6 +3,7 @@ package com.carousal.client.views
 import javafx.scene.paint.Color
 import javafx.scene.paint.LinearGradient
 import java.io.File
+import java.io.InputStream
 import java.net.URI
 import java.time.Instant
 import kotlin.random.Random
@@ -13,18 +14,17 @@ class Styles {
         val lightColor: Color = Color.valueOf("#ff4d67")
         val darkColor: Color = Color.valueOf("#a12d3e")
         val mainGradient: LinearGradient = LinearGradient.valueOf("from 0% 0% to 100% 100%, #7a2334, #3e091b")
+        private val backgrounds =
+            listOf("illuminated-street.jpg", "manhattenhenge.jpg", "night-time-city.jpg", "ny-cityscape.jpg")
 
-        fun getRandomBackground(): URI? {
-            val backgroundLocationURI = this::class.java.classLoader.getResource("backgrounds")?.toURI() ?: return null
-            val backgroundDirectory = File(backgroundLocationURI)
-            val backgrounds = backgroundDirectory.listFiles()?.filter { it.isFile }?.toList() ?: return null
+        fun getRandomBackground(): InputStream? {
             val rand = Random(Instant.now().nano)
             val chosen = rand.nextInt(0, backgrounds.size)
-            return backgrounds[chosen].toURI()
+            return this::class.java.classLoader.getResourceAsStream("backgrounds/${backgrounds[chosen]}")
         }
 
-        fun getIconPath(): String? {
-            return this::class.java.classLoader.getResource("icons/CarousalIcon32.png")?.toString()
+        fun getIconInputStream(): InputStream? {
+            return this::class.java.classLoader.getResourceAsStream("icons/CarousalIcon32.png")
         }
     }
 }

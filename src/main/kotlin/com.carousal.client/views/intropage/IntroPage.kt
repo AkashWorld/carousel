@@ -2,11 +2,14 @@ package com.carousal.client.views.intropage
 
 import com.carousal.client.views.ApplicationView
 import com.carousal.client.models.ClientContextImpl
+import com.carousal.client.views.Styles
 import com.carousal.client.views.playerpage.PlayerPage
 import javafx.geometry.Pos
 import javafx.scene.control.ToggleGroup
 import org.slf4j.LoggerFactory
 import com.carousal.server.Server
+import javafx.scene.image.Image
+import javafx.scene.layout.*
 import tornadofx.*
 
 class IntroPage : View() {
@@ -19,7 +22,15 @@ class IntroPage : View() {
             vbox {
                 alignment = Pos.CENTER
                 spacing = 30.0
-                addClass(IntroPageStyles.leftIntroPanel)
+                val backgroundImage = BackgroundImage(
+                    Image(Styles.getRandomBackground()),
+                    BackgroundRepeat.NO_REPEAT,
+                    BackgroundRepeat.NO_REPEAT,
+                    BackgroundPosition.CENTER,
+                    BackgroundSize(100.0, 100.0, true, true, false, true)
+                )
+                background = Background(backgroundImage)
+
                 text(ApplicationView.APPLICATION_NAME.toUpperCase()) {
                     addClass(IntroPageStyles.titleText)
                 }
@@ -49,7 +60,7 @@ class IntroPage : View() {
         right {
             this.add(connectForm)
             toggleGroup.selectedToggleProperty().addListener { _, _, newValue ->
-                if(newValue == null) {
+                if (newValue == null) {
                     return@addListener
                 }
                 if (newValue.userData == ToggleEnum.HOST_PAGE) {

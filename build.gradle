@@ -2,10 +2,26 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.3.50'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.8'
+    id 'edu.sc.seis.launch4j' version '2.4.6'
 }
 
 application {
     mainClassName = 'com.carousal.client.MainKt'
+}
+
+launch4j {
+    mainClassName = 'com.carousal.client.MainKt'
+    icon = "${projectDir}/resources/carousal256.ico"
+    outfile = "Carousal.exe"
+    downloadUrl = "https://github.com/AkashWorld/carousal"
+    copyright = "GPL3"
+    jreMinVersion = "1.11"
+    windowTitle = "Carousal"
+    jvmOptions = ['--add-exports=javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED',
+               '--add-exports=javafx.graphics/com.sun.javafx.iio.common=ALL-UNNAMED',
+               '--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED',
+               '--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED',
+    ]
 }
 
 startScripts {

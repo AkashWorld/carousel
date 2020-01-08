@@ -5,7 +5,9 @@ import com.carousal.client.views.intropage.IntroPage
 import javafx.scene.image.Image
 import javafx.stage.Screen
 import com.carousal.server.Server
+import javafx.application.Platform
 import tornadofx.*
+import kotlin.system.exitProcess
 
 class ApplicationView : View() {
     companion object {
@@ -23,6 +25,8 @@ class ApplicationView : View() {
         primaryStage.setOnCloseRequest {
             ClientContextImpl.getInstance().sendSignOutRequest()
             Server.getInstance().close()
+            Platform.exit()
+            exitProcess(0)
         }
     }
 

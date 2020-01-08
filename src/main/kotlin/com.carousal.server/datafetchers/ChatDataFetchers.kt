@@ -5,12 +5,12 @@ import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
 import org.slf4j.LoggerFactory
 import com.carousal.server.GraphQLContext
-import com.carousal.server.model.ChatFeedRepository
+import com.carousal.server.model.ChatRepository
 import com.carousal.server.model.ContentType
 import com.carousal.server.model.Message
 import java.util.concurrent.ConcurrentLinkedQueue
 
-class ChatFeedDataFetchers(private val chatFeed: ChatFeedRepository) {
+class ChatDataFetchers(private val chatRepository: ChatRepository) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val chatFeedPublisher: ChatFeedPublisher = ChatFeedPublisher()
 
@@ -23,7 +23,7 @@ class ChatFeedDataFetchers(private val chatFeed: ChatFeedRepository) {
             }
             val start = environment.getArgument<Int>("start")
             val count = environment.getArgument<Int>("count")
-            chatFeed.getPaginatedMessages(start, count)
+            chatRepository.getPaginatedMessages(start, count)
         }
     }
 
@@ -34,7 +34,7 @@ class ChatFeedDataFetchers(private val chatFeed: ChatFeedRepository) {
                 logger.error("queryGetMessagePaginated: No context found")
                 throw Exception("queryGetLengthOfChatFeed: No context found")
             }
-            chatFeed.getNumberOfMessages()
+            chatRepository.getNumberOfMessages()
         }
     }
 
@@ -46,7 +46,7 @@ class ChatFeedDataFetchers(private val chatFeed: ChatFeedRepository) {
                 throw Exception("mutationInsertMessage: No context found")
             }
             val message = environment.getArgument<String>("message")
-            chatFeedPublisher.publishMessage(chatFeed.addMessage(context.user, message, ContentType.MESSAGE))
+            chatFeedPublisher.publishMessage(chatRepository.addMessage(context.user, message, ContentType.MESSAGE))
             true
         }
     }
@@ -59,7 +59,7 @@ class ChatFeedDataFetchers(private val chatFeed: ChatFeedRepository) {
                 throw Exception("mutationInsertImage: No context found")
             }
             val data = environment.getArgument<String>("data")
-            chatFeedPublisher.publishMessage(chatFeed.addMessage(context.user, data, ContentType.IMAGE))
+            chatFeedPublisher.publishMessage(chatRepository.addMessage(context.user, data, ContentType.IMAGE))
             true
         }
     }
@@ -76,6 +76,9 @@ class ChatFeedDataFetchers(private val chatFeed: ChatFeedRepository) {
     }
 }
 
+/**
+ * Memory leak, we need to figure out how to clean this up if user disconnects
+ */
 class ChatFeedPublisher : Publisher<Message> {
     private val subscribers: ConcurrentLinkedQueue<Subscriber<in Message>?> = ConcurrentLinkedQueue()
 

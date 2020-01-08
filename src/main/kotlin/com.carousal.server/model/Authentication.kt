@@ -1,7 +1,5 @@
 package com.carousal.server.model
 
-import org.slf4j.LoggerFactory
-
 interface UserAuthentication {
     fun verifyUser(token: String?): User?
 

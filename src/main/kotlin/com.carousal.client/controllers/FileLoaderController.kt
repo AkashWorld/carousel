@@ -30,12 +30,12 @@ class FileLoaderController : Controller() {
         mediaController.loadMedia(filename, {
             this.currentFile = videoFile[0]
             success()
-        }, { error("Could not sync file loading with the com.carousal.server") })
+        }, { error("Could not sync file loading with the server") })
     }
 
     fun getCurrentSelectedFile(): File? {
         if (this.currentFile == null) {
-            logger.error("There is no file selected, you must called FileChooser")
+            logger.error("There is no file selected, you must call FileChooser")
             return null
         }
         return this.currentFile

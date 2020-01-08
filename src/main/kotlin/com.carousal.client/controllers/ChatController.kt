@@ -1,6 +1,8 @@
 package com.carousal.client.controllers
 
 import com.carousal.client.models.*
+import com.carousal.client.models.observables.Action
+import com.carousal.client.models.observables.MediaAction
 import com.carousal.client.views.playerpage.mediaplayer.getMillisecondsToHHMMSS
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.value.ChangeListener

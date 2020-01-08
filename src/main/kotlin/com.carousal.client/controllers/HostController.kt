@@ -36,7 +36,7 @@ class HostController : Controller() {
                 externalIp = server.getExternalIP()
             } catch (e: Exception) {
                 logger.error(e.message, e.cause)
-                val message: String = "Could not intialize server, please ensure you do not have more " +
+                val message: String = "Could not initialize server, please ensure you do not have more " +
                         "than one instance of ${ApplicationView.APPLICATION_NAME} running. In addition, please ensure that " +
                         "your network has Universal Plug and Play (UPnP) enabled."
                 ui {

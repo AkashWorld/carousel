@@ -4,9 +4,9 @@ import com.carousal.client.controllers.ChatController
 import com.carousal.client.controllers.FileLoaderController
 import com.carousal.client.controllers.MediaController
 import com.carousal.client.controllers.UsersController
-import com.carousal.client.models.Action
-import com.carousal.client.models.MediaAction
-import com.carousal.client.models.MediaActionObservable
+import com.carousal.client.models.observables.Action
+import com.carousal.client.models.observables.MediaAction
+import com.carousal.client.models.observables.MediaActionObservable
 import com.carousal.client.views.ViewUtils
 import com.carousal.client.views.playerpage.FileLoaderView
 import com.carousal.client.views.playerpage.chatfeed.MessageFragment
@@ -28,7 +28,6 @@ import javafx.scene.layout.Pane
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.transform.Affine
-import org.slf4j.LoggerFactory
 import tornadofx.*
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory
 import uk.co.caprica.vlcj.media.MediaRef

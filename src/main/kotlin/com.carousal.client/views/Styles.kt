@@ -9,9 +9,9 @@ import kotlin.random.Random
 
 class Styles {
     companion object {
-        val buttonColor: Color = Color.valueOf("#db4057")
-        val lightButtonColor: Color = Color.valueOf("#ff4d67")
-        val darkButtonColor: Color = Color.valueOf("#a12d3e")
+        val defaultColor: Color = Color.valueOf("#db4057")
+        val lightColor: Color = Color.valueOf("#ff4d67")
+        val darkColor: Color = Color.valueOf("#a12d3e")
         val mainGradient: LinearGradient = LinearGradient.valueOf("from 0% 0% to 100% 100%, #7a2334, #3e091b")
 
         fun getRandomBackground(): URI? {

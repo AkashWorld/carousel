@@ -85,6 +85,9 @@ class UserDataFetchers constructor(
     }
 }
 
+/**
+ * Memory leak, we need to figure out how to clean this up if user disconnects
+ */
 class UserActionPublisher : Publisher<UserActionEvent> {
     private val subscribers: ConcurrentLinkedQueue<Subscriber<in UserActionEvent>?> =
         ConcurrentLinkedQueue()

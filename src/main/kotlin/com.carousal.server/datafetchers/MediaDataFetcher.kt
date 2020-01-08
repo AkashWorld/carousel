@@ -60,6 +60,9 @@ class MediaDataFetchers(private val userActionPublisher: UserActionPublisher) {
     }
 }
 
+/**
+ * Memory leak, we need to figure out how to clean this up if user disconnects
+ */
 class MediaActionPublisher : Publisher<MediaSubscriptionResult> {
     private val subscribers: ConcurrentLinkedQueue<Subscriber<in MediaSubscriptionResult>?> =
         ConcurrentLinkedQueue()

@@ -12,8 +12,8 @@ class FileLoaderStyles : Stylesheet() {
         val loadVideoButton by cssclass()
         val titleText by cssclass()
 
-        val buttonColor = Styles.buttonColor
-        val hoverButtonColor = Styles.lightButtonColor
+        val buttonColor = Styles.defaultColor
+        val hoverButtonColor = Styles.lightColor
         val mainGradient: LinearGradient = Styles.mainGradient
     }
 

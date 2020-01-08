@@ -1,6 +1,6 @@
 package com.carousal.server
 
-import com.carousal.server.model.ChatFeedRepository
+import com.carousal.server.model.ChatRepository
 import com.carousal.server.model.UserAuthenticationImpl
 import com.carousal.server.model.UsersRepository
 import io.javalin.Javalin
@@ -8,7 +8,6 @@ import io.javalin.http.Context
 import org.slf4j.LoggerFactory
 import io.javalin.http.ForbiddenResponse
 import io.javalin.websocket.WsMessageContext
-import server.model.*
 import java.util.concurrent.CompletableFuture
 import com.carousal.server.GraphQLProvider as GraphQLProvider
 
@@ -87,7 +86,7 @@ class Server private constructor(private val port: Int = DEFAULT_PORT) {
             logger.error(e.message)
             throw(e)
         }
-        val chatFeedRepository = ChatFeedRepository()
+        val chatFeedRepository = ChatRepository()
         graphQLProvider = GraphQLProvider(usersRepository, chatFeedRepository, userAuthentication)
     }
 

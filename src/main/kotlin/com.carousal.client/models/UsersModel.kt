@@ -1,5 +1,8 @@
 package com.carousal.client.models
 
+import com.carousal.client.models.observables.User
+import com.carousal.client.models.observables.UserActionObservable
+import com.carousal.client.models.observables.UserObservable
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import javafx.collections.ObservableList
@@ -50,7 +53,11 @@ class UsersModel {
                 try {
                     val getAllUsers = gson.fromJson(it, JsonObject::class.java).get("getAllUsers")
                     val usersList = gson.fromJson(getAllUsers, List::class.java) as List<User>
-                    users.addAll(usersList.map { UserObservable(it) })
+                    users.addAll(usersList.map {
+                        UserObservable(
+                            it
+                        )
+                    })
                 } catch (e: Exception) {
                     logger.error(e.message, e.cause)
                     runLater(error)

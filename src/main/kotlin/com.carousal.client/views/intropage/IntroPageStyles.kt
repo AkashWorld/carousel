@@ -52,18 +52,18 @@ class IntroPageStyles : Stylesheet() {
             prefWidth = 300.px
             prefHeight = 60.px
             focusColor = Color.TRANSPARENT
-            backgroundColor = multi(Styles.buttonColor)
+            backgroundColor = multi(Styles.defaultColor)
             textFill = Color.WHITE
             and(hover) {
-                backgroundColor = multi(Styles.lightButtonColor)
+                backgroundColor = multi(Styles.lightColor)
                 cursor = Cursor.HAND
             }
             and(selected) {
-                backgroundColor = multi(Styles.darkButtonColor)
+                backgroundColor = multi(Styles.darkColor)
                 backgroundRadius = multi(box(50.px))
                 borderRadius = multi(box(50.px))
                 borderWidth = multi(box(5.px))
-                borderColor = multi(box(Styles.lightButtonColor))
+                borderColor = multi(box(Styles.lightColor))
             }
         }
         rightFormPanel {
@@ -76,10 +76,10 @@ class IntroPageStyles : Stylesheet() {
             prefHeight = 40.px
             backgroundRadius = multi(box(50.px))
             borderRadius = multi(box(50.px))
-            accentColor = Styles.lightButtonColor
+            accentColor = Styles.lightColor
             and(focused) {
                 borderWidth = multi(box(5.px))
-                borderColor = multi(box(Styles.lightButtonColor))
+                borderColor = multi(box(Styles.lightColor))
             }
         }
         formButton {
@@ -89,10 +89,10 @@ class IntroPageStyles : Stylesheet() {
             prefWidth = 150.px
             prefHeight = 30.px
             focusColor = Color.TRANSPARENT
-            backgroundColor = multi(Styles.buttonColor)
+            backgroundColor = multi(Styles.defaultColor)
             textFill = Color.WHITE
             and(hover) {
-                backgroundColor = multi(Styles.lightButtonColor)
+                backgroundColor = multi(Styles.lightColor)
                 cursor = Cursor.HAND
             }
         }
@@ -107,7 +107,7 @@ class IntroPageStyles : Stylesheet() {
         }
         progressSpinner {
             arc {
-                stroke = Styles.lightButtonColor
+                stroke = Styles.lightColor
             }
         }
     }

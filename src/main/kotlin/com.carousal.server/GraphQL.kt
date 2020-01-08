@@ -15,10 +15,10 @@ import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import org.slf4j.LoggerFactory
-import com.carousal.server.datafetchers.ChatFeedDataFetchers
+import com.carousal.server.datafetchers.ChatDataFetchers
 import com.carousal.server.datafetchers.MediaDataFetchers
 import com.carousal.server.datafetchers.UserDataFetchers
-import com.carousal.server.model.ChatFeedRepository
+import com.carousal.server.model.ChatRepository
 import com.carousal.server.model.User
 import com.carousal.server.model.UserAuthentication
 import com.carousal.server.model.UsersRepository
@@ -32,14 +32,14 @@ data class GraphQLQuery(val query: String, val operationName: String?, val varia
 
 class GraphQLProvider(
     usersRepository: UsersRepository,
-    chatFeedRepository: ChatFeedRepository,
+    chatRepository: ChatRepository,
     userAuthentication: UserAuthentication
 ) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private var graphql: GraphQL? = null
     private val userDataFetchers = UserDataFetchers(usersRepository, userAuthentication)
     private val mediaDataFetchers = MediaDataFetchers(userDataFetchers.getUserActionPublisher())
-    private val chatFeedDataFetchers = ChatFeedDataFetchers(chatFeedRepository)
+    private val chatFeedDataFetchers = ChatDataFetchers(chatRepository)
 
     init {
         val schema = this.getSchema()

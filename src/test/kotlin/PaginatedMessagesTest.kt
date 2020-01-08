@@ -4,7 +4,7 @@ import com.google.gson.Gson
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import com.carousal.server.Server
-import com.carousal.server.model.ChatFeedRepository
+import com.carousal.server.model.ChatRepository
 import com.carousal.server.model.ContentType
 import com.carousal.server.model.User
 import java.util.concurrent.CompletableFuture
@@ -16,7 +16,7 @@ data class GraphQLResponse(val data: GetMessagesPaginatedObject)
 class PaginatedMessagesTest {
     @Test
     fun shouldReturnCorrectAmountInList() {
-        val chatFeed = ChatFeedRepository()
+        val chatFeed = ChatRepository()
         chatFeed.addMessage(User("Test", true, null), "Hello, World", ContentType.MESSAGE)
         chatFeed.addMessage(User("Test", true, null), "Hello, World", ContentType.MESSAGE)
         chatFeed.addMessage(User("Test", true, null), "Hello, World", ContentType.MESSAGE)
@@ -30,27 +30,27 @@ class PaginatedMessagesTest {
 
     @Test
     fun shouldReturnOneWithBadPaginated() {
-        val chatFeed = ChatFeedRepository()
+        val chatFeed = ChatRepository()
         chatFeed.addMessage(User("Test", true, null), "Hello, World", ContentType.MESSAGE)
         assert(chatFeed.getPaginatedMessages(0, 50).size == 1)
     }
 
     @Test
     fun shouldThrowOnOutOfRangeIndexes() {
-        val chatFeed = ChatFeedRepository()
+        val chatFeed = ChatRepository()
         chatFeed.addMessage(User("Test", true, null), "Hello, World", ContentType.MESSAGE)
         assertThrows<Exception> { chatFeed.getPaginatedMessages(2, 5) }
     }
 
     @Test
     fun shouldReturnEmpty() {
-        val chatFeed = ChatFeedRepository()
+        val chatFeed = ChatRepository()
         assert(chatFeed.getPaginatedMessages(0, 50).isEmpty())
     }
 
     @Test
     fun shouldReturnFirstTwo() {
-        val chatFeed = ChatFeedRepository()
+        val chatFeed = ChatRepository()
         chatFeed.addMessage(User("Test", true, null), "1", ContentType.MESSAGE)
         chatFeed.addMessage(User("Test", true, null), "2", ContentType.MESSAGE)
         chatFeed.addMessage(User("Test", true, null), "3", ContentType.MESSAGE)

@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentLinkedDeque
 
 private data class SuccessErrorHandler(val success: (String) -> Unit, val error: () -> Unit)
 
-class GQLWebSocketListener : WebSocketListener() {
+class WSListener : WebSocketListener() {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val handlers = ConcurrentLinkedDeque<SuccessErrorHandler>()
     private val uniqueIdentifiers = ConcurrentHashMap.newKeySet<String>()

@@ -1,5 +1,7 @@
 package com.carousal.client.models
 
+import com.carousal.client.models.observables.MediaAction
+import com.carousal.client.models.observables.MediaActionObservable
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
@@ -17,7 +19,8 @@ interface MediaActionModel {
 class MediaActionModelImpl : MediaActionModel {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val clientContext = ClientContextImpl.getInstance()
-    private val mediaActionObservable = MediaActionObservable(null)
+    private val mediaActionObservable =
+        MediaActionObservable(null)
 
     override fun getMediaActionObservable(): MediaActionObservable {
         return mediaActionObservable

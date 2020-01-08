@@ -4,8 +4,6 @@ import com.google.gson.Gson
 import okhttp3.*
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.slf4j.LoggerFactory
-import com.carousal.server.AUTH_HEADER
-import com.carousal.server.SERVER_ACCESS_HEADER
 import java.io.IOException
 
 /**
@@ -40,6 +38,11 @@ interface ClientContext {
     )
 
     fun clearContext()
+
+    companion object {
+        const val SERVER_ACCESS_HEADER = "ServerAuth"
+        const val AUTH_HEADER = "Authorization"
+    }
 }
 
 class ClientContextImpl private constructor() : ClientContext {
@@ -48,7 +51,7 @@ class ClientContextImpl private constructor() : ClientContext {
     private var serverAddress: String? = null
     private var serverPassword: String? = null
     private var usernameTokenPair: Pair<String, String>? = null
-    private var gqlWebSocketListener: GQLWebSocketListener? = null
+    private var wsListener: WSListener? = null
     private var webSocket: WebSocket? = null
 
     override fun requestSignInToken(
@@ -69,7 +72,7 @@ class ClientContextImpl private constructor() : ClientContext {
         val body: RequestBody = gson.toJson(query).toRequestBody()
         val request = Request.Builder().post(body)
             .url("http://${address}:57423/graphql")
-            .header(SERVER_ACCESS_HEADER, password ?: "")
+            .header(ClientContext.SERVER_ACCESS_HEADER, password ?: "")
             .build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -98,14 +101,14 @@ class ClientContextImpl private constructor() : ClientContext {
 
     private fun setUpWebSocketConnection() {
         val wsRequestBuilder = Request.Builder().url("ws://${serverAddress}:57423/subscription").addHeader(
-            AUTH_HEADER, usernameTokenPair!!.second
+            ClientContext.AUTH_HEADER, usernameTokenPair!!.second
         )
         if (serverPassword != null) {
-            wsRequestBuilder.addHeader(SERVER_ACCESS_HEADER, serverPassword!!)
+            wsRequestBuilder.addHeader(ClientContext.SERVER_ACCESS_HEADER, serverPassword!!)
         }
         val wsRequest: Request = wsRequestBuilder.build()
-        gqlWebSocketListener = GQLWebSocketListener()
-        webSocket = client.newWebSocket(wsRequest, gqlWebSocketListener!!)
+        wsListener = WSListener()
+        webSocket = client.newWebSocket(wsRequest, wsListener!!)
     }
 
     override fun getUsername(): String? {
@@ -132,8 +135,8 @@ class ClientContextImpl private constructor() : ClientContext {
         val body: RequestBody = gson.toJson(queryMap).toRequestBody()
         val request = Request.Builder().post(body)
             .url("http://${serverAddress}:57423/graphql")
-            .header(SERVER_ACCESS_HEADER, serverPassword ?: "")
-            .header(AUTH_HEADER, usernameTokenPair!!.second)
+            .header(ClientContext.SERVER_ACCESS_HEADER, serverPassword ?: "")
+            .header(ClientContext.AUTH_HEADER, usernameTokenPair!!.second)
             .build()
         client.newCall(request).execute()
     }
@@ -145,12 +148,12 @@ class ClientContextImpl private constructor() : ClientContext {
         responseHandler: (String) -> Unit,
         error: () -> Unit
     ) {
-        if (serverAddress == null || usernameTokenPair == null || webSocket == null || gqlWebSocketListener == null) {
+        if (serverAddress == null || usernameTokenPair == null || webSocket == null || wsListener == null) {
             logger.error("ClientContext websocket is not initialized")
             error()
             return
         }
-        if (gqlWebSocketListener?.addWebSocketHandler(query, responseHandler, error) == true) {
+        if (wsListener?.addWebSocketHandler(query, responseHandler, error) == true) {
             webSocket?.send(Gson().toJson(mapOf("query" to query, "variables" to variables)))
         }
     }
@@ -171,9 +174,9 @@ class ClientContextImpl private constructor() : ClientContext {
         val body: RequestBody = gson.toJson(queryMap).toRequestBody()
         val requestBuilder = Request.Builder().post(body)
             .url("http://${serverAddress}:57423/graphql")
-            .header(AUTH_HEADER, usernameTokenPair!!.second)
+            .header(ClientContext.AUTH_HEADER, usernameTokenPair!!.second)
         if (serverPassword != null) {
-            requestBuilder.addHeader(SERVER_ACCESS_HEADER, serverPassword!!)
+            requestBuilder.addHeader(ClientContext.SERVER_ACCESS_HEADER, serverPassword!!)
         }
         val request = requestBuilder.build()
         client.newCall(request).enqueue(object : Callback {
@@ -209,7 +212,7 @@ class ClientContextImpl private constructor() : ClientContext {
         usernameTokenPair = null
         webSocket?.close(1001, "Clearing Context")
         webSocket = null
-        gqlWebSocketListener = null
+        wsListener = null
     }
 
     companion object {

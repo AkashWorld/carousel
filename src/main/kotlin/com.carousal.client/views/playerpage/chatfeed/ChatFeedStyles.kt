@@ -19,8 +19,8 @@ class ChatFeedStyles : Stylesheet() {
         val imageSpinner by cssclass()
         val arc by cssclass()
 
-        val buttonColor = Styles.buttonColor
-        val hoverButtonColor = Styles.lightButtonColor
+        val buttonColor = Styles.defaultColor
+        val hoverButtonColor = Styles.lightColor
         val chatColor = Color.valueOf("#262626")!!
         val chatBackgroundColor = Color.valueOf("#171717")!!
         val chatTextColor = Color.valueOf("#e3e3e3")!!
@@ -100,7 +100,7 @@ class ChatFeedStyles : Stylesheet() {
             textFill = Color.WHITE
             minHeight = 45.px
             padding = box(10.px)
-            accentColor = Styles.lightButtonColor
+            accentColor = Styles.lightColor
             and(focused) {
                 borderRadius = multi(box(3.px))
                 borderWidth = multi(box(3.px))
@@ -145,7 +145,7 @@ class ChatFeedStyles : Stylesheet() {
             prefWidth = 25.px
             prefHeight = 25.px
             arc {
-                stroke = Styles.buttonColor
+                stroke = Styles.defaultColor
             }
         }
     }

@@ -1,6 +1,6 @@
-import com.carousal.client.models.Action
+import com.carousal.client.models.observables.Action
 import com.carousal.client.models.ClientContextImpl
-import com.carousal.client.models.MediaAction
+import com.carousal.client.models.observables.MediaAction
 import com.carousal.client.models.MediaActionModelImpl
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay

@@ -1,4 +1,4 @@
-package client.views.playerpage.mediaplayer
+package com.carousal.client.views.playerpage.mediaplayer
 
 import javafx.concurrent.ScheduledService
 import javafx.concurrent.Task
@@ -29,20 +29,8 @@ abstract class NanoTimer(period: Double) : ScheduledService<Void>() {
         }
     }
 
-    fun getTime(): Long {
+    private fun getTime(): Long {
         return System.nanoTime() - startTime
-    }
-
-    fun getTimeAsSeconds(): Double {
-        return (getTime() * ONE_NANO_INV).toDouble()
-    }
-
-    fun getDeltaTime(): Double {
-        return deltaTime
-    }
-
-    fun getFrameRate(): Double {
-        return frameRate
     }
 
     override fun start() {

@@ -1,16 +1,15 @@
-package client.views.intropage
+package com.carousal.client.views.intropage
 
-import client.views.ApplicationView
-import client.models.ClientContextImpl
-import client.views.playerpage.PlayerPage
+import com.carousal.client.views.ApplicationView
+import com.carousal.client.models.ClientContextImpl
+import com.carousal.client.views.playerpage.PlayerPage
 import javafx.geometry.Pos
 import javafx.scene.control.ToggleGroup
 import org.slf4j.LoggerFactory
-import server.Server
+import com.carousal.server.Server
 import tornadofx.*
 
 class IntroPage : View() {
-    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val hostForm = find<HostFormFragment>()
     private val connectForm = find<ConnectFormFragment>()
     private lateinit var toggleGroup: ToggleGroup

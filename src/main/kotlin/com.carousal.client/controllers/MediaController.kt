@@ -1,9 +1,8 @@
-package client.controllers
+package com.carousal.client.controllers
 
-import client.models.MediaActionModel
-import client.models.MediaActionModelImpl
-import client.models.MediaActionObservable
-import javafx.beans.property.SimpleBooleanProperty
+import com.carousal.client.models.MediaActionModel
+import com.carousal.client.models.MediaActionModelImpl
+import com.carousal.client.models.MediaActionObservable
 import tornadofx.*
 
 class MediaController : Controller() {

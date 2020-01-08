@@ -1,22 +1,18 @@
-package client.views.intropage
+package com.carousal.client.views.intropage
 
-import client.controllers.ConnectController
-import client.views.ViewUtils
+import com.carousal.client.controllers.ConnectController
+import com.carousal.client.views.ViewUtils
 import com.jfoenix.controls.JFXButton
-import com.jfoenix.controls.JFXDialog
-import com.jfoenix.controls.JFXDialogLayout
 import com.jfoenix.controls.JFXSpinner
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.scene.layout.Pane
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
-import javafx.scene.text.Text
 import org.slf4j.LoggerFactory
 import tornadofx.*
 
 class ConnectFormFragment : Fragment() {
-    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val connectController: ConnectController by inject()
     private val usernameErrorMessage = SimpleStringProperty("")
     private lateinit var form: VBox

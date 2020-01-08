@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
-import server.AUTH_HEADER
-import server.Server
+import com.carousal.server.AUTH_HEADER
+import com.carousal.server.Server
 
 class GraphQLMediaSubscriptionTest {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)

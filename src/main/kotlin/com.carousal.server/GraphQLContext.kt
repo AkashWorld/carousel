@@ -1,5 +1,5 @@
-package server
+package com.carousal.server
 
-import server.model.User
+import com.carousal.server.model.User
 
 data class GraphQLContext constructor(val user: User)

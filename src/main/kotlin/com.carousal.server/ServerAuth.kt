@@ -1,4 +1,4 @@
-package server
+package com.carousal.server
 
 import java.security.MessageDigest
 

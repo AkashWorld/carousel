@@ -1,4 +1,4 @@
-package client.models
+package com.carousal.client.models
 
 import javafx.beans.InvalidationListener
 import javafx.beans.value.ChangeListener

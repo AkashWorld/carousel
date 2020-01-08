@@ -1,4 +1,4 @@
-package client.views.playerpage.mediaplayer
+package com.carousal.client.views.playerpage.mediaplayer
 
 import javafx.scene.Cursor
 import javafx.scene.paint.Color
@@ -36,7 +36,7 @@ class MediaPlayerStyles : Stylesheet() {
         fullScreenButton {
             backgroundColor = multi(Color.TRANSPARENT)
             maxHeight = 30.px
-            padding = box(-5.px)
+            padding = box((-5).px)
             and(hover) {
                 cursor = Cursor.HAND
             }

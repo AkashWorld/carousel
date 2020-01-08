@@ -1,10 +1,10 @@
-package client.controllers
+package com.carousal.client.controllers
 
-import client.views.ApplicationView
-import client.models.ClientContextImpl
+import com.carousal.client.views.ApplicationView
+import com.carousal.client.models.ClientContextImpl
 import javafx.beans.property.SimpleStringProperty
 import org.slf4j.LoggerFactory
-import server.Server
+import com.carousal.server.Server
 import tornadofx.*
 
 class HostController : Controller() {

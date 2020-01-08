@@ -1,4 +1,4 @@
-package client.views
+package com.carousal.client.views
 
 import com.jfoenix.controls.JFXButton
 import com.jfoenix.controls.JFXDialog

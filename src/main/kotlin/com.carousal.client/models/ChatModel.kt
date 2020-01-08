@@ -1,4 +1,4 @@
-package client.models
+package com.carousal.client.models
 
 import com.google.gson.Gson
 import javafx.collections.ObservableList
@@ -60,7 +60,7 @@ class ChatModel {
             }
         """.trimIndent()
         val variables = mapOf("start" to 0, "count" to count)
-        clientContext.sendQueryOrMutationRequest(mutation, variables, {
+        clientContext.sendQueryOrMutationRequest(mutation, variables, { it ->
             try {
                 Gson().fromJson(it, GraphQLResponse::class.java).data.getMessagesPaginated.forEach { addMessage(it) }
             } catch (e: Exception) {

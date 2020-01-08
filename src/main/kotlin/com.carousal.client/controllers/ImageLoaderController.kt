@@ -1,7 +1,7 @@
-package client.controllers
+package com.carousal.client.controllers
 
-import client.views.playerpage.chatfeed.ImageLoader
-import client.views.playerpage.chatfeed.ImageLoaderImpl
+import com.carousal.client.views.playerpage.chatfeed.ImageLoader
+import com.carousal.client.views.playerpage.chatfeed.ImageLoaderImpl
 import javafx.scene.image.Image
 import javafx.scene.shape.Rectangle
 import javafx.stage.FileChooser

@@ -1,13 +1,13 @@
-package client.views.playerpage.chatfeed
+package com.carousal.client.views.playerpage.chatfeed
 
-import client.controllers.*
-import client.models.ContentType
-import client.models.Message
-import client.views.ViewUtils
+import com.carousal.client.models.Message
+import com.carousal.client.controllers.ChatController
+import com.carousal.client.controllers.ClientContextController
+import com.carousal.client.controllers.UsersController
+import com.carousal.client.views.ViewUtils
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.jensd.fx.glyphs.materialicons.MaterialIconView
 import javafx.beans.Observable
-import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Insets
 import javafx.scene.control.ListView
@@ -18,8 +18,6 @@ import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.stage.StageStyle
 import javafx.util.Duration
-import kotlinx.coroutines.delay
-import org.slf4j.LoggerFactory
 import tornadofx.*
 
 class ChatFragment : Fragment() {
@@ -239,10 +237,6 @@ class ChatFragment : Fragment() {
     override fun onDock() {
         super.onDock()
         serverAddress.value = "Server Address: ${clientContextController.getAddress()}"
-    }
-
-    override fun onUndock() {
-        super.onUndock()
     }
 }
 

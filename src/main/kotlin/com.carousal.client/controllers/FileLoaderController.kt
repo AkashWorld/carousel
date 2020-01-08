@@ -1,12 +1,10 @@
-package client.controllers
+package com.carousal.client.controllers
 
 import javafx.stage.FileChooser
 import org.slf4j.LoggerFactory
 import tornadofx.Controller
 import tornadofx.chooseFile
 import java.io.File
-import java.nio.file.Path
-import java.nio.file.Paths
 
 class FileLoaderController : Controller() {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)

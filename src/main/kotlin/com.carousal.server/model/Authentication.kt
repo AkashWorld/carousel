@@ -1,4 +1,4 @@
-package server.model
+package com.carousal.server.model
 
 import org.slf4j.LoggerFactory
 
@@ -9,7 +9,6 @@ interface UserAuthentication {
 }
 
 class UserAuthenticationImpl(private val usersRepository: UsersRepository): UserAuthentication {
-    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     override fun verifyUser(token: String?): User? {
         if(token == null) return null
         return usersRepository.getUser(token)

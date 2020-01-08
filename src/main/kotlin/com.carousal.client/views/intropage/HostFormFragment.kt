@@ -1,7 +1,7 @@
-package client.views.intropage
+package com.carousal.client.views.intropage
 
-import client.controllers.HostController
-import client.views.ViewUtils
+import com.carousal.client.controllers.HostController
+import com.carousal.client.views.ViewUtils
 import com.jfoenix.controls.JFXButton
 import com.jfoenix.controls.JFXSpinner
 import javafx.beans.property.SimpleStringProperty
@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory
 import tornadofx.*
 
 class HostFormFragment : Fragment() {
-    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val hostController: HostController by inject()
     private val usernameErrorMessage = SimpleStringProperty("")
     private lateinit var form: VBox

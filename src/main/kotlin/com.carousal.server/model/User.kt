@@ -1,13 +1,11 @@
-package server.model
+package com.carousal.server.model
 
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicReference
 
 data class User(val username: String, var isReady: Boolean, var media: Media?)
 
 class UsersRepository {
-    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val usersMap = ConcurrentHashMap<String, User>()
 
     fun addUser(user: User): Boolean {

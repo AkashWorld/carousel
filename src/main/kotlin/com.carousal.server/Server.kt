@@ -1,5 +1,8 @@
-package server
+package com.carousal.server
 
+import com.carousal.server.model.ChatFeedRepository
+import com.carousal.server.model.UserAuthenticationImpl
+import com.carousal.server.model.UsersRepository
 import io.javalin.Javalin
 import io.javalin.http.Context
 import org.slf4j.LoggerFactory
@@ -7,7 +10,7 @@ import io.javalin.http.ForbiddenResponse
 import io.javalin.websocket.WsMessageContext
 import server.model.*
 import java.util.concurrent.CompletableFuture
-import server.GraphQLProvider as GraphQLProvider
+import com.carousal.server.GraphQLProvider as GraphQLProvider
 
 const val DEFAULT_PORT = 57423
 const val SERVER_ACCESS_HEADER = "ServerAuth"

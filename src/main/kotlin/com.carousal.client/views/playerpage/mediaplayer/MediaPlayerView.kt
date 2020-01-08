@@ -1,15 +1,15 @@
-package client.views.playerpage.mediaplayer
+package com.carousal.client.views.playerpage.mediaplayer
 
-import client.controllers.ChatController
-import client.controllers.FileLoaderController
-import client.controllers.MediaController
-import client.controllers.UsersController
-import client.models.Action
-import client.models.MediaAction
-import client.models.MediaActionObservable
-import client.views.ViewUtils
-import client.views.playerpage.FileLoaderView
-import client.views.playerpage.chatfeed.MessageFragment
+import com.carousal.client.controllers.ChatController
+import com.carousal.client.controllers.FileLoaderController
+import com.carousal.client.controllers.MediaController
+import com.carousal.client.controllers.UsersController
+import com.carousal.client.models.Action
+import com.carousal.client.models.MediaAction
+import com.carousal.client.models.MediaActionObservable
+import com.carousal.client.views.ViewUtils
+import com.carousal.client.views.playerpage.FileLoaderView
+import com.carousal.client.views.playerpage.chatfeed.MessageFragment
 import javafx.application.Platform
 import javafx.beans.Observable
 import javafx.beans.value.ChangeListener
@@ -58,7 +58,6 @@ private var pixelBuffer: PixelBuffer<ByteBuffer?>? = null
 private var pixelFormat = PixelFormat.getByteBgraPreInstance()
 
 class MediaPlayerView : View() {
-    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val mediaController: MediaController by inject()
     private val chatController: ChatController by inject()
     private val fileLoaderController: FileLoaderController by inject()
@@ -266,14 +265,6 @@ class MediaPlayerView : View() {
             if (!nanoTimer.isRunning) {
                 nanoTimer.reset()
                 nanoTimer.start()
-            }
-        }
-    }
-
-    private fun pauseTimer() {
-        Platform.runLater {
-            if (nanoTimer.isRunning) {
-                nanoTimer.cancel()
             }
         }
     }

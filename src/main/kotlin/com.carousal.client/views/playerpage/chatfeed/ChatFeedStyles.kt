@@ -1,6 +1,6 @@
-package client.views.playerpage.chatfeed
+package com.carousal.client.views.playerpage.chatfeed
 
-import client.views.Styles
+import com.carousal.client.views.Styles
 import javafx.scene.Cursor
 import javafx.scene.paint.Color
 import tornadofx.*
@@ -21,9 +21,9 @@ class ChatFeedStyles : Stylesheet() {
 
         val buttonColor = Styles.buttonColor
         val hoverButtonColor = Styles.lightButtonColor
-        val chatColor = Color.valueOf("#262626")
-        val chatBackgroundColor = Color.valueOf("#171717")
-        val chatTextColor = Color.valueOf("#e3e3e3")
+        val chatColor = Color.valueOf("#262626")!!
+        val chatBackgroundColor = Color.valueOf("#171717")!!
+        val chatTextColor = Color.valueOf("#e3e3e3")!!
         val chatFontSize = 14.px
     }
 

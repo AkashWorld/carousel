@@ -1,6 +1,6 @@
-package client.views.playerpage.mediaplayer
+package com.carousal.client.views.playerpage.mediaplayer
 
-import client.controllers.ChatController
+import com.carousal.client.controllers.ChatController
 import com.jfoenix.controls.JFXSlider
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.jensd.fx.glyphs.materialicons.MaterialIconView
@@ -15,7 +15,6 @@ import tornadofx.*
 import java.util.concurrent.TimeUnit
 
 class MediaPlayerControls : Fragment() {
-    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private var onPlay: () -> Unit = {}
     private var onPause: () -> Unit = {}
     private var onChange: (Double) -> Unit = {}

@@ -1,4 +1,4 @@
-package client.views
+package com.carousal.client.views
 
 import javafx.scene.paint.Color
 import javafx.scene.paint.LinearGradient

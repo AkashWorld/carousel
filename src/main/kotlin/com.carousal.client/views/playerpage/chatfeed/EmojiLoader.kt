@@ -1,10 +1,9 @@
-package client.views.playerpage.chatfeed
+package com.carousal.client.views.playerpage.chatfeed
 
 import com.vdurmont.emoji.EmojiManager
 import com.vdurmont.emoji.EmojiParser
 import javafx.collections.ObservableList
 import javafx.scene.image.Image
-import me.xdrop.fuzzywuzzy.FuzzySearch
 import me.xdrop.fuzzywuzzy.FuzzySearch.*
 import org.slf4j.LoggerFactory
 import tornadofx.Controller

@@ -1,15 +1,14 @@
-package server.datafetchers
+package com.carousal.server.datafetchers
 
 import graphql.schema.DataFetcher
 import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
 import org.slf4j.LoggerFactory
-import server.GraphQLContext
-import server.model.ChatFeedRepository
-import server.model.ContentType
-import server.model.Message
+import com.carousal.server.GraphQLContext
+import com.carousal.server.model.ChatFeedRepository
+import com.carousal.server.model.ContentType
+import com.carousal.server.model.Message
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.atomic.AtomicReference
 
 class ChatFeedDataFetchers(private val chatFeed: ChatFeedRepository) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)

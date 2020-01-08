@@ -1,4 +1,4 @@
-package server.model
+package com.carousal.server.model
 
 data class Media constructor(private val id: String)
 

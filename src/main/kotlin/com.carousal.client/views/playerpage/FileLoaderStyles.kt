@@ -1,6 +1,6 @@
-package client.views.playerpage
+package com.carousal.client.views.playerpage
 
-import client.views.Styles
+import com.carousal.client.views.Styles
 import javafx.scene.Cursor
 import javafx.scene.paint.Color
 import javafx.scene.paint.LinearGradient

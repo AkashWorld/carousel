@@ -1,13 +1,13 @@
-package server.datafetchers
+package com.carousal.server.datafetchers
 
 import graphql.schema.DataFetcher
 import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
 import org.slf4j.LoggerFactory
-import server.GraphQLContext
-import server.model.User
-import server.model.UserAuthentication
-import server.model.UsersRepository
+import com.carousal.server.GraphQLContext
+import com.carousal.server.model.User
+import com.carousal.server.model.UserAuthentication
+import com.carousal.server.model.UsersRepository
 import java.util.concurrent.ConcurrentLinkedQueue
 
 enum class UserAction {

@@ -1,10 +1,10 @@
-package client.views.playerpage
+package com.carousal.client.views.playerpage
 
-import client.controllers.ChatController
-import client.models.ClientContextImpl
-import client.views.ViewUtils
-import client.views.intropage.IntroPage
-import client.views.playerpage.chatfeed.ChatFragment
+import com.carousal.client.controllers.ChatController
+import com.carousal.client.models.ClientContextImpl
+import com.carousal.client.views.ViewUtils
+import com.carousal.client.views.intropage.IntroPage
+import com.carousal.client.views.playerpage.chatfeed.ChatFragment
 import javafx.scene.layout.StackPane
 import tornadofx.*
 

@@ -1,8 +1,9 @@
-package client.views.playerpage.chatfeed
+package com.carousal.client.views.playerpage.chatfeed
 
-import client.controllers.ChatController
-import client.models.ClientContextImpl
-import client.views.playerpage.PlayerPage
+import com.carousal.client.controllers.ChatController
+import com.carousal.client.models.ClientContextImpl
+import com.carousal.client.views.playerpage.PlayerPage
+import com.carousal.client.views.playerpage.chatfeed.ChatFeedStyles
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.jensd.fx.glyphs.materialicons.MaterialIconView
 import javafx.geometry.Side

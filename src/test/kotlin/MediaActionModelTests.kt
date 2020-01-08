@@ -1,12 +1,12 @@
-import client.models.Action
-import client.models.ClientContextImpl
-import client.models.MediaAction
-import client.models.MediaActionModelImpl
+import com.carousal.client.models.Action
+import com.carousal.client.models.ClientContextImpl
+import com.carousal.client.models.MediaAction
+import com.carousal.client.models.MediaActionModelImpl
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.junit.jupiter.api.*
-import server.Server
+import com.carousal.server.Server
 import java.util.concurrent.CompletableFuture
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)

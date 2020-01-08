@@ -1,6 +1,6 @@
 package fx
 
-import client.controllers.ChatController
+import com.carousal.client.controllers.ChatController
 import org.junit.jupiter.api.Test
 
 class TokenizerTest {

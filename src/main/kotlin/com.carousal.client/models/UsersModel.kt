@@ -1,9 +1,8 @@
-package client.models
+package com.carousal.client.models
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import javafx.collections.ObservableList
-import okhttp3.WebSocket
 import org.slf4j.LoggerFactory
 import tornadofx.*
 

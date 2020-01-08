@@ -1,8 +1,8 @@
-package client.controllers
+package com.carousal.client.controllers
 
-import client.models.UserActionObservable
-import client.models.UserObservable
-import client.models.UsersModel
+import com.carousal.client.models.UserActionObservable
+import com.carousal.client.models.UserObservable
+import com.carousal.client.models.UsersModel
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.collections.ObservableList
 import tornadofx.*

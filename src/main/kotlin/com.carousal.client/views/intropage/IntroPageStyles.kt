@@ -1,6 +1,6 @@
-package client.views.intropage
+package com.carousal.client.views.intropage
 
-import client.views.Styles
+import com.carousal.client.views.Styles
 import javafx.scene.Cursor
 import javafx.scene.layout.BackgroundPosition
 import javafx.scene.layout.BackgroundRepeat

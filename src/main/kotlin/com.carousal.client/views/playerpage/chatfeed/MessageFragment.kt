@@ -1,9 +1,9 @@
-package client.views.playerpage.chatfeed
+package com.carousal.client.views.playerpage.chatfeed
 
-import client.controllers.ChatController
-import client.controllers.ImageLoaderController
-import client.models.ContentType
-import client.models.Message
+import com.carousal.client.controllers.ChatController
+import com.carousal.client.controllers.ImageLoaderController
+import com.carousal.client.models.ContentType
+import com.carousal.client.models.Message
 import javafx.scene.image.ImageView
 import javafx.scene.text.FontPosture
 import javafx.scene.text.FontWeight

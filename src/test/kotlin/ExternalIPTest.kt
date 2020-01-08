@@ -1,6 +1,6 @@
+import com.carousal.server.*
 import okhttp3.OkHttpClient
 import org.junit.jupiter.api.Test
-import server.*
 import java.util.concurrent.CompletableFuture
 
 class ExternalIPTest {

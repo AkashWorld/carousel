@@ -1,4 +1,4 @@
-package client.models
+package com.carousal.client.models
 
 import okhttp3.Response
 import okhttp3.WebSocket

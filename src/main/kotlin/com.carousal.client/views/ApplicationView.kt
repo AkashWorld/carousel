@@ -1,15 +1,15 @@
-package client.views
+package com.carousal.client.views
 
-import client.models.ClientContextImpl
-import client.views.intropage.IntroPage
+import com.carousal.client.models.ClientContextImpl
+import com.carousal.client.views.intropage.IntroPage
 import javafx.scene.image.Image
 import javafx.stage.Screen
-import server.Server
+import com.carousal.server.Server
 import tornadofx.*
 
 class ApplicationView : View() {
     companion object {
-        val APPLICATION_NAME = "Carousal"
+        const val APPLICATION_NAME = "Carousal"
     }
 
     init {

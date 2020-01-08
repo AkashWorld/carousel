@@ -1,4 +1,4 @@
-package server
+package com.carousal.server
 
 import com.google.gson.Gson
 import graphql.ExecutionInput
@@ -15,13 +15,13 @@ import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import org.slf4j.LoggerFactory
-import server.datafetchers.ChatFeedDataFetchers
-import server.datafetchers.MediaDataFetchers
-import server.datafetchers.UserDataFetchers
-import server.model.ChatFeedRepository
-import server.model.User
-import server.model.UserAuthentication
-import server.model.UsersRepository
+import com.carousal.server.datafetchers.ChatFeedDataFetchers
+import com.carousal.server.datafetchers.MediaDataFetchers
+import com.carousal.server.datafetchers.UserDataFetchers
+import com.carousal.server.model.ChatFeedRepository
+import com.carousal.server.model.User
+import com.carousal.server.model.UserAuthentication
+import com.carousal.server.model.UsersRepository
 import java.io.File
 import java.util.concurrent.atomic.AtomicReference
 

@@ -8,8 +8,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import server.SERVER_ACCESS_HEADER
-import server.Server
+import com.carousal.server.SERVER_ACCESS_HEADER
+import com.carousal.server.Server
 
 class SignInTest {
     private val client: OkHttpClient = OkHttpClient()

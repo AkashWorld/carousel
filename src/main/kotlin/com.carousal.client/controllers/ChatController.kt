@@ -1,7 +1,7 @@
-package client.controllers
+package com.carousal.client.controllers
 
-import client.models.*
-import client.views.playerpage.mediaplayer.getMillisecondsToHHMMSS
+import com.carousal.client.models.*
+import com.carousal.client.views.playerpage.mediaplayer.getMillisecondsToHHMMSS
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.value.ChangeListener
 import javafx.beans.value.ObservableBooleanValue
@@ -104,26 +104,25 @@ class ChatController : Controller() {
         var currToken = ""
         var colonStart = false
         for (element in message) {
-            val c = element
-            if (c == ':') {
+            if (element == ':') {
                 if (currToken != "" && !colonStart) {
                     retList.add(currToken)
                     currToken = ""
                 }
                 if (!colonStart) {
-                    currToken += c
+                    currToken += element
                     colonStart = true
                 } else if (colonStart) {
-                    currToken += c
+                    currToken += element
                     retList.add(currToken)
                     currToken = ""
                     colonStart = false
                 }
-            } else if (c == ' ' && colonStart) {
+            } else if (element == ' ' && colonStart) {
                 colonStart = false
-                currToken += c
+                currToken += element
             } else {
-                currToken += c
+                currToken += element
             }
         }
         if (currToken != "") {

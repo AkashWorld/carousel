@@ -1,4 +1,4 @@
-package client.views.playerpage.chatfeed
+package com.carousal.client.views.playerpage.chatfeed
 
 import javafx.scene.image.Image
 import org.imgscalr.Scalr

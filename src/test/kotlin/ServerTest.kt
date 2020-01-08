@@ -1,6 +1,6 @@
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
-import server.Server
+import com.carousal.server.Server
 
 class ServerTests {
     @Test

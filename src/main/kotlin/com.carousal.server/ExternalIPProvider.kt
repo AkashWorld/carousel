@@ -1,4 +1,4 @@
-package server
+package com.carousal.server
 
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder

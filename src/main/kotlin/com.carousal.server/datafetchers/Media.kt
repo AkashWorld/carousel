@@ -1,15 +1,14 @@
-package server.datafetchers
+package com.carousal.server.datafetchers
 
 import graphql.schema.DataFetcher
 import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
 import org.slf4j.LoggerFactory
-import server.GraphQLContext
-import server.model.Action
-import server.model.Media
-import server.model.MediaSubscriptionResult
+import com.carousal.server.GraphQLContext
+import com.carousal.server.model.Action
+import com.carousal.server.model.Media
+import com.carousal.server.model.MediaSubscriptionResult
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.atomic.AtomicReference
 
 class MediaDataFetchers(private val userActionPublisher: UserActionPublisher) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)

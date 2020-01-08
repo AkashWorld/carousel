@@ -1,7 +1,7 @@
 package fx
 
-import client.views.playerpage.chatfeed.ChatFeedStyles
-import client.views.playerpage.chatfeed.EmojiPicker
+import com.carousal.client.views.playerpage.chatfeed.ChatFeedStyles
+import com.carousal.client.views.playerpage.chatfeed.EmojiPicker
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

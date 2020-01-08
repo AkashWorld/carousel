@@ -1,9 +1,8 @@
-package server.model
+package com.carousal.server.model
 
 import java.lang.IndexOutOfBoundsException
 import java.time.Instant
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.atomic.AtomicReference
 
 enum class ContentType {
     IMAGE,

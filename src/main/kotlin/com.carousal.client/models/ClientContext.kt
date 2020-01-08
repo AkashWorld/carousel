@@ -1,11 +1,11 @@
-package client.models
+package com.carousal.client.models
 
 import com.google.gson.Gson
 import okhttp3.*
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.slf4j.LoggerFactory
-import server.AUTH_HEADER
-import server.SERVER_ACCESS_HEADER
+import com.carousal.server.AUTH_HEADER
+import com.carousal.server.SERVER_ACCESS_HEADER
 import java.io.IOException
 
 /**

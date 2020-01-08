@@ -1,7 +1,7 @@
-package client.controllers
+package com.carousal.client.controllers
 
-import client.models.ClientContext
-import client.models.ClientContextImpl
+import com.carousal.client.models.ClientContext
+import com.carousal.client.models.ClientContextImpl
 import javafx.scene.input.ClipboardContent
 import tornadofx.Controller
 

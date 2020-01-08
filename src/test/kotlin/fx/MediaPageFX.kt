@@ -1,21 +1,21 @@
 package fx
 
-import client.views.playerpage.chatfeed.ChatFeedStyles
-import client.controllers.ChatController
-import client.controllers.ClientContextController
-import client.models.ClientContext
-import client.models.ClientContextImpl
-import client.models.ContentType
-import client.models.Message
-import client.views.intropage.IntroPageStyles
-import client.views.playerpage.FileLoaderStyles
-import client.views.playerpage.PlayerPage
-import client.views.playerpage.mediaplayer.MediaPlayerStyles
+import com.carousal.client.views.playerpage.chatfeed.ChatFeedStyles
+import com.carousal.client.controllers.ChatController
+import com.carousal.client.controllers.ClientContextController
+import com.carousal.client.models.ClientContext
+import com.carousal.client.models.ClientContextImpl
+import com.carousal.client.models.ContentType
+import com.carousal.client.models.Message
+import com.carousal.client.views.intropage.IntroPageStyles
+import com.carousal.client.views.playerpage.FileLoaderStyles
+import com.carousal.client.views.playerpage.PlayerPage
+import com.carousal.client.views.playerpage.mediaplayer.MediaPlayerStyles
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import server.Server
+import com.carousal.server.Server
 import tornadofx.*
 
 class MediaPageFX {

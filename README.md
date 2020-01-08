@@ -11,7 +11,7 @@ This application is a self-hosted video syncing application. In scenarios where 
 
 ## How does it work?
 ### Prerequisites
-VLC Media Player must be installed as this application uses it's awesome technology to play any media files. Eventually this will not be necessary.
+[VLC Media Player](https://www.videolan.org/vlc/index.html) must be installed as this application uses it's technology to play any media files.
 
 One person (ideally the one with the best compute and network resources) hosts the server by navigating to the "Host" page. This person must have Universal Plug and Play enabled on their routers/modems (typically this is available and already enabled on most modern routers/modems). Once the server starts, share the IP address that is listed on the top left of the application with all other trusted participants and have them connect. After that, just load the video and play!
 

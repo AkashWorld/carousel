@@ -1,9 +1,9 @@
-package com.carousal.client.views.playerpage
+package com.carousal.client.views.playerpage.fileloader
 
 import com.carousal.client.views.ApplicationView
 import com.carousal.client.controllers.FileLoaderController
 import com.carousal.client.views.ViewUtils
-import com.carousal.client.views.playerpage.FileLoaderStyles.Companion.mainGradient
+import com.carousal.client.views.playerpage.fileloader.FileLoaderStyles.Companion.mainGradient
 import com.carousal.client.views.playerpage.mediaplayer.MediaPlayerView
 import javafx.geometry.Pos
 import javafx.scene.layout.Priority

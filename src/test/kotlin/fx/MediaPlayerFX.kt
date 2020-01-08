@@ -1,8 +1,8 @@
 package fx
 
-import com.carousal.client.views.playerpage.FileLoaderStyles
+import com.carousal.client.views.playerpage.fileloader.FileLoaderStyles
 import com.carousal.client.views.playerpage.chatfeed.ChatFeedStyles
-import com.carousal.client.views.playerpage.FileLoaderView
+import com.carousal.client.views.playerpage.fileloader.FileLoaderView
 import com.carousal.client.views.playerpage.mediaplayer.MediaPlayerStyles
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import org.junit.jupiter.api.BeforeEach

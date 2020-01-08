@@ -1,4 +1,4 @@
-package com.carousal.client.views.playerpage
+package com.carousal.client.views.playerpage.fileloader
 
 import com.carousal.client.views.Styles
 import javafx.scene.Cursor

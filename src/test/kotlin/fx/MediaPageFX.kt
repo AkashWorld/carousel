@@ -8,7 +8,7 @@ import com.carousal.client.models.ClientContextImpl
 import com.carousal.client.models.ContentType
 import com.carousal.client.models.Message
 import com.carousal.client.views.intropage.IntroPageStyles
-import com.carousal.client.views.playerpage.FileLoaderStyles
+import com.carousal.client.views.playerpage.fileloader.FileLoaderStyles
 import com.carousal.client.views.playerpage.PlayerPage
 import com.carousal.client.views.playerpage.mediaplayer.MediaPlayerStyles
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory

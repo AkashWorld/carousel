@@ -8,7 +8,7 @@ import com.carousal.client.models.observables.Action
 import com.carousal.client.models.observables.MediaAction
 import com.carousal.client.models.observables.MediaActionObservable
 import com.carousal.client.views.ViewUtils
-import com.carousal.client.views.playerpage.FileLoaderView
+import com.carousal.client.views.playerpage.fileloader.FileLoaderView
 import com.carousal.client.views.playerpage.chatfeed.MessageFragment
 import javafx.application.Platform
 import javafx.beans.Observable

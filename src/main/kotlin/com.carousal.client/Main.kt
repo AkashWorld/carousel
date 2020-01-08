@@ -2,7 +2,7 @@ package com.carousal.client
 
 import com.carousal.client.views.ApplicationView
 import com.carousal.client.views.intropage.IntroPageStyles
-import com.carousal.client.views.playerpage.FileLoaderStyles
+import com.carousal.client.views.playerpage.fileloader.FileLoaderStyles
 import com.carousal.client.views.playerpage.mediaplayer.MediaPlayerStyles
 import com.carousal.client.views.playerpage.chatfeed.ChatFeedStyles
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory

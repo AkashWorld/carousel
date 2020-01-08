@@ -7,6 +7,8 @@
 ## Intro
 This application is a self-hosted video syncing application. In scenarios where multiple people would like to watch their favorite movies/tv shows together but can't without streaming high bandwidth video, Carousal comes to the rescue! As long as all participants has access to the same video file locally, Carousal will sync together the video timestamps and pause/play state of the video! Perfect for a good movie night when you aren't near your friends.
 
+![Sample Picture](./src/main/resources/readme-resources/SamplePic.png)
+
 ## How does it work?
 ### Prerequisites
 VLC Media Player must be installed as this application uses it's awesome technology to play any media files. Eventually this will not be necessary.

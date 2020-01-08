@@ -5,6 +5,7 @@ import com.carousal.client.models.ClientContextImpl
 import com.carousal.client.views.ViewUtils
 import com.carousal.client.views.intropage.IntroPage
 import com.carousal.client.views.playerpage.chatfeed.ChatFragment
+import com.carousal.client.views.playerpage.fileloader.FileLoaderView
 import javafx.scene.layout.StackPane
 import tornadofx.*
 

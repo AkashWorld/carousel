@@ -5,7 +5,6 @@ import com.carousal.client.views.ViewUtils
 import com.jfoenix.controls.JFXButton
 import com.jfoenix.controls.JFXCheckBox
 import com.jfoenix.controls.JFXSpinner
-import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.scene.control.TextField
 import javafx.scene.image.Image

@@ -102,5 +102,6 @@ class ConnectFormFragment : Fragment() {
     override fun onUndock() {
         super.onUndock()
         showConnectForm()
+        connectController.clear()
     }
 }

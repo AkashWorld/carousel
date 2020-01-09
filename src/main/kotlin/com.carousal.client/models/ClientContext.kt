@@ -5,6 +5,7 @@ import okhttp3.*
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.slf4j.LoggerFactory
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 /**
  * Represents the context for the com.carousal.client to connect to the com.carousal.server
@@ -139,7 +140,9 @@ class ClientContextImpl private constructor() : ClientContext {
             .header(ClientContext.SERVER_ACCESS_HEADER, serverPassword ?: "")
             .header(ClientContext.AUTH_HEADER, usernameTokenPair!!.second)
             .build()
-        client.newCall(request).execute()
+        val call = client.newCall(request)
+        call.timeout().deadline(2, TimeUnit.SECONDS)
+        call.execute()
     }
 
 

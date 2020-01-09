@@ -9,11 +9,15 @@ This application is a self-hosted video syncing application. In scenarios where 
 
 ![Sample Picture](./resources/SamplePic.png)
 
+## Download
+[Windows Setup](https://github.com/AkashWorld/carousal/releases/download/v0.1-alpha/carousal_setup_v0.1.exe)\
+Other binaries will be released at a later time
+
 ## How does it work?
 ### Prerequisites
-[VLC Media Player](https://www.videolan.org/vlc/index.html) must be installed as this application uses it's technology to play any media files. The person hosting the server must have Universal Plug and Play available in their network.
+You must have the latest version of [Java](https://www.oracle.com/technetwork/java/javase/downloads/index.html) and [VLC Media Player](https://www.videolan.org/vlc/index.html). 
 
-One person (ideally the one with the best compute and network resources) hosts the server by navigating to the "Host" page. This person must have Universal Plug and Play enabled on their routers/modems (typically this is available and already enabled on most modern routers/modems). Once the server starts, share the IP address that is listed on the top left of the application with all other trusted participants and have them connect. After that, just load the video and play!
+One person (ideally the one with the best compute and network resources) hosts the server by navigating to the "Host" page; this person either must manually enable port forwarding or have a router that is capable of Universal Plug and Play (currently very buggy).   Once the server starts, share the IP address that is listed on the top left of the application with all other trusted participants and have them connect. After that, just load the video and play!
 
 ## Nerd Stuff
 This application is built with Kotlin and [TornadoFX](https://tornadofx.io/) (JavaFX Kotlin wrapper) for the client side application. It uses GraphQL as it's network api to connect to the server. The server used is [Javalin](https://javalin.io/) (a wrapper around Jetty) to handle GraphQL post and websocket requests. The media player uses [VlcJ](https://github.com/caprica/vlcj) which is a Java wrapper around libVLC.

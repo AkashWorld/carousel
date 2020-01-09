@@ -44,4 +44,10 @@ class ConnectController : Controller() {
             )
         }
     }
+
+    fun clear() {
+        usernameProperty.value = ""
+        serverAddressProperty.value = ""
+        passwordProperty.value = ""
+    }
 }

@@ -21,6 +21,7 @@ class ChatViewFX {
     class Application : App(ChatViewTest::class, stylesheet = ChatFeedStyles::class) {
         init {
             reloadStylesheetsOnFocus()
+            reloadViewsOnFocus()
         }
     }
 
@@ -39,6 +40,10 @@ class ChatViewFX {
             msglist.add(Message("awildwildboar", "loaded shady korean video", ContentType.INFO))
             msglist.add(Message("chauncey", "How do I even use this thing!!!!!"))
             msglist.add(Message("Wizardofozzie", "Spiderman is the greatest dont @ me :wink:"))
+            msglist.add(Message("Voyboy", "test test test"))
+            msglist.add(Message("Imaqtpie", "lorum ipsum something"))
+            msglist.add(Message("tyler1", "what is this"))
+            msglist.add(Message("yassuo", "hello world"))
             tornadofx.setInScope(chatController, testScope)
             tornadofx.setInScope(clientContextController, testScope)
             clientContext.requestSignInToken("test", "localhost", null, {}, {})

@@ -76,29 +76,33 @@ class ClientContextImpl private constructor() : ClientContext {
             .url("http://${address}/graphql")
             .header(ClientContext.SERVER_ACCESS_HEADER, password ?: "")
             .build()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                logger.error(e.message, e.cause)
-                usernameTokenPair = null
-                error(e.message)
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                try {
-                    val body = gson.fromJson(response.body?.string(), Map::class.java) as Map<*, *>
-                    usernameTokenPair = Pair(username, (body["data"] as Map<*, *>)["signIn"] as String)
-                    serverAddress = address
-                    serverPassword = password
-                    setUpWebSocketConnection()
-                    success()
-                } catch (e: Exception) {
-                    usernameTokenPair = null
+        try {
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
                     logger.error(e.message, e.cause)
-                    error("Received error response from the com.carousal.server")
+                    usernameTokenPair = null
+                    error(e.message)
                 }
-            }
-        })
 
+                override fun onResponse(call: Call, response: Response) {
+                    try {
+                        val body = gson.fromJson(response.body?.string(), Map::class.java) as Map<*, *>
+                        usernameTokenPair = Pair(username, (body["data"] as Map<*, *>)["signIn"] as String)
+                        serverAddress = address
+                        serverPassword = password
+                        setUpWebSocketConnection()
+                        success()
+                    } catch (e: Exception) {
+                        usernameTokenPair = null
+                        logger.error(e.message, e.cause)
+                        error("Received error response from the server")
+                    }
+                }
+            })
+        } catch(e: Exception) {
+            logger.error(e.message, e.cause)
+            error("Could not connect to server.")
+        }
     }
 
     private fun setUpWebSocketConnection() {

@@ -3,19 +3,19 @@ package com.carousal.client.views.intropage
 import com.carousal.client.controllers.HostController
 import com.carousal.client.views.ViewUtils
 import com.jfoenix.controls.JFXButton
+import com.jfoenix.controls.JFXCheckBox
 import com.jfoenix.controls.JFXSpinner
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
+import javafx.scene.control.TextField
 import javafx.scene.image.Image
 import javafx.scene.layout.Pane
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
-import org.slf4j.LoggerFactory
 import tornadofx.*
 
 class HostFormFragment : Fragment() {
     private val hostController: HostController by inject()
-    private val usernameErrorMessage = SimpleStringProperty("")
     private lateinit var form: VBox
 
     override val root = stackpane {
@@ -33,26 +33,35 @@ class HostFormFragment : Fragment() {
                 textfield(hostController.usernameProperty) {
                     addClass(IntroPageStyles.introPageTextFields)
                     promptText = "Username"
-                    this.setOnKeyReleased {
-                        if (!hostController.validateUsername(hostController.usernameProperty.value)
-                            && !hostController.usernameProperty.value.isNullOrEmpty()
-                        ) {
-                            usernameErrorMessage.value = "Only alphanumeric characters are allowed"
-                        } else if (hostController.usernameProperty.value.length > 25) {
-                            usernameErrorMessage.value = "Username must be less than 25 characters"
-                        } else {
-                            usernameErrorMessage.value = ""
-                        }
-                    }
-                }
-                text(usernameErrorMessage) {
-                    addClass(IntroPageStyles.errorMessage)
                 }
             }
             passwordfield(hostController.passwordProperty) {
                 addClass(IntroPageStyles.introPageTextFields)
                 promptText = "New Server Password"
             }
+
+            /**
+             * Manual port forwarding prompt
+             */
+            val portforwardingTextField = TextField()
+            portforwardingTextField.addClass(IntroPageStyles.introPageTextFields)
+            portforwardingTextField.promptText = "Port"
+            portforwardingTextField.bind(hostController.portForwardingProperty)
+            val checkbox = JFXCheckBox("Manual Port Forwarding")
+            checkbox.addClass(IntroPageStyles.jfxCheckBox)
+            checkbox.selectedProperty().addListener { _, _, newValue ->
+                if (newValue) {
+                    /**
+                     * There has to be a better way
+                     */
+                    form.getChildList()?.add(4, portforwardingTextField)
+                } else {
+                    form.getChildList()?.remove(portforwardingTextField)
+                    hostController.portForwardingProperty.set("")
+                }
+            }
+            this.add(checkbox)
+
             val hostButton = JFXButton("Host")
             hostButton.addClass(IntroPageStyles.formButton)
             hostButton.setOnAction {
@@ -106,5 +115,6 @@ class HostFormFragment : Fragment() {
     override fun onUndock() {
         super.onUndock()
         showHostForm()
+        hostController.clear()
     }
 }

@@ -1,6 +1,6 @@
 package com.carousal.client.controllers
 
-import com.carousal.client.views.ApplicationView
+import com.carousal.client.models.ClientContext
 import com.carousal.client.models.ClientContextImpl
 import javafx.beans.property.SimpleStringProperty
 import org.slf4j.LoggerFactory
@@ -11,9 +11,11 @@ class HostController : Controller() {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val context = ClientContextImpl.getInstance()
     val usernameProperty = SimpleStringProperty("")
+    val portForwardingProperty = SimpleStringProperty("")
     val passwordProperty = SimpleStringProperty("")
 
     fun hostNewServer(success: () -> Unit, error: (String?) -> Unit) {
+        val port = getValidPortAsInt(portForwardingProperty.value)
         if (usernameProperty.value.isNullOrEmpty()) {
             runLater { error(null) }
             return
@@ -23,6 +25,9 @@ class HostController : Controller() {
         } else if (usernameProperty.value.length > 25) {
             runLater { error(null) }
             return
+        } else if (!portForwardingProperty.value.isNullOrEmpty() && port == null) {
+            runLater { error("Port is not a valid value. Please make sure that the port number is between 1024 and 65535.") }
+            return
         }
         runAsync {
             val server = Server.getInstance()
@@ -30,38 +35,72 @@ class HostController : Controller() {
                 server.setServerPassword(passwordProperty.value)
             }
             val externalIp: String
+            val message: String =
+                "Could not initialize server. Please make sure there is no more than" +
+                        " one instance of this application running and that Universal Plug and Play (UPnP) is enabled in your router. " +
+                        "If it is not possible to enable UPnP, try enabling manual port forwarding and " +
+                        "and attempt to host again with the specified port."
             try {
-                server.initPortForwarding()
-                server.initialize()
+                if (port == null) {
+                    server.initPortForwarding()
+                    server.initialize()
+                } else {
+                    server.initialize(port)
+                }
                 externalIp = server.getExternalIP()
             } catch (e: Exception) {
                 logger.error(e.message, e.cause)
-                val message: String = "Could not initialize server, please ensure you do not have more " +
-                        "than one instance of ${ApplicationView.APPLICATION_NAME} running. In addition, please ensure that " +
-                        "your network has Universal Plug and Play (UPnP) enabled."
                 ui {
                     error(message)
                 }
                 server.close()
                 return@runAsync
             }
+            var finalAddress = externalIp
+            finalAddress += if (port != null) {
+                ":" + portForwardingProperty.value
+            } else {
+                ":" + ClientContext.DEFAULT_PORT
+            }
             val password = if (passwordProperty.value.isNullOrEmpty()) null else passwordProperty.value
-            context.requestSignInToken(usernameProperty.value, externalIp, password, {
+            context.requestSignInToken(usernameProperty.value, finalAddress, password, {
                 ui {
                     success()
                 }
             }, {
-                val message = it
+                val httpErrorMessage = it
                 server.close()
                 ui {
-                    error(message)
+                    if (port != null) {
+                        error(httpErrorMessage)
+                    } else {
+                        error(message)
+                    }
                 }
             }
             )
         }
     }
 
+    private fun getValidPortAsInt(port: String): Int? {
+        try {
+            val intPort = Integer.parseInt(port)
+            if (intPort < 1024 || intPort >= 65535) {
+                return null
+            }
+            return intPort
+        } catch (e: Exception) {
+            return null
+        }
+    }
+
     fun validateUsername(username: String): Boolean {
         return username.matches("^\\w+\$".toRegex())
+    }
+
+    fun clear() {
+        usernameProperty.value = ""
+        passwordProperty.value = ""
+        portForwardingProperty.value = ""
     }
 }

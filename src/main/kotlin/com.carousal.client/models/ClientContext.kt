@@ -42,6 +42,7 @@ interface ClientContext {
     companion object {
         const val SERVER_ACCESS_HEADER = "ServerAuth"
         const val AUTH_HEADER = "Authorization"
+        const val DEFAULT_PORT = "57423"
     }
 }
 
@@ -71,7 +72,7 @@ class ClientContextImpl private constructor() : ClientContext {
         val query = mapOf("query" to signInMutation, "variables" to variables)
         val body: RequestBody = gson.toJson(query).toRequestBody()
         val request = Request.Builder().post(body)
-            .url("http://${address}:57423/graphql")
+            .url("http://${address}/graphql")
             .header(ClientContext.SERVER_ACCESS_HEADER, password ?: "")
             .build()
         client.newCall(request).enqueue(object : Callback {
@@ -100,7 +101,7 @@ class ClientContextImpl private constructor() : ClientContext {
     }
 
     private fun setUpWebSocketConnection() {
-        val wsRequestBuilder = Request.Builder().url("ws://${serverAddress}:57423/subscription").addHeader(
+        val wsRequestBuilder = Request.Builder().url("ws://${serverAddress}/subscription").addHeader(
             ClientContext.AUTH_HEADER, usernameTokenPair!!.second
         )
         if (serverPassword != null) {
@@ -134,7 +135,7 @@ class ClientContextImpl private constructor() : ClientContext {
         val queryMap = mapOf("query" to query, "variables" to null)
         val body: RequestBody = gson.toJson(queryMap).toRequestBody()
         val request = Request.Builder().post(body)
-            .url("http://${serverAddress}:57423/graphql")
+            .url("http://${serverAddress}/graphql")
             .header(ClientContext.SERVER_ACCESS_HEADER, serverPassword ?: "")
             .header(ClientContext.AUTH_HEADER, usernameTokenPair!!.second)
             .build()
@@ -173,7 +174,7 @@ class ClientContextImpl private constructor() : ClientContext {
         val queryMap = mapOf("query" to query, "variables" to variables)
         val body: RequestBody = gson.toJson(queryMap).toRequestBody()
         val requestBuilder = Request.Builder().post(body)
-            .url("http://${serverAddress}:57423/graphql")
+            .url("http://${serverAddress}/graphql")
             .header(ClientContext.AUTH_HEADER, usernameTokenPair!!.second)
         if (serverPassword != null) {
             requestBuilder.addHeader(ClientContext.SERVER_ACCESS_HEADER, serverPassword!!)

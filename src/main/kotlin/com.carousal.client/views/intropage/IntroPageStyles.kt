@@ -2,9 +2,6 @@ package com.carousal.client.views.intropage
 
 import com.carousal.client.views.Styles
 import javafx.scene.Cursor
-import javafx.scene.layout.BackgroundPosition
-import javafx.scene.layout.BackgroundRepeat
-import javafx.scene.layout.BackgroundSize
 import javafx.scene.paint.Color
 import javafx.scene.text.FontWeight
 import tornadofx.*
@@ -19,6 +16,9 @@ class IntroPageStyles : Stylesheet() {
         val formTitle by cssclass()
         val errorMessage by cssclass()
         val progressSpinner by cssclass()
+        val jfxCheckedColor by cssproperty<Color>("-jfx-checked-color")
+        val jfxUncheckedColor by cssproperty<Color>("-jfx-unchecked-color")
+        val jfxCheckBox by cssclass()
         val arc by cssclass()
     }
 
@@ -95,6 +95,13 @@ class IntroPageStyles : Stylesheet() {
         progressSpinner {
             arc {
                 stroke = Styles.lightColor
+            }
+        }
+        jfxCheckBox {
+            jfxCheckedColor.value = Styles.lightColor
+            jfxUncheckedColor.value = Styles.darkColor
+            text {
+                fill = Color.WHITE
             }
         }
     }

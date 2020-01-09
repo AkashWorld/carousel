@@ -16,7 +16,7 @@ const val SERVER_ACCESS_HEADER = "ServerAuth"
 const val AUTH_HEADER = "Authorization"
 
 
-class Server private constructor(private val port: Int = DEFAULT_PORT) {
+class Server private constructor() {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val server: Javalin = Javalin.create()
     private var graphQLProvider: GraphQLProvider? = null
@@ -24,7 +24,7 @@ class Server private constructor(private val port: Int = DEFAULT_PORT) {
     private val userAuthentication = UserAuthenticationImpl(usersRepository)
     private val serverAuthentication = ServerAuthentication()
     private val externalIPProvider: ExternalIPProvider = ExternalIPProviderImpl()
-    private val uPnPProvider: UPnPProvider = UPnPProviderImpl(port)
+    private val uPnPProvider: UPnPProvider = UPnPProviderImpl(port = DEFAULT_PORT)
 
     init {
         /**
@@ -76,13 +76,13 @@ class Server private constructor(private val port: Int = DEFAULT_PORT) {
         }
     }
 
-    fun initialize() {
+    fun initialize(port: Int = DEFAULT_PORT) {
         try {
             if (!server.server()?.started!!) {
                 this.server.start(port)
             }
         } catch (e: Exception) {
-            uPnPProvider.release()
+            close()
             logger.error(e.message)
             throw(e)
         }
@@ -94,7 +94,7 @@ class Server private constructor(private val port: Int = DEFAULT_PORT) {
         try {
             uPnPProvider.requestMapping()
         } catch (e: Exception) {
-            uPnPProvider.release()
+            close()
             logger.error(e.message)
         }
     }
@@ -105,7 +105,7 @@ class Server private constructor(private val port: Int = DEFAULT_PORT) {
         try {
             return future.get()
         } catch (e: Exception) {
-            uPnPProvider.release()
+            close()
             throw Exception(e.message)
         }
     }

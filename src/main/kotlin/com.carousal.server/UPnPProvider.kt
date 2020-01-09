@@ -1,5 +1,6 @@
 package com.carousal.server
 
+import org.fourthline.cling.UpnpService
 import org.fourthline.cling.UpnpServiceImpl
 import org.fourthline.cling.support.igd.PortMappingListener
 import org.fourthline.cling.support.model.PortMapping
@@ -13,16 +14,16 @@ interface UPnPProvider {
 
 class UPnPProviderImpl(private val port: Int) : UPnPProvider {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
-    private val desiredMapping =
-        PortMapping(port, InetAddress.getLocalHost().hostAddress, PortMapping.Protocol.TCP, "CarousalUPnP")
-    private val upnpService = UpnpServiceImpl(PortMappingListener(desiredMapping))
-
+    private var upnpService: UpnpService? = null
     override fun requestMapping() {
         logger.info("Requesting UPnP port forwarding for port $port")
-        upnpService.controlPoint?.search()
+        val desiredMapping =
+            PortMapping(port, InetAddress.getLocalHost().hostAddress, PortMapping.Protocol.TCP, "CarousalUPnP")
+        upnpService = UpnpServiceImpl(PortMappingListener(desiredMapping))
+        upnpService?.controlPoint?.search()
     }
 
     override fun release() {
-        upnpService.shutdown()
+        upnpService?.shutdown()
     }
 }

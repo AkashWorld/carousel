@@ -10,12 +10,10 @@ import javafx.scene.image.Image
 import javafx.scene.layout.Pane
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
-import org.slf4j.LoggerFactory
 import tornadofx.*
 
 class ConnectFormFragment : Fragment() {
     private val connectController: ConnectController by inject()
-    private val usernameErrorMessage = SimpleStringProperty("")
     private lateinit var form: VBox
 
     override val root = stackpane {
@@ -41,20 +39,6 @@ class ConnectFormFragment : Fragment() {
                 textfield(connectController.usernameProperty) {
                     addClass(IntroPageStyles.introPageTextFields)
                     promptText = "Username"
-                    this.setOnKeyReleased {
-                        if (!connectController.validateUsername(connectController.usernameProperty.value)
-                            && connectController.usernameProperty.value != ""
-                        ) {
-                            usernameErrorMessage.value = "Only alphanumeric characters are allowed"
-                        } else if (connectController.usernameProperty.value.length > 25) {
-                            usernameErrorMessage.value = "Username must be less than 25 characters"
-                        } else {
-                            usernameErrorMessage.value = ""
-                        }
-                    }
-                }
-                text(usernameErrorMessage) {
-                    addClass(IntroPageStyles.errorMessage)
                 }
             }
             val connectButton = JFXButton("Connect")

@@ -9,6 +9,7 @@ enum UserAction {
     SIGN_OUT
     CHANGE_MEDIA
     IS_READY
+    READY_CHECK
 }
 
 type UserActionEvent {
@@ -20,6 +21,7 @@ type Mutation {
     signIn(username: String!, password: String): String!
     signOut: Boolean!
     readyCheck(isReady: Boolean!): Boolean!
+    initiateReadyCheck: Boolean!
 }
 
 type Query {

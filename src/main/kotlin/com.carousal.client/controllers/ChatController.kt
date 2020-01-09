@@ -11,9 +11,6 @@ import javafx.beans.value.ObservableValue
 import javafx.collections.ObservableList
 import javafx.scene.paint.Color
 import tornadofx.*
-import java.time.Instant
-import kotlin.collections.set
-import kotlin.random.Random
 
 class ChatController : Controller() {
     private val mediaController: MediaController by inject()
@@ -65,9 +62,12 @@ class ChatController : Controller() {
                         UserAction.CHANGE_MEDIA -> {
                             "loaded ${this.user.media?.id ?: "a new video"}"
                         }
+                        UserAction.READY_CHECK -> {
+                            "${this.user.username} initiated a ready check"
+                        }
                     }
                     runLater {
-                        chatModel.addMessage(Message(this.user.username, message, ContentType.INFO))
+                        message.let{chatModel.addMessage(Message(this.user.username, it, ContentType.INFO))}
                     }
                 }
             }

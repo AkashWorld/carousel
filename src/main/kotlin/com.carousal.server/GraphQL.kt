@@ -149,6 +149,7 @@ class GraphQLProvider(
             mutation.dataFetcher("insertImage", this.chatFeedDataFetchers.mutationInsertImage())
             mutation.dataFetcher("insertMessage", this.chatFeedDataFetchers.mutationInsertMessage())
             mutation.dataFetcher("readyCheck", this.userDataFetchers.mutationReadyCheck())
+            mutation.dataFetcher("initiateReadyCheck", this.userDataFetchers.mutationInitiateReadyCheck())
         }
         runtimeWiringBuilder.type("Subscription") { subscription ->
             subscription.dataFetcher("mediaActions", this.mediaDataFetchers.subscriptionMedia())

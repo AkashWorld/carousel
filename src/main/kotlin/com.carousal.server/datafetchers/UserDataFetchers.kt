@@ -14,7 +14,8 @@ enum class UserAction {
     SIGN_IN,
     SIGN_OUT,
     CHANGE_MEDIA,
-    IS_READY
+    IS_READY,
+    READY_CHECK
 }
 
 data class UserActionEvent(private val action: UserAction, private val user: User)
@@ -66,6 +67,14 @@ class UserDataFetchers constructor(
             context.user.isReady = isReady
             this.userActionPublisher.publishUserActionEvent(context.user, UserAction.IS_READY)
             isReady
+        }
+    }
+
+    fun mutationInitiateReadyCheck() : DataFetcher<Boolean?> {
+        return DataFetcher {
+            val context: GraphQLContext = it.getContext() ?: return@DataFetcher null
+            this.userActionPublisher.publishUserActionEvent(context.user, UserAction.READY_CHECK)
+            true
         }
     }
 

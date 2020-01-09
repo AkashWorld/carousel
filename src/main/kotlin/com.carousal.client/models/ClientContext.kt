@@ -99,7 +99,7 @@ class ClientContextImpl private constructor() : ClientContext {
                     }
                 }
             })
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             logger.error(e.message, e.cause)
             error("Could not connect to server.")
         }
@@ -145,8 +145,12 @@ class ClientContextImpl private constructor() : ClientContext {
             .header(ClientContext.AUTH_HEADER, usernameTokenPair!!.second)
             .build()
         val call = client.newCall(request)
-        call.timeout().deadline(2, TimeUnit.SECONDS)
-        call.execute()
+        call.timeout().deadline(3, TimeUnit.SECONDS)
+        try {
+            call.execute()
+        } catch (e: Exception) {
+            logger.error("Error signing out")
+        }
     }
 
 

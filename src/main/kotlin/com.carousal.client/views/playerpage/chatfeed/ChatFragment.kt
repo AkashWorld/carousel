@@ -181,7 +181,7 @@ class ChatFragment : Fragment() {
                                 icon.fill = Color.RED
                                 tooltip("Ready Check")
                                 setOnMouseClicked {
-                                    usersController.sendReadyCheck(
+                                    usersController.sendIsReady(
                                         {},
                                         {
                                             ViewUtils.showErrorDialog(
@@ -192,6 +192,7 @@ class ChatFragment : Fragment() {
                                     )
                                 }
                             }
+                            this.add(find<ReadyCheckFragment>())
                             button {
                                 addClass(ChatFeedStyles.emojiButton)
                                 val icon = MaterialIconView(MaterialIcon.INSERT_EMOTICON, "30px")

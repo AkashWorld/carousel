@@ -13,7 +13,8 @@ enum class UserAction {
     SIGN_IN,
     SIGN_OUT,
     CHANGE_MEDIA,
-    IS_READY
+    IS_READY,
+    READY_CHECK
 }
 
 data class UserActionEvent(val user: User, val action: UserAction)
@@ -70,9 +71,12 @@ class UsersModel {
         })
     }
 
-    fun sendReadyCheck(isReady: Boolean, success: (Boolean) -> Unit, error: () -> Unit) {
+    /**
+     * This is not a ready check, but whether the user is ready. Unfortunate naming of mutation.
+     */
+    fun sendIsReady(isReady: Boolean, success: (Boolean) -> Unit, error: () -> Unit) {
         val query = """
-            mutation ReadyCheck(${"$"}isReady: Boolean!) {
+            mutation IsReady(${"$"}isReady: Boolean!) {
                  readyCheck(isReady: ${"$"}isReady)
             }
         """.trimIndent()
@@ -97,8 +101,20 @@ class UsersModel {
         },
             {
                 logger.error("Error sending ready check mutation")
-                runLater(error)
+                error()
             })
+    }
+
+    fun sendInitiateReadyCheck(success: (Boolean) -> Unit, error: () -> Unit) {
+        val query = """
+            mutation {
+                 initiateReadyCheck
+            }
+        """.trimIndent()
+        context.sendQueryOrMutationRequest(query, emptyMap(), {}, {
+            logger.error("Error initiating ready check")
+            error()
+        })
     }
 
     fun subscribeToUserActions(error: () -> Unit) {

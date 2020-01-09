@@ -16,12 +16,28 @@ class UsersController : Controller() {
         usersModel.subscribeToUserActions { error() }
     }
 
-    fun sendReadyCheck(success: () -> Unit, error: () -> Unit) {
-        usersModel.sendReadyCheck(!isReady.value, {
+    fun sendIsReady(success: () -> Unit, error: () -> Unit) {
+        usersModel.sendIsReady(!isReady.value, {
             if (!it) {
                 mediaController.pauseAction { runLater(error) }
             }
             isReady.value = it
+            runLater(success)
+        }, { runLater(error) })
+    }
+
+    fun sendIsReady(value: Boolean, success: () -> Unit, error: () -> Unit) {
+        usersModel.sendIsReady(value, {
+            if (!it) {
+                mediaController.pauseAction { runLater(error) }
+            }
+            isReady.value = it
+            runLater(success)
+        }, { runLater(error) })
+    }
+
+    fun sendInitiateReadyCheck(success: () -> Unit, error: () -> Unit) {
+        usersModel.sendInitiateReadyCheck({
             runLater(success)
         }, { runLater(error) })
     }

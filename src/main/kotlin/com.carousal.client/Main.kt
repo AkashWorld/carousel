@@ -7,6 +7,8 @@ import com.carousal.client.views.playerpage.mediaplayer.MediaPlayerStyles
 import com.carousal.client.views.playerpage.chatfeed.ChatFeedStyles
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import tornadofx.*
+import java.util.logging.Level
+import java.util.logging.Logger
 
 class Application :
     App(
@@ -22,6 +24,7 @@ class Application :
 }
 
 fun main(args: Array<String>) {
+    Logger.getGlobal().level = Level.OFF
     launch<Application>()
 }
 

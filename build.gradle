@@ -9,6 +9,12 @@ application {
     mainClassName = 'com.carousal.client.MainKt'
 }
 
+def jvmModuleArgs = ['--add-exports=javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED',
+                     '--add-exports=javafx.graphics/com.sun.javafx.iio.common=ALL-UNNAMED',
+                     '--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED',
+                     '--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED',
+]
+
 launch4j {
     mainClassName = 'com.carousal.client.MainKt'
     icon = "${projectDir}/resources/carousal256.ico"
@@ -17,11 +23,7 @@ launch4j {
     copyright = "GPL3"
     jreMinVersion = "1.11"
     windowTitle = "Carousal"
-    jvmOptions = ['--add-exports=javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED',
-               '--add-exports=javafx.graphics/com.sun.javafx.iio.common=ALL-UNNAMED',
-               '--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED',
-               '--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED',
-    ]
+    jvmOptions = jvmModuleArgs
 }
 
 startScripts {
@@ -51,21 +53,20 @@ repositories {
 }
 
 dependencies {
-    compile 'io.javalin:javalin:3.6.0'
-    compile 'com.graphql-java:graphql-java:13.0'
-    compile 'org.slf4j:slf4j-api:1.7.29'
-    compile 'org.slf4j:slf4j-simple:1.7.29'
-    compile "org.jetbrains.kotlin:kotlin-reflect:1.3.41"
-    compile "com.fasterxml.jackson.core:jackson-databind:2.10.0"
-    compile 'no.tornado:tornadofx:1.7.19'
-    compile 'com.vdurmont:emoji-java:5.1.1'
-    compile 'de.codecentric.centerdevice:javafxsvg:1.3.0'
-    compile 'de.jensd:fontawesomefx-materialicons:2.2.0-9'
-    compile 'org.fourthline.cling:cling-core:2.1.2'
-    compile 'org.fourthline.cling:cling-support:2.1.2'
-    compile 'com.offbynull.portmapper:portmapper:2.0.5'
-    compile 'org.imgscalr:imgscalr-lib:4.2'
-    compile 'com.jfoenix:jfoenix:9.0.8'
+    implementation 'io.javalin:javalin:3.6.0'
+    implementation 'com.graphql-java:graphql-java:13.0'
+    implementation 'org.slf4j:slf4j-simple:1.7.29'
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.3.41"
+    implementation "com.fasterxml.jackson.core:jackson-databind:2.10.0"
+    implementation 'no.tornado:tornadofx:1.7.19'
+    implementation 'com.vdurmont:emoji-java:5.1.1'
+    implementation 'de.codecentric.centerdevice:javafxsvg:1.3.0'
+    implementation 'de.jensd:fontawesomefx-materialicons:2.2.0-9'
+    implementation 'org.fourthline.cling:cling-core:2.1.2'
+    implementation 'org.fourthline.cling:cling-support:2.1.2'
+    implementation 'com.offbynull.portmapper:portmapper:2.0.5'
+    implementation 'org.imgscalr:imgscalr-lib:4.2'
+    implementation 'com.jfoenix:jfoenix:9.0.8'
     implementation "com.google.guava:guava:28.2-jre"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation 'com.google.code.gson:gson:2.8.6'
@@ -93,15 +94,7 @@ compileTestKotlin {
 }
 
 run {
-    applicationDefaultJvmArgs = ['--add-exports=javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED',
-                                 '--add-exports=javafx.graphics/com.sun.javafx.iio.common=ALL-UNNAMED',
-                                 '--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED',
-                                 '--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED',
-    ]
+    applicationDefaultJvmArgs = jvmModuleArgs
 
-    jvmArgs = ['--add-exports=javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED',
-               '--add-exports=javafx.graphics/com.sun.javafx.iio.common=ALL-UNNAMED',
-               '--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED',
-               '--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED',
-    ]
+    jvmArgs = jvmModuleArgs
 }

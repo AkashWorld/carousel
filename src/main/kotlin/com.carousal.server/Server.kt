@@ -18,7 +18,7 @@ const val AUTH_HEADER = "Authorization"
 
 class Server private constructor() {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
-    private val server: Javalin = Javalin.create()
+    private var server: Javalin = Javalin.create()
     private var graphQLProvider: GraphQLProvider? = null
     private val usersRepository = UsersRepository()
     private val userAuthentication = UserAuthenticationImpl(usersRepository)
@@ -26,68 +26,65 @@ class Server private constructor() {
     private val externalIPProvider: ExternalIPProvider = ExternalIPProviderImpl()
     private val uPnPProvider: UPnPProvider = UPnPProviderImpl(port = DEFAULT_PORT)
 
-    init {
-        /**
-         * 5.5MB cache for 5MB image limit
-         */
-        this.server.config.requestCacheSize = 5767168L
-        this.server.before("*") {
-            val serverAccessHeader = it.header(SERVER_ACCESS_HEADER)
-            this.serverAccess(serverAccessHeader)
-        }
-        this.server.post("/graphql") {
-            this.serveGraphQLRequest(it)
-        }
-        this.server.wsBefore { handler ->
-            handler.onConnect {
+    fun initialize(port: Int = DEFAULT_PORT) {
+        try {
+            this.server = Javalin.create()
+            /**
+             * 5.5MB cache for 5MB image limit
+             */
+            this.server.config.requestCacheSize = 5767168L
+            this.server.before("*") {
                 val serverAccessHeader = it.header(SERVER_ACCESS_HEADER)
                 this.serverAccess(serverAccessHeader)
             }
-        }
-        this.server.ws("/subscription") { handler ->
-            handler.onConnect {
-                val token = it.header(AUTH_HEADER)
-                val user = userAuthentication.verifyUser(token)
-                if (user == null) {
-                    logger.error("WS Access denied, user token not found")
-                    throw ForbiddenResponse("There isn't any popcorn here!")
-                }
-                logger.info("${user.username} connected via WS")
+            this.server.post("/graphql") {
+                this.serveGraphQLRequest(it)
             }
-            handler.onMessage {
-                serveSubscriptionGraphQLRequest(it)
-            }
-            handler.onError {
-                val token = it.header(AUTH_HEADER)
-                val user = userAuthentication.verifyUser(token)
-                user?.run {
-                    usersRepository.removeUser(this)
-                    logger.error("WS error by ${this.username}", it.error())
+            this.server.wsBefore { handler ->
+                handler.onConnect {
+                    val serverAccessHeader = it.header(SERVER_ACCESS_HEADER)
+                    this.serverAccess(serverAccessHeader)
                 }
             }
-            handler.onClose {
-                val token = it.header(AUTH_HEADER)
-                val user = userAuthentication.verifyUser(token)
-                user?.run {
-                    usersRepository.removeUser(this)
-                    logger.info("WS closed by ${this.username}", it.reason())
+            this.server.ws("/subscription") { handler ->
+                handler.onConnect {
+                    val token = it.header(AUTH_HEADER)
+                    val user = userAuthentication.verifyUser(token)
+                    if (user == null) {
+                        logger.error("WS Access denied, user token not found")
+                        throw ForbiddenResponse("There isn't any popcorn here!")
+                    }
+                    logger.info("${user.username} connected via WS")
+                }
+                handler.onMessage {
+                    serveSubscriptionGraphQLRequest(it)
+                }
+                handler.onError {
+                    val token = it.header(AUTH_HEADER)
+                    val user = userAuthentication.verifyUser(token)
+                    user?.run {
+                        usersRepository.removeUser(this)
+                        logger.error("WS error by ${this.username}", it.error())
+                    }
+                }
+                handler.onClose {
+                    val token = it.header(AUTH_HEADER)
+                    val user = userAuthentication.verifyUser(token)
+                    user?.run {
+                        usersRepository.removeUser(this)
+                        logger.info("WS closed by ${this.username}", it.reason())
+                    }
                 }
             }
-        }
-    }
-
-    fun initialize(port: Int = DEFAULT_PORT) {
-        try {
-            if (!server.server()?.started!!) {
-                this.server.start(port)
-            }
+            server.start(port)
         } catch (e: Exception) {
             close()
             logger.error(e.message)
             throw(e)
+        } finally {
+            val chatFeedRepository = ChatRepository()
+            graphQLProvider = GraphQLProvider(usersRepository, chatFeedRepository, userAuthentication)
         }
-        val chatFeedRepository = ChatRepository()
-        graphQLProvider = GraphQLProvider(usersRepository, chatFeedRepository, userAuthentication)
     }
 
     fun initPortForwarding() {
@@ -111,10 +108,16 @@ class Server private constructor() {
     }
 
     fun close() {
-        uPnPProvider.release()
-        usersRepository.clear()
-        serverAuthentication.setServerPassword(null)
-        graphQLProvider = null
+        try {
+            server.stop()
+        } catch (e: Exception) {
+            logger.error("Could not stop server - ${e.message}")
+        } finally {
+            uPnPProvider.release()
+            usersRepository.clear()
+            serverAuthentication.setServerPassword(null)
+            graphQLProvider = null
+        }
     }
 
     fun setServerPassword(password: String?) {

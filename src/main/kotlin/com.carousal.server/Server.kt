@@ -87,16 +87,21 @@ class Server private constructor() {
         }
     }
 
-    fun initPortForwarding() {
-        try {
+    fun initPortForwarding(): Boolean {
+        return try {
             uPnPProvider.requestMapping()
         } catch (e: Exception) {
             close()
             logger.error(e.message)
+            false
         }
     }
 
     fun getExternalIP(): String {
+        val upnpExternalIp = uPnPProvider.tryGetExternalIp()
+        if(upnpExternalIp != null) {
+            return upnpExternalIp
+        }
         val future = CompletableFuture<String>()
         externalIPProvider.getExternalIp(future)
         try {

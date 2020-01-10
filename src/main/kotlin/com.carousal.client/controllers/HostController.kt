@@ -42,7 +42,10 @@ class HostController : Controller() {
                         "and attempt to host again with the specified port."
             try {
                 if (port == null) {
-                    server.initPortForwarding()
+                    val upnpSuccessful = server.initPortForwarding()
+                    if (!upnpSuccessful) {
+                        throw Exception("Unable to initialize UPnP port forwading.")
+                    }
                     server.initialize()
                 } else {
                     server.initialize(port)

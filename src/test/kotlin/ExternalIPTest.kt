@@ -42,4 +42,10 @@ class ExternalIPTest {
         assert(!ExternalIPProviderImpl.validateIPV4AddressStructure("256.100.33.23"))
         assert(!ExternalIPProviderImpl.validateIPV4AddressStructure("256.100"))
     }
+
+    @Test
+    fun testPortMapper() {
+        val upnp = UPnPProviderImpl(42700)
+        upnp.requestMapping()
+    }
 }

@@ -24,7 +24,6 @@ class Application :
 }
 
 fun main(args: Array<String>) {
-    Logger.getGlobal().level = Level.OFF
     launch<Application>()
 }
 

@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import com.carousal.server.AUTH_HEADER
 import com.carousal.server.Server
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 
 class GraphQLMediaSubscriptionTest {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
@@ -82,7 +84,7 @@ class GraphQLMediaSubscriptionTest {
 
     @Test
     fun graphqlSubscriptionTest() {
-        var count = 0
+        val future = CompletableFuture<Unit>()
         val token = signInMutation()
         val mediaSubscription = """
             subscription {
@@ -106,16 +108,17 @@ class GraphQLMediaSubscriptionTest {
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 logger.info(text)
-                count += 1
+                future.complete(Unit)
             }
         }
         client.newWebSocket(wsRequest, wsListener).send(query)
-        Thread.sleep(100)
+        Thread.sleep(500)
         mediaPlayMutation(10.5, token)
-        Thread.sleep(100)
-        mediaSeekMutation(11.5, token)
-        Thread.sleep(100)
-        mediaPlayMutation(12.5, token)
-        assert(count == 3)
+        try {
+            future.get(1000, TimeUnit.MILLISECONDS)
+            assert(true)
+        } catch (e: Exception) {
+            assert(false)
+        }
     }
 }

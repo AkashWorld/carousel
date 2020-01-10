@@ -10,12 +10,12 @@ This application is a self-hosted video syncing application. In scenarios where 
 ![Sample Picture](./resources/SamplePic.png)
 
 ## Download
-[Windows Setup](https://github.com/AkashWorld/carousal/releases/download/v0.1-alpha/carousal_setup_v0.1.exe)\
-Other binaries will be released at a later time
+[Windows x64 Setup](https://github.com/AkashWorld/carousal/releases/download/v0.2-alpha/carousal_setup_v0.2.exe)\
+Other operating systems will be supported at a later time.
 
 ## How does it work?
 ### Prerequisites
-You must have the latest version of [Java](https://www.oracle.com/technetwork/java/javase/downloads/index.html) and [VLC Media Player](https://www.videolan.org/vlc/index.html). 
+You must have the latest version of [VLC Media Player](https://www.videolan.org/vlc/index.html). 
 
 One person (ideally the one with the best compute and network resources) hosts the server by navigating to the "Host" page; this person either must manually enable port forwarding or have a router that is capable of Universal Plug and Play (currently very buggy).   Once the server starts, share the IP address that is listed on the top left of the application with all other trusted participants and have them connect. After that, just load the video and play!
 

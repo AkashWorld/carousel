@@ -18,7 +18,7 @@ class ReadyCheckFX {
     companion object {
         @JvmStatic
         @BeforeAll
-        fun init(){
+        fun init() {
             Server.getInstance().initialize(5000)
             Thread.sleep(1000)
             ClientContextImpl.getInstance().requestSignInToken("Test", "localhost:5000", null, {}, {})
@@ -40,19 +40,7 @@ class ReadyCheckFX {
         private val userController = UsersController()
 
         init {
-            userController.subscribeToUsersAction {  }
-            val msglist = chatController.getMessages()
-            msglist.add(Message("Dabessbeast", "This is wack, lets go to the real syncplay :angry:"))
-            msglist.add(Message("Lone Hunt", ":pepe: Bruh I worked on this for 4 months :pepe:"))
-            msglist.add(Message("awildwildboar", "paused at 3:54", ContentType.INFO))
-            msglist.add(Message("awildwildboar", "paused at 0:00", ContentType.INFO))
-            msglist.add(Message("awildwildboar", "loaded shady korean video", ContentType.INFO))
-            msglist.add(Message("chauncey", "How do I even use this thing!!!!!"))
-            msglist.add(Message("Wizardofozzie", "Spiderman is the greatest dont @ me :wink:"))
-            msglist.add(Message("Voyboy", "test test test"))
-            msglist.add(Message("Imaqtpie", "lorum ipsum something"))
-            msglist.add(Message("tyler1", "what is this"))
-            msglist.add(Message("yassuo", "hello world"))
+            userController.subscribeToUsersAction { }
             tornadofx.setInScope(chatController, testScope)
             tornadofx.setInScope(userController, testScope)
             tornadofx.setInScope(clientContextController, testScope)

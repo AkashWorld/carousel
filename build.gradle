@@ -24,6 +24,8 @@ launch4j {
     jreMinVersion = "1.11"
     windowTitle = "Carousal"
     jvmOptions = jvmModuleArgs
+    bundledJrePath = "./jre11"
+    bundledJre64Bit = true
 }
 
 startScripts {
@@ -89,6 +91,7 @@ tasks.test {
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
+
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }

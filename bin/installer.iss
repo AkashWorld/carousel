@@ -11,6 +11,7 @@ WizardStyle=modern
 [Files]
 Source: "../build/launch4j/Carousal.exe"; DestDir: "{app}"
 Source: "../build/launch4j/lib/*"; DestDir: "{app}/lib"
+Source: "./jre11/*"; DestDir: "{app}/jre11"; Flags: ignoreversion recursesubdirs
 
 [Icons]
 Name:"{group}\Carousal.exe"; Filename:"{app}\Carousal.exe"; WorkingDir:"{app}"

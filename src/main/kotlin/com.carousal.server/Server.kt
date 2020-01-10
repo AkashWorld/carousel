@@ -18,13 +18,13 @@ const val AUTH_HEADER = "Authorization"
 
 class Server private constructor() {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
+    private val uPnPProvider: UPnPProvider = UPnPProviderImpl(port = DEFAULT_PORT)
     private var server: Javalin = Javalin.create()
     private var graphQLProvider: GraphQLProvider? = null
     private val usersRepository = UsersRepository()
     private val userAuthentication = UserAuthenticationImpl(usersRepository)
     private val serverAuthentication = ServerAuthentication()
     private val externalIPProvider: ExternalIPProvider = ExternalIPProviderImpl()
-    private val uPnPProvider: UPnPProvider = UPnPProviderImpl(port = DEFAULT_PORT)
 
     fun initialize(port: Int = DEFAULT_PORT) {
         try {

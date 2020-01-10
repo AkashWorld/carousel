@@ -10,26 +10,28 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import com.carousal.server.SERVER_ACCESS_HEADER
 import com.carousal.server.Server
+import com.carousal.server.model.User
+import com.carousal.server.model.UserAuthenticationImpl
+import com.carousal.server.model.UsersRepository
 
 class SignInTest {
     private val client: OkHttpClient = OkHttpClient()
     private val gson = Gson()
     private lateinit var server: Server
 
-    @BeforeEach
     fun setUpServer() {
         server = Server.getInstance()
         server.setServerPassword("PASSWORD")
         server.initialize()
     }
 
-    @AfterEach
     fun closeServer() {
         Server.clear()
     }
 
     @Test
     fun successResponseFromSignInMutation() {
+        setUpServer()
         val signInMutation = """
             mutation SignInMutation(${"$"}username: String!) {
                 signIn(username: ${"$"}username)
@@ -50,5 +52,16 @@ class SignInTest {
                 .get("data") as JsonObject).get("signIn").asString
             assert(key == "test")
         }
+        closeServer()
+    }
+
+    @Test
+    fun verifyJWTAuth() {
+        val userRepo = UsersRepository()
+        userRepo.addUser(User("Test", false, null))
+        val userAuth = UserAuthenticationImpl(userRepo)
+        val token = userAuth.generateAuthToken(User("Test", false, null))
+        val user = userAuth.verifyUser(token)
+        assert(user === userRepo.getUser("Test"))
     }
 }

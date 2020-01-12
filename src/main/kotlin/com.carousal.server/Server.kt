@@ -48,6 +48,7 @@ class Server private constructor() {
             }
             this.server.ws("/subscription") { handler ->
                 handler.onConnect {
+                    it.session.idleTimeout = 7200000L //2 hours timeout
                     val token = it.header(AUTH_HEADER)
                     val user = userAuthentication.verifyUser(token)
                     if (user == null) {
@@ -57,7 +58,14 @@ class Server private constructor() {
                     logger.info("${user.username} connected via WS")
                 }
                 handler.onMessage {
-                    serveSubscriptionGraphQLRequest(it)
+                    /**
+                     * Message maybe empty due to heartbeats sent to upkeep connection
+                     */
+                    if (it.message().isNotEmpty()) {
+                        serveSubscriptionGraphQLRequest(it)
+                    } else {
+                        logger.info("WS Heartbeat")
+                    }
                 }
                 handler.onError {
                     val token = it.header(AUTH_HEADER)
@@ -99,7 +107,7 @@ class Server private constructor() {
 
     fun getExternalIP(): String {
         val upnpExternalIp = uPnPProvider.tryGetExternalIp()
-        if(upnpExternalIp != null) {
+        if (upnpExternalIp != null) {
             return upnpExternalIp
         }
         val future = CompletableFuture<String>()

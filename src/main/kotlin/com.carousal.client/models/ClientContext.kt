@@ -5,7 +5,9 @@ import okhttp3.*
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.slf4j.LoggerFactory
 import java.io.IOException
+import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.concurrent.scheduleAtFixedRate
 
 /**
  * Represents the context for the com.carousal.client to connect to the com.carousal.server
@@ -56,6 +58,23 @@ class ClientContextImpl private constructor() : ClientContext {
     private var wsListener: WSListener? = null
     private var webSocket: WebSocket? = null
 
+    init {
+        /**
+         * Send heartbeat at a 4 min interval
+         * This is due to timeout errors (even after setting websocket timeout to 2 hours in server)
+         */
+        Timer().scheduleAtFixedRate(240000L, 240000L) {
+            try {
+                webSocket?.apply { this.send(String()) }?.run { logger.info("Heartbeat sent") }
+            } catch (e: Exception) {
+                /**
+                 * Could fail if socket is no longer active but not nulled
+                 */
+                logger.error(e.message, e.cause)
+            }
+        }
+    }
+
     override fun requestSignInToken(
         username: String,
         address: String,
@@ -105,7 +124,7 @@ class ClientContextImpl private constructor() : ClientContext {
         }
     }
 
-    private fun setUpWebSocketConnection() {
+    fun setUpWebSocketConnection() {
         val wsRequestBuilder = Request.Builder().url("ws://${serverAddress}/subscription").addHeader(
             ClientContext.AUTH_HEADER, usernameTokenPair!!.second
         )

@@ -8,9 +8,13 @@ import com.carousal.server.GraphQLContext
 import com.carousal.server.model.Action
 import com.carousal.server.model.Media
 import com.carousal.server.model.MediaSubscriptionResult
+import com.carousal.server.model.UsersRepository
 import java.util.concurrent.ConcurrentLinkedQueue
 
-class MediaDataFetchers(private val userActionPublisher: UserActionPublisher) {
+class MediaDataFetchers(
+    private val usersRepository: UsersRepository,
+    private val userActionPublisher: UserActionPublisher
+) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val mediaActionPublisher = MediaActionPublisher()
     fun mutationPlay(): DataFetcher<Boolean?> {
@@ -18,7 +22,10 @@ class MediaDataFetchers(private val userActionPublisher: UserActionPublisher) {
             val context: GraphQLContext = environment.getContext() ?: return@DataFetcher null
             logger.info("${context.user.username}: Play")
             mediaActionPublisher.publishPlay(context.user.username)
-            return@DataFetcher true
+            if (usersRepository.isEveryoneReady()) {
+                return@DataFetcher true
+            }
+            return@DataFetcher false
         }
     }
 

@@ -28,6 +28,10 @@ class UsersRepository {
         usersMap.remove(user.username)
     }
 
+    fun isEveryoneReady(): Boolean {
+        return !usersMap.values.any { !it.isReady }
+    }
+
     fun clear() {
         usersMap.clear()
     }

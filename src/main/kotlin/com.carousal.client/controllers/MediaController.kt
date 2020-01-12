@@ -12,8 +12,8 @@ class MediaController : Controller() {
         mediaActionModel.setPauseAction(error)
     }
 
-    fun playAction(error: () -> Unit) {
-        mediaActionModel.setPlayAction(error)
+    fun playAction(success: (Boolean) -> Unit, error: () -> Unit) {
+        mediaActionModel.setPlayAction(success, error)
     }
 
     fun seekAction(currentTime: Float, error: () -> Unit) {

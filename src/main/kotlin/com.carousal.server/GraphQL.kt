@@ -39,7 +39,7 @@ class GraphQLProvider(
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private var graphql: GraphQL? = null
     private val userDataFetchers = UserDataFetchers(usersRepository, userAuthentication)
-    private val mediaDataFetchers = MediaDataFetchers(userDataFetchers.getUserActionPublisher())
+    private val mediaDataFetchers = MediaDataFetchers(usersRepository, userDataFetchers.getUserActionPublisher())
     private val chatFeedDataFetchers = ChatDataFetchers(chatRepository)
 
     init {

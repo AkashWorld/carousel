@@ -9,12 +9,15 @@ import tornadofx.runLater
 
 interface MediaActionModel {
     fun setPauseAction(error: () -> Unit)
-    fun setPlayAction(error: () -> Unit)
+    fun setPlayAction(success: (Boolean) -> Unit, error: () -> Unit)
     fun setSeekAction(msTime: Float, error: () -> Unit)
     fun loadMediaAction(filename: String, success: () -> Unit, error: () -> Unit)
     fun subscribeToActions(error: () -> Unit)
     fun getMediaActionObservable(): MediaActionObservable
 }
+
+data class MediaPlay(val play: Boolean)
+data class MutationMediaPlayData(val data: MediaPlay)
 
 class MediaActionModelImpl : MediaActionModel {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
@@ -35,13 +38,25 @@ class MediaActionModelImpl : MediaActionModel {
         clientContext.sendQueryOrMutationRequest(mediaPauseMutation, mapOf(), {}, { runLater(error) })
     }
 
-    override fun setPlayAction(error: () -> Unit) {
+    override fun setPlayAction(success: (Boolean) -> Unit, error: () -> Unit) {
         val mediaPlayMutation = """
             mutation MediaPlay {
                 play
             }
         """.trimIndent()
-        clientContext.sendQueryOrMutationRequest(mediaPlayMutation, mapOf(), {}, { runLater(error) })
+        clientContext.sendQueryOrMutationRequest(mediaPlayMutation, mapOf(), {
+            val gson = Gson()
+            try {
+                val result = gson.fromJson(it, MutationMediaPlayData::class.java)
+                if (result?.data?.play != null) {
+                    runLater { success(result.data.play) }
+                } else {
+                    runLater(error)
+                }
+            } catch (e: Exception) {
+                runLater(error)
+            }
+        }, { runLater(error) })
     }
 
     override fun setSeekAction(msTime: Float, error: () -> Unit) {

@@ -9,9 +9,13 @@ import javafx.scene.text.Text
 class ViewUtils {
     companion object {
         fun showErrorDialog(message: String, stackPane: StackPane) {
+            showErrorDialog("Error", message, stackPane)
+        }
+
+        fun showErrorDialog(header: String, message: String, stackPane: StackPane) {
             val layout = JFXDialogLayout()
             val dialog = JFXDialog(stackPane, layout, JFXDialog.DialogTransition.CENTER, true)
-            layout.setHeading(Text("Error"))
+            layout.setHeading(Text(header))
             layout.setBody(Text(message))
             val closeButton = JFXButton("Okay")
             closeButton.setOnAction { dialog.close() }

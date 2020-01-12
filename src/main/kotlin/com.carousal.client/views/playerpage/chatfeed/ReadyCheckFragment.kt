@@ -7,9 +7,10 @@ import de.jensd.fx.glyphs.materialicons.MaterialIconView
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.stage.StageStyle
+import javafx.util.Duration
 import tornadofx.*
 
-class ReadyCheckFragment: Fragment() {
+class ReadyCheckFragment : Fragment() {
     private val usersController: UsersController by inject()
 
     override val root = button {
@@ -27,6 +28,9 @@ class ReadyCheckFragment: Fragment() {
             usersController.sendInitiateReadyCheck({}, {
                 ViewUtils.showErrorDialog("Could not initiate ready check.", primaryStage.scene.root as StackPane)
             })
+        }
+        tooltip("Initiate Ready Check") {
+            showDelay = Duration.ZERO
         }
         this.add(icon)
     }

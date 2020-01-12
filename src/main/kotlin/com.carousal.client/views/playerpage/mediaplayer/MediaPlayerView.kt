@@ -279,11 +279,11 @@ class MediaPlayerView : View() {
     private fun handleMediaAction(action: MediaAction) {
         when (action.action) {
             Action.PAUSE -> {
-                mediaPlayer?.controls()?.pause()
+                mediaPlayer?.controls()?.setPause(true)
                 controls.togglePause()
             }
             Action.PLAY -> {
-                mediaPlayer?.controls()?.play()
+                mediaPlayer?.controls()?.setPause(false)
                 controls.togglePlay()
             }
             Action.SEEK -> {
@@ -369,12 +369,20 @@ class MediaPlayerView : View() {
 
     private fun setUpControls() {
         controls.setOnPlayCallback {
-            mediaController.playAction {
+            mediaController.playAction({
+                if (!it) {
+                    ViewUtils.showErrorDialog(
+                        "Warning",
+                        "Not everyone is ready! Start a ready check with the button on the bottom right.",
+                        primaryStage.scene.root as StackPane
+                    )
+                }
+            }, {
                 ViewUtils.showErrorDialog(
                     "A connection error has occurred, could not sync video",
                     primaryStage.scene.root as StackPane
                 )
-            }
+            })
         }
         controls.setOnPauseCallback {
             mediaController.pauseAction {

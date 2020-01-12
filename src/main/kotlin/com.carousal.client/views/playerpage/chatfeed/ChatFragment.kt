@@ -179,7 +179,6 @@ class ChatFragment : Fragment() {
                                 }
                                 this.add(icon)
                                 icon.fill = Color.RED
-                                tooltip("Ready Check")
                                 setOnMouseClicked {
                                     usersController.sendIsReady(
                                         {},
@@ -212,6 +211,9 @@ class ChatFragment : Fragment() {
                                     primaryStage.scene.setOnMouseClicked {
                                         emojiStage?.close()
                                     }
+                                }
+                                tooltip("Emoji") {
+                                    showDelay = Duration.ZERO
                                 }
                                 this.add(icon)
                             }

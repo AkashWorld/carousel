@@ -8,6 +8,7 @@ import de.jensd.fx.glyphs.materialicons.MaterialIconView
 import javafx.scene.control.Button
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
+import javafx.util.Duration
 import tornadofx.*
 
 class InsertImageButtonFragment : Fragment() {
@@ -28,6 +29,9 @@ class InsertImageButtonFragment : Fragment() {
             }
             setOnMouseClicked {
                 handleImageLoader()
+            }
+            tooltip("Upload Image") {
+                showDelay = Duration.ZERO
             }
             this.add(icon)
         }

@@ -2,7 +2,7 @@ package com.carousal.client.views.playerpage.fileloader
 
 import com.carousal.client.views.ApplicationView
 import com.carousal.client.controllers.FileLoaderController
-import com.carousal.client.views.ViewUtils
+import com.carousal.client.views.utilities.ViewUtils
 import com.carousal.client.views.playerpage.fileloader.FileLoaderStyles.Companion.mainGradient
 import com.carousal.client.views.playerpage.mediaplayer.MediaPlayerView
 import javafx.geometry.Pos

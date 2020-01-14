@@ -1,12 +1,11 @@
 package com.carousal.client.views.playerpage.chatfeed
 
 import com.carousal.client.controllers.UsersController
-import com.carousal.client.views.ViewUtils
+import com.carousal.client.views.utilities.ViewUtils
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.jensd.fx.glyphs.materialicons.MaterialIconView
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
-import javafx.stage.StageStyle
 import javafx.util.Duration
 import tornadofx.*
 

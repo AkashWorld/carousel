@@ -1,6 +1,7 @@
 package com.carousal.client.views.playerpage.chatfeed
 
 import com.carousal.client.controllers.ChatController
+import com.carousal.client.controllers.PlayerPageController
 import com.carousal.client.models.ClientContextImpl
 import com.carousal.client.views.playerpage.PlayerPage
 import com.carousal.client.views.playerpage.chatfeed.ChatFeedStyles
@@ -11,7 +12,7 @@ import javafx.scene.paint.Color
 import tornadofx.*
 
 class DropDownMenuFragment : Fragment() {
-    private val playerPage: PlayerPage by inject()
+    private val playerPageController: PlayerPageController by inject()
     private val chatController : ChatController by inject()
 
     override val root = button {
@@ -29,7 +30,7 @@ class DropDownMenuFragment : Fragment() {
             isAutoHide = true
             item("Load View") {
                 setOnAction {
-                    playerPage.navigateToFileLoader()
+                    playerPageController.navigateToFileLoaderPage()
                 }
             }
             item("Toggle Status Info") {
@@ -40,7 +41,7 @@ class DropDownMenuFragment : Fragment() {
             item("Exit") {
                 setOnAction {
                     ClientContextImpl.getInstance().sendSignOutRequest()
-                    playerPage.navigateToIntroPage()
+                    playerPageController.exitToIntroPage()
                 }
             }
         }

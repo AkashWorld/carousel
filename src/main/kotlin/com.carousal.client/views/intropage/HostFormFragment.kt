@@ -1,7 +1,7 @@
 package com.carousal.client.views.intropage
 
 import com.carousal.client.controllers.HostController
-import com.carousal.client.views.ViewUtils
+import com.carousal.client.views.utilities.ViewUtils
 import com.jfoenix.controls.JFXButton
 import com.jfoenix.controls.JFXCheckBox
 import com.jfoenix.controls.JFXSpinner

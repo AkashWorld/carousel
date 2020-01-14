@@ -1,10 +1,9 @@
 package com.carousal.client.views.intropage
 
 import com.carousal.client.controllers.ConnectController
-import com.carousal.client.views.ViewUtils
+import com.carousal.client.views.utilities.ViewUtils
 import com.jfoenix.controls.JFXButton
 import com.jfoenix.controls.JFXSpinner
-import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.scene.image.Image
 import javafx.scene.layout.Pane

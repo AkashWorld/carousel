@@ -1,13 +1,11 @@
 package com.carousal.client.views.playerpage.mediaplayer
 
-import com.carousal.client.controllers.ChatController
-import com.carousal.client.controllers.FileLoaderController
-import com.carousal.client.controllers.MediaController
-import com.carousal.client.controllers.UsersController
+import com.carousal.client.controllers.*
 import com.carousal.client.models.observables.Action
 import com.carousal.client.models.observables.MediaAction
 import com.carousal.client.models.observables.MediaActionObservable
-import com.carousal.client.views.ViewUtils
+import com.carousal.client.views.ApplicationView
+import com.carousal.client.views.utilities.ViewUtils
 import com.carousal.client.views.playerpage.fileloader.FileLoaderView
 import com.carousal.client.views.playerpage.chatfeed.MessageFragment
 import javafx.application.Platform
@@ -28,6 +26,7 @@ import javafx.scene.layout.Pane
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.transform.Affine
+import org.slf4j.LoggerFactory
 import tornadofx.*
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory
 import uk.co.caprica.vlcj.media.MediaRef
@@ -57,10 +56,12 @@ private var pixelBuffer: PixelBuffer<ByteBuffer?>? = null
 private var pixelFormat = PixelFormat.getByteBgraPreInstance()
 
 class MediaPlayerView : View() {
+    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val mediaController: MediaController by inject()
     private val chatController: ChatController by inject()
     private val fileLoaderController: FileLoaderController by inject()
     private val usersController: UsersController by inject()
+    private val playerPageController: PlayerPageController by inject()
     private var mediaPlayerFactory: MediaPlayerFactory? = null
     private var mediaPlayer: EmbeddedMediaPlayer? = null
     private lateinit var mediaCanvas: Canvas
@@ -73,6 +74,8 @@ class MediaPlayerView : View() {
     private var lastMouseMovedMilli = 0L
     private val hoverCheckerService: ScheduledService<Unit>
     private var isMouseInsideMediaPane: Boolean = false
+    private lateinit var bigPlayButton: BigPlayButtonFragment
+    private var isPlaying = false
     /**
      * This exists to stop the control's time slider from asking the media player to change position, and
      * then the media player from sending a callback to change the slider position
@@ -111,6 +114,8 @@ class MediaPlayerView : View() {
                 paddingBottom = 5.0
             }
         }
+        bigPlayButton = find()
+        this.add(bigPlayButton)
         /**
          * Controls should disappear if not hovering or mouse is still for too long
          */
@@ -136,8 +141,39 @@ class MediaPlayerView : View() {
             }
         }
         mediaPane.setOnMouseClicked {
+            /**
+             * Fullscreen on doubleclick
+             */
             if (it.clickCount == 2) {
                 currentStage?.isFullScreen = !currentStage?.isFullScreen!!
+            }
+            /**
+             * Pause/play on single click
+             */
+            else if (it.clickCount == 1) {
+                if (isPlaying) {
+                    mediaController.pauseAction {
+                        ViewUtils.showErrorDialog(
+                            "A connection error has occurred, could not sync video",
+                            primaryStage.scene.root as StackPane
+                        )
+                    }
+                } else {
+                    mediaController.playAction({ isEveryoneReady: Boolean ->
+                        if (!isEveryoneReady) {
+                            ViewUtils.showErrorDialog(
+                                "Warning",
+                                "Not everyone is ready! Start a ready check with the button on the bottom right.",
+                                primaryStage.scene.root as StackPane
+                            )
+                        }
+                    }, {
+                        ViewUtils.showErrorDialog(
+                            "A connection error has occurred, could not sync video",
+                            primaryStage.scene.root as StackPane
+                        )
+                    })
+                }
             }
         }
 
@@ -205,6 +241,9 @@ class MediaPlayerView : View() {
         clearCanvas(mediaCanvas)
     }
 
+    /**
+     * Draws the image produced by VLC onto the Canvas element
+     */
     private fun renderFrame(canvas: Canvas) {
         frames += 1
         val graphics: GraphicsContext = canvas.graphicsContext2D
@@ -253,6 +292,9 @@ class MediaPlayerView : View() {
         graphics.fillRect(0.0, 0.0, width, height)
     }
 
+    /**
+     * Renders the frame every 1000ms/60ms to (try to achieve 60FPS)
+     */
     private val nanoTimer: NanoTimer = object : NanoTimer(1000.0 / 60.0) {
         override fun onSucceeded() {
             renderFrame(mediaCanvas)
@@ -268,6 +310,9 @@ class MediaPlayerView : View() {
         }
     }
 
+    /**
+     * Stops the nano the timer so frame renders aren't needlessly done
+     */
     private fun stopTimer() {
         Platform.runLater {
             if (nanoTimer.isRunning) {
@@ -280,11 +325,9 @@ class MediaPlayerView : View() {
         when (action.action) {
             Action.PAUSE -> {
                 mediaPlayer?.controls()?.setPause(true)
-                controls.togglePause()
             }
             Action.PLAY -> {
-                mediaPlayer?.controls()?.setPause(false)
-                controls.togglePlay()
+                mediaPlayer?.controls()?.play()
             }
             Action.SEEK -> {
                 userRecentlyChangedPosition = false
@@ -294,14 +337,24 @@ class MediaPlayerView : View() {
     }
 
     private fun setUpMediaPlayer() {
-        mediaPlayerFactory = MediaPlayerFactory("--ffmpeg-hw")
+        try {
+            mediaPlayerFactory = MediaPlayerFactory("--ffmpeg-hw")
+        } catch (e: Exception) {
+            logger.error(e.message, e.cause)
+            ViewUtils.showErrorDialog(
+                "It looks like you don't have VLC Media Player installed. Try installing it and restart ${ApplicationView.APPLICATION_NAME}.",
+                primaryStage.scene.root as StackPane
+            )
+            playerPageController.exitToIntroPage()
+            return
+        }
         mediaPlayer = mediaPlayerFactory?.mediaPlayers()?.newEmbeddedMediaPlayer()
         mediaPlayer?.videoSurface()?.set(TornadoFXVideoSurface())
         mediaCanvas.widthProperty()
-            ?.addListener { _: Observable? -> if (!mediaPlayer?.status()?.isPlaying!!) renderFrame(mediaCanvas) }
+            ?.addListener { _: Observable? -> if (mediaPlayer?.status()?.isPlaying == true) renderFrame(mediaCanvas) }
         mediaCanvas.heightProperty()
-            ?.addListener { _: Observable? -> if (!mediaPlayer?.status()?.isPlaying!!) renderFrame(mediaCanvas) }
-        mediaPlayer?.media()?.play(fileLoaderController.getCurrentSelectedFile()?.absolutePath)
+            ?.addListener { _: Observable? -> if (mediaPlayer?.status()?.isPlaying == true) renderFrame(mediaCanvas) }
+        mediaPlayer?.media()?.prepare(fileLoaderController.getCurrentSelectedFile()?.absolutePath)
         mediaPlayer?.events()?.addMediaPlayerEventListener(object : MediaPlayerEventListener {
             override fun positionChanged(mediaPlayer: MediaPlayer?, newPosition: Float) {
                 runLater {
@@ -311,7 +364,24 @@ class MediaPlayerView : View() {
                 }
             }
 
-            override fun playing(mediaPlayer: MediaPlayer?) {}
+            override fun playing(mediaPlayer: MediaPlayer?) {
+                runLater {
+                    startTimer()
+                    bigPlayButton.triggerPlay()
+                    controls.showPauseButtonForOnPlay()
+                    isPlaying = true
+                }
+            }
+
+            override fun paused(mediaPlayer: MediaPlayer?) {
+                runLater {
+                    stopTimer()
+                    bigPlayButton.triggerPause()
+                    controls.showPlayButtonForOnPause()
+                    isPlaying = false
+                }
+            }
+
             override fun audioDeviceChanged(mediaPlayer: MediaPlayer?, audioDevice: String?) {}
             override fun volumeChanged(mediaPlayer: MediaPlayer?, volume: Float) {}
             override fun scrambledChanged(mediaPlayer: MediaPlayer?, newScrambled: Int) {}
@@ -332,8 +402,6 @@ class MediaPlayerView : View() {
             override fun mediaPlayerReady(mediaPlayer: MediaPlayer?) {
                 runLater {
                     if (mediaPlayer != null) {
-                        mediaPlayer.controls().pause()
-                        controls.togglePause()
                         mediaPlayer.audio().setVolume(100)
                         controls.setVolume(100.0)
                         controls.setTotalDuration(mediaPlayer.media().info().duration())
@@ -359,7 +427,6 @@ class MediaPlayerView : View() {
                 }
             }
 
-            override fun paused(mediaPlayer: MediaPlayer?) {}
             override fun timeChanged(mediaPlayer: MediaPlayer?, newTime: Long) {}
             override fun buffering(mediaPlayer: MediaPlayer?, newCache: Float) {}
             override fun lengthChanged(mediaPlayer: MediaPlayer?, newLength: Long) {}
@@ -368,6 +435,7 @@ class MediaPlayerView : View() {
     }
 
     private fun setUpControls() {
+        controls.showPlayButtonForOnPause()
         controls.setOnPlayCallback {
             mediaController.playAction({
                 if (!it) {

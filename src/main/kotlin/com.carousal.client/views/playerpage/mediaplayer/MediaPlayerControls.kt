@@ -10,7 +10,6 @@ import javafx.scene.control.Button
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.paint.Color
-import org.slf4j.LoggerFactory
 import tornadofx.*
 import java.util.concurrent.TimeUnit
 
@@ -254,7 +253,7 @@ class MediaPlayerControls : Fragment() {
         this.totalTime.value = getMillisecondsToHHMMSS(duration)
     }
 
-    fun togglePause() {
+    fun showPlayButtonForOnPause() {
         val icon = MaterialIconView(MaterialIcon.PLAY_ARROW, "30px")
         icon.fill = Color.LIGHTGRAY
         playPauseButton.getChildList()?.clear()
@@ -270,7 +269,7 @@ class MediaPlayerControls : Fragment() {
         isPaused = true
     }
 
-    fun togglePlay() {
+    fun showPauseButtonForOnPlay() {
         val icon = MaterialIconView(MaterialIcon.PAUSE, "30px")
         icon.fill = Color.LIGHTGRAY
         playPauseButton.getChildList()?.clear()

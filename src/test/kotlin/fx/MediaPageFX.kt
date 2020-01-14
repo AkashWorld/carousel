@@ -31,8 +31,6 @@ class MediaPageFX {
 
     class MediaPageTest : View() {
         private val testScope = Scope()
-        private val clientContext: ClientContext = ClientContextImpl.getInstance()
-        private val clientContextController = ClientContextController()
         private val chatController: ChatController by inject()
 
         init {
@@ -51,8 +49,6 @@ class MediaPageFX {
             msglist.add(Message("awildwildboar", "loaded shady korean video", ContentType.INFO))
             msglist.add(Message("Wizardofozzie", "whats wrong with you"))
             tornadofx.setInScope(chatController, testScope)
-            tornadofx.setInScope(clientContextController, testScope)
-            clientContext.requestSignInToken("test", "localhost", null, {}, {})
             Thread.sleep(1000)
         }
 
@@ -64,6 +60,8 @@ class MediaPageFX {
     @BeforeEach
     private fun init() {
         server.initialize()
+        ClientContextImpl.getInstance().requestSignInToken("test", "localhost:57423", null, {}, {})
+        Thread.sleep(100)
         SvgImageLoaderFactory.install()
     }
 

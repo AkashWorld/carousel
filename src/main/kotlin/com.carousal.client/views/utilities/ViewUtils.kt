@@ -1,4 +1,4 @@
-package com.carousal.client.views
+package com.carousal.client.views.utilities
 
 import com.jfoenix.controls.JFXButton
 import com.jfoenix.controls.JFXDialog
@@ -9,7 +9,11 @@ import javafx.scene.text.Text
 class ViewUtils {
     companion object {
         fun showErrorDialog(message: String, stackPane: StackPane) {
-            showErrorDialog("Error", message, stackPane)
+            showErrorDialog(
+                "Error",
+                message,
+                stackPane
+            )
         }
 
         fun showErrorDialog(header: String, message: String, stackPane: StackPane) {

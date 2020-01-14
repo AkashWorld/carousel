@@ -3,7 +3,7 @@ package com.carousal.client.views.playerpage
 import com.carousal.client.controllers.ChatController
 import com.carousal.client.controllers.UsersController
 import com.carousal.client.models.*
-import com.carousal.client.views.ViewUtils
+import com.carousal.client.views.utilities.ViewUtils
 import com.carousal.client.views.intropage.IntroPage
 import com.carousal.client.views.playerpage.chatfeed.ChatFragment
 import com.carousal.client.views.playerpage.fileloader.FileLoaderView

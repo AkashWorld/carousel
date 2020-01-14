@@ -3,6 +3,8 @@ package com.carousal.client.controllers
 import com.carousal.client.models.MediaActionModel
 import com.carousal.client.models.MediaActionModelImpl
 import com.carousal.client.models.observables.MediaActionObservable
+import com.carousal.client.views.playerpage.PlayerPage
+import com.carousal.client.views.playerpage.mediaplayer.MediaPlayerView
 import tornadofx.*
 
 class MediaController : Controller() {

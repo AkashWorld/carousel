@@ -1,7 +1,7 @@
 package com.carousal.client.views.playerpage.chatfeed
 
 import com.carousal.client.controllers.ImageLoaderController
-import com.carousal.client.views.ViewUtils
+import com.carousal.client.views.utilities.ViewUtils
 import com.jfoenix.controls.JFXSpinner
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.jensd.fx.glyphs.materialicons.MaterialIconView

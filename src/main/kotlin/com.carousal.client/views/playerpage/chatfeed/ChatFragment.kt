@@ -4,7 +4,7 @@ import com.carousal.client.models.Message
 import com.carousal.client.controllers.ChatController
 import com.carousal.client.controllers.ClientContextController
 import com.carousal.client.controllers.UsersController
-import com.carousal.client.views.ViewUtils
+import com.carousal.client.views.utilities.ViewUtils
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.jensd.fx.glyphs.materialicons.MaterialIconView
 import javafx.beans.Observable

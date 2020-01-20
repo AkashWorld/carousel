@@ -1,7 +1,7 @@
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import com.carousal.server.ServerAuthentication
+import com.carousel.server.ServerAuthentication
 
 class ServerAuthTest {
     @Test

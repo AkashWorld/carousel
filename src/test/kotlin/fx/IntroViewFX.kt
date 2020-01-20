@@ -1,12 +1,12 @@
 package fx
 
-import com.carousal.client.views.intropage.ConnectFormFragment
-import com.carousal.client.views.intropage.HostFormFragment
-import com.carousal.client.views.intropage.IntroPage
-import com.carousal.client.views.intropage.IntroPageStyles
+import com.carousel.client.views.intropage.ConnectFormFragment
+import com.carousel.client.views.intropage.HostFormFragment
+import com.carousel.client.views.intropage.IntroPage
+import com.carousel.client.views.intropage.IntroPageStyles
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import com.carousal.server.Server
+import com.carousel.server.Server
 import tornadofx.*
 import tornadofx.App
 import tornadofx.launch

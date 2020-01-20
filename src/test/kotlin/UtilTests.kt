@@ -1,6 +1,6 @@
-import com.carousal.client.views.Styles
-import com.carousal.client.controllers.ConnectController
-import com.carousal.client.views.playerpage.mediaplayer.getMillisecondsToHHMMSS
+import com.carousel.client.views.Styles
+import com.carousel.client.controllers.ConnectController
+import com.carousel.client.views.playerpage.mediaplayer.getMillisecondsToHHMMSS
 import org.junit.jupiter.api.Test
 
 class UtilTests {

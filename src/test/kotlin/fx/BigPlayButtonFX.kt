@@ -1,7 +1,7 @@
 package fx
 
-import com.carousal.client.views.playerpage.mediaplayer.BigPlayButtonFragment
-import com.carousal.client.views.playerpage.mediaplayer.MediaPlayerStyles
+import com.carousel.client.views.playerpage.mediaplayer.BigPlayButtonFragment
+import com.carousel.client.views.playerpage.mediaplayer.MediaPlayerStyles
 import javafx.geometry.Insets
 import javafx.scene.layout.Background
 import javafx.scene.layout.BackgroundFill

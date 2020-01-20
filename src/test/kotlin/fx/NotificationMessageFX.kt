@@ -1,7 +1,7 @@
 package fx
 
-import com.carousal.client.views.utilities.NotificationTabFragment
-import com.carousal.client.views.utilities.UtilityStyles
+import com.carousel.client.views.utilities.NotificationTabFragment
+import com.carousel.client.views.utilities.UtilityStyles
 import javafx.scene.paint.Color
 import org.junit.jupiter.api.Test
 import tornadofx.*

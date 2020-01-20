@@ -4,15 +4,13 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import com.carousal.server.SERVER_ACCESS_HEADER
-import com.carousal.server.Server
-import com.carousal.server.model.User
-import com.carousal.server.model.UserAuthenticationImpl
-import com.carousal.server.model.UsersRepository
+import com.carousel.server.SERVER_ACCESS_HEADER
+import com.carousel.server.Server
+import com.carousel.server.model.User
+import com.carousel.server.model.UserAuthenticationImpl
+import com.carousel.server.model.UsersRepository
 
 class SignInTest {
     private val client: OkHttpClient = OkHttpClient()

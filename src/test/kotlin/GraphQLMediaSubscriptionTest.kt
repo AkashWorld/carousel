@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
-import com.carousal.server.AUTH_HEADER
-import com.carousal.server.Server
+import com.carousel.server.AUTH_HEADER
+import com.carousel.server.Server
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 

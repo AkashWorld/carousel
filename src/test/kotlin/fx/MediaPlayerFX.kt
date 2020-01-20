@@ -1,13 +1,12 @@
 package fx
 
-import com.carousal.client.models.ClientContextImpl
-import com.carousal.client.views.playerpage.fileloader.FileLoaderStyles
-import com.carousal.client.views.playerpage.chatfeed.ChatFeedStyles
-import com.carousal.client.views.playerpage.fileloader.FileLoaderView
-import com.carousal.client.views.playerpage.mediaplayer.MediaPlayerStyles
-import com.carousal.client.views.utilities.NotificationTabFragment
-import com.carousal.client.views.utilities.UtilityStyles
-import com.carousal.server.Server
+import com.carousel.client.models.ClientContextImpl
+import com.carousel.client.views.playerpage.fileloader.FileLoaderStyles
+import com.carousel.client.views.playerpage.chatfeed.ChatFeedStyles
+import com.carousel.client.views.playerpage.fileloader.FileLoaderView
+import com.carousel.client.views.playerpage.mediaplayer.MediaPlayerStyles
+import com.carousel.client.views.utilities.UtilityStyles
+import com.carousel.server.Server
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

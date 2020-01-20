@@ -1,4 +1,4 @@
-import com.carousal.client.controllers.ChatController
+import com.carousel.client.controllers.ChatController
 import org.junit.jupiter.api.Test
 
 class TokenizerTest {

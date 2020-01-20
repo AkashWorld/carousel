@@ -1,22 +1,20 @@
 package fx
 
-import com.carousal.client.views.playerpage.chatfeed.ChatFeedStyles
-import com.carousal.client.controllers.ChatController
-import com.carousal.client.controllers.ClientContextController
-import com.carousal.client.models.ClientContext
-import com.carousal.client.models.ClientContextImpl
-import com.carousal.client.models.ContentType
-import com.carousal.client.models.Message
-import com.carousal.client.views.intropage.IntroPageStyles
-import com.carousal.client.views.playerpage.fileloader.FileLoaderStyles
-import com.carousal.client.views.playerpage.PlayerPage
-import com.carousal.client.views.playerpage.mediaplayer.MediaPlayerStyles
-import com.carousal.client.views.utilities.UtilityStyles
+import com.carousel.client.views.playerpage.chatfeed.ChatFeedStyles
+import com.carousel.client.controllers.ChatController
+import com.carousel.client.models.ClientContextImpl
+import com.carousel.client.models.ContentType
+import com.carousel.client.models.Message
+import com.carousel.client.views.intropage.IntroPageStyles
+import com.carousel.client.views.playerpage.fileloader.FileLoaderStyles
+import com.carousel.client.views.playerpage.PlayerPage
+import com.carousel.client.views.playerpage.mediaplayer.MediaPlayerStyles
+import com.carousel.client.views.utilities.UtilityStyles
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import com.carousal.server.Server
+import com.carousel.server.Server
 import tornadofx.*
 
 class MediaPageFX {
@@ -53,7 +51,7 @@ class MediaPageFX {
         }
 
         override val root = stackpane {
-            prefWidth = 1200.0
+            prefWidth = 1500.0
             prefHeight = 1000.0
             this.add(find<PlayerPage>())
         }

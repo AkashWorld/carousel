@@ -7,7 +7,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import com.carousal.server.Server
+import com.carousel.server.Server
 
 class GraphQLTest {
     private val client: OkHttpClient = OkHttpClient()

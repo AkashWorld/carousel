@@ -1,6 +1,6 @@
 package fx
 
-import com.carousal.client.views.playerpage.chatfeed.ImageLoaderImpl
+import com.carousel.client.views.playerpage.chatfeed.ImageLoaderImpl
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import org.junit.jupiter.api.Test

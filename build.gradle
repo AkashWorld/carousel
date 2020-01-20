@@ -6,7 +6,7 @@ plugins {
 }
 
 application {
-    mainClassName = 'com.carousal.client.MainKt'
+    mainClassName = 'com.carousel.client.MainKt'
 }
 
 def jvmModuleArgs = ['--add-exports=javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED',
@@ -16,13 +16,13 @@ def jvmModuleArgs = ['--add-exports=javafx.graphics/com.sun.javafx.iio=ALL-UNNAM
 ]
 
 launch4j {
-    mainClassName = 'com.carousal.client.MainKt'
-    icon = "${projectDir}/resources/carousal256.ico"
-    outfile = "Carousal.exe"
-    downloadUrl = "https://github.com/AkashWorld/carousal"
+    mainClassName = 'com.carousel.client.MainKt'
+    icon = "${projectDir}/resources/caoursel256.ico"
+    outfile = "Carousel.exe"
+    downloadUrl = "https://github.com/AkashWorld/carousel"
     copyright = "GPL3"
     jreMinVersion = "1.11"
-    windowTitle = "Carousal"
+    windowTitle = "Carousel"
     jvmOptions = jvmModuleArgs
     bundledJrePath = "./jre11"
     bundledJre64Bit = true

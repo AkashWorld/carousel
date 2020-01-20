@@ -1,12 +1,12 @@
-import com.carousal.client.models.ChatModel
-import com.carousal.client.models.ClientContextImpl
+import com.carousel.client.models.ChatModel
+import com.carousel.client.models.ClientContextImpl
 import com.google.gson.Gson
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import com.carousal.server.Server
-import com.carousal.server.model.ChatRepository
-import com.carousal.server.model.ContentType
-import com.carousal.server.model.User
+import com.carousel.server.Server
+import com.carousel.server.model.ChatRepository
+import com.carousel.server.model.ContentType
+import com.carousel.server.model.User
 import java.util.concurrent.CompletableFuture
 
 

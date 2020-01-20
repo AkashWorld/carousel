@@ -7,8 +7,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import com.carousal.server.SERVER_ACCESS_HEADER
-import com.carousal.server.Server
+import com.carousel.server.SERVER_ACCESS_HEADER
+import com.carousel.server.Server
 
 class ServerHttpTest {
     private val client: OkHttpClient = OkHttpClient()

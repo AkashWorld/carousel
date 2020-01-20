@@ -1,5 +1,5 @@
 <p align="center">
-    <img align="center" src="./resources/CarouselIcon128.png" alt="Logo">
+    <img align="center" src="./resources/CarousalIcon128.png" alt="Logo">
 </p>
 
 # Carousel
@@ -22,11 +22,11 @@ One person (ideally the one with the best compute and network resources) hosts t
 ## Nerd Stuff
 This application is built with Kotlin and [TornadoFX](https://tornadofx.io/) (JavaFX Kotlin wrapper) for the client side application. It uses GraphQL as it's network api to connect to the server. The server used is [Javalin](https://javalin.io/) (a wrapper around Jetty) to handle GraphQL post and websocket requests. The media player uses [VlcJ](https://github.com/caprica/vlcj) which is a Java wrapper around libVLC.
 
-[com.carousal.client](./src/main/kotlin/com.carousal.client) is the client\
+[com.carousel.client](./src/main/kotlin/com.carousal.client) is the client\
 The entry point of the application is Main.kt in com.carousal.client.
 Largely, the architecture followed is the standard MVC architecture but it's not very strictly followed.
 
-[com.carousal.server](./src/main/kotlin/com.carousal.server) is the server\
+[com.carousel.server](./src/main/kotlin/com.carousal.server) is the server\
 The entry point of the server is the singleton Server.kt in com.carousal.server. It uses GraphQL to fetch data via the DataFetchers; which subsequently call the very simple models to keep the data.
 
 ### How to develop

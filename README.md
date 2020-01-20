@@ -1,11 +1,11 @@
 <p align="center">
-    <img align="center" src="./resources/CarousalIcon128.png" alt="Logo">
+    <img align="center" src="./resources/CarouselIcon128.png" alt="Logo">
 </p>
 
-# Carousal
+# Carousel
 
 ## Intro
-This application is a self-hosted video syncing application. In scenarios where multiple people would like to watch their favorite movies/tv shows together but can't without high bandwidth stream sharing, Carousal comes to the rescue! As long as all participants has access to the same video file locally, Carousal will sync together the video timestamps and pause/play state of the video! Perfect for a good movie night when you aren't near your friends. It also includes a chat which allows you to share emojis and memes.
+This application is a self-hosted video syncing application. In scenarios where multiple people would like to watch their favorite movies/tv shows together but can't without high bandwidth stream sharing, Carousel comes to the rescue! As long as all participants has access to the same video file locally, Carousel will sync together the video timestamps and pause/play state of the video! Perfect for a good movie night when you aren't near your friends. It also includes a chat which allows you to share emojis and memes.
 
 ![Sample Picture](./resources/SamplePic.png)
 

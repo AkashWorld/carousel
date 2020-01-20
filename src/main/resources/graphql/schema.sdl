@@ -50,6 +50,13 @@ type MediaAction {
 extend type Subscription {
     mediaActions: MediaAction!
 }
+type Notification {
+    content: String!
+}
+
+extend type Subscription {
+    notificationSubscription: Notification!
+}
 type User {
     username: String!
     isReady: Boolean

@@ -1,9 +1,6 @@
 package com.carousal.server.model
 
-import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
-
-data class User(val username: String, var isReady: Boolean, var media: Media?)
 
 class UsersRepository {
     private val usersMap = ConcurrentHashMap<String, User>()

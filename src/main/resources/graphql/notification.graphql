@@ -1,0 +1,7 @@
+type Notification {
+    content: String!
+}
+
+extend type Subscription {
+    notificationSubscription: Notification!
+}

@@ -12,16 +12,16 @@ import com.carousal.server.model.UsersRepository
 import java.util.concurrent.ConcurrentLinkedQueue
 
 class MediaDataFetchers(
-    private val usersRepository: UsersRepository,
-    private val userActionPublisher: UserActionPublisher
+    private val usersRepository: UsersRepository
 ) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
-    private val mediaActionPublisher = MediaActionPublisher()
     fun mutationPlay(): DataFetcher<Boolean?> {
         return DataFetcher { environment ->
             val context: GraphQLContext = environment.getContext() ?: return@DataFetcher null
             logger.info("${context.user.username}: Play")
-            mediaActionPublisher.publishPlay(context.user.username)
+            usersRepository.getAllUsers().parallelStream().forEach {
+                it.getMediaActionPublisher()?.publishPlay(context.user.username)
+            }
             if (usersRepository.isEveryoneReady()) {
                 return@DataFetcher true
             }
@@ -33,7 +33,9 @@ class MediaDataFetchers(
         return DataFetcher { environment ->
             val context: GraphQLContext = environment.getContext() ?: return@DataFetcher null
             logger.info("${context.user.username}: Pause")
-            mediaActionPublisher.publishPause(context.user.username)
+            usersRepository.getAllUsers().parallelStream().forEach {
+                it.getMediaActionPublisher()?.publishPause(context.user.username)
+            }
             return@DataFetcher true
         }
     }
@@ -44,7 +46,9 @@ class MediaDataFetchers(
             val file: String = environment.getArgument("file")
             context.user.media = Media(file)
             logger.info("${context.user.username}: Loading file $file")
-            userActionPublisher.publishUserActionEvent(context.user, UserAction.CHANGE_MEDIA)
+            usersRepository.getAllUsers().parallelStream().forEach {
+                it.getUserActionPublisher()?.publishUserActionEvent(context.user, UserAction.CHANGE_MEDIA)
+            }
             return@DataFetcher Media(file)
         }
     }
@@ -54,7 +58,9 @@ class MediaDataFetchers(
             val context: GraphQLContext = environment.getContext() ?: return@DataFetcher null
             val currentTime: Float = environment.getArgument("currentTime")
             logger.info("${context.user.username}: Seek at time $currentTime")
-            mediaActionPublisher.publishSeek(context.user.username, currentTime)
+            usersRepository.getAllUsers().parallelStream().forEach {
+                it.getMediaActionPublisher()?.publishSeek(context.user.username, currentTime)
+            }
             return@DataFetcher true
         }
 
@@ -62,37 +68,34 @@ class MediaDataFetchers(
 
     fun subscriptionMedia(): DataFetcher<Publisher<MediaSubscriptionResult>> {
         return DataFetcher {
-            this.mediaActionPublisher
+            val context = it.getContext<GraphQLContext?>()
+            if (context == null) {
+                logger.error("subscriptionChatFeed: No context found")
+                throw Exception("subscriptionChatFeed: No context found")
+            }
+            val mediaActionPublisher = MediaActionPublisher()
+            context.user.setMediaActionPublisher(mediaActionPublisher)
+            mediaActionPublisher
         }
     }
 }
 
-/**
- * Memory leak, we need to figure out how to clean this up if user disconnects
- */
 class MediaActionPublisher : Publisher<MediaSubscriptionResult> {
-    private val subscribers: ConcurrentLinkedQueue<Subscriber<in MediaSubscriptionResult>?> =
-        ConcurrentLinkedQueue()
+    private var subscriber: Subscriber<in MediaSubscriptionResult>? = null
 
     override fun subscribe(subscriber: Subscriber<in MediaSubscriptionResult>?) {
-        subscribers.add(subscriber)
+        this.subscriber = subscriber
     }
 
     fun publishPlay(user: String) {
-        subscribers.forEach {
-            it?.onNext(MediaSubscriptionResult(Action.PLAY, null, user))
-        }
+        subscriber?.onNext(MediaSubscriptionResult(Action.PLAY, null, user))
     }
 
     fun publishPause(user: String) {
-        subscribers.forEach {
-            it?.onNext(MediaSubscriptionResult(Action.PAUSE, null, user))
-        }
+        subscriber?.onNext(MediaSubscriptionResult(Action.PAUSE, null, user))
     }
 
     fun publishSeek(user: String, currentTime: Float) {
-        subscribers.forEach {
-            it?.onNext(MediaSubscriptionResult(Action.SEEK, currentTime, user))
-        }
+        subscriber?.onNext(MediaSubscriptionResult(Action.SEEK, currentTime, user))
     }
 }

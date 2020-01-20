@@ -25,7 +25,6 @@ class UserDataFetchers constructor(
     private val userAuthentication: UserAuthentication
 ) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
-    private val userActionPublisher = UserActionPublisher()
 
     fun queryGetAllUsers(): DataFetcher<List<User>?> {
         return DataFetcher { environment ->
@@ -41,7 +40,7 @@ class UserDataFetchers constructor(
             val username: String = environment.getArgument("username")
             val newUser = User(username, false, null)
             if (usersRepository.addUser(newUser)) {
-                this.userActionPublisher.publishUserActionEvent(newUser, UserAction.SIGN_IN)
+                publishToUserActionSubscriber(newUser, UserAction.SIGN_IN)
                 userAuthentication.generateAuthToken(newUser)
             } else {
                 logger.error("Could not add username $username")
@@ -54,7 +53,7 @@ class UserDataFetchers constructor(
         return DataFetcher { environment ->
             val context: GraphQLContext = environment.getContext() ?: return@DataFetcher null
             usersRepository.removeUser(context.user)
-            this.userActionPublisher.publishUserActionEvent(context.user, UserAction.SIGN_OUT)
+            publishToUserActionSubscriber(context.user, UserAction.SIGN_OUT)
             logger.info("Context(${context.user.username}): signOut")
             true
         }
@@ -65,15 +64,15 @@ class UserDataFetchers constructor(
             val context: GraphQLContext = it.getContext() ?: return@DataFetcher null
             val isReady: Boolean = it.getArgument("isReady")
             context.user.isReady = isReady
-            this.userActionPublisher.publishUserActionEvent(context.user, UserAction.IS_READY)
+            publishToUserActionSubscriber(context.user, UserAction.IS_READY)
             isReady
         }
     }
 
-    fun mutationInitiateReadyCheck() : DataFetcher<Boolean?> {
+    fun mutationInitiateReadyCheck(): DataFetcher<Boolean?> {
         return DataFetcher {
             val context: GraphQLContext = it.getContext() ?: return@DataFetcher null
-            this.userActionPublisher.publishUserActionEvent(context.user, UserAction.READY_CHECK)
+            publishToUserActionSubscriber(context.user, UserAction.READY_CHECK)
             true
         }
     }
@@ -85,29 +84,27 @@ class UserDataFetchers constructor(
                 logger.error("subscriptionUserAction: No context found")
                 throw Exception("subscriptionUserAction: No context found")
             }
+            val userActionPublisher = UserActionPublisher()
+            context.user.setUserActionPublisher(userActionPublisher)
             userActionPublisher
         }
     }
 
-    fun getUserActionPublisher(): UserActionPublisher {
-        return userActionPublisher
+    private fun publishToUserActionSubscriber(user: User, action: UserAction) {
+        usersRepository.getAllUsers().forEach {
+            it.getUserActionPublisher()?.publishUserActionEvent(user, action)
+        }
     }
 }
 
-/**
- * Memory leak, we need to figure out how to clean this up if user disconnects
- */
 class UserActionPublisher : Publisher<UserActionEvent> {
-    private val subscribers: ConcurrentLinkedQueue<Subscriber<in UserActionEvent>?> =
-        ConcurrentLinkedQueue()
+    private var subscriber: Subscriber<in UserActionEvent>? = null
 
     override fun subscribe(s: Subscriber<in UserActionEvent>?) {
-        subscribers.add(s)
+        subscriber = s
     }
 
     fun publishUserActionEvent(user: User, event: UserAction) {
-        subscribers.forEach {
-            it?.onNext(UserActionEvent(event, user))
-        }
+        subscriber?.onNext(UserActionEvent(event, user))
     }
 }

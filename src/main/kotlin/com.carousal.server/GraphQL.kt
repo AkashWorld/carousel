@@ -39,8 +39,8 @@ class GraphQLProvider(
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private var graphql: GraphQL? = null
     private val userDataFetchers = UserDataFetchers(usersRepository, userAuthentication)
-    private val mediaDataFetchers = MediaDataFetchers(usersRepository, userDataFetchers.getUserActionPublisher())
-    private val chatFeedDataFetchers = ChatDataFetchers(chatRepository)
+    private val mediaDataFetchers = MediaDataFetchers(usersRepository)
+    private val chatFeedDataFetchers = ChatDataFetchers(usersRepository, chatRepository)
 
     init {
         val schema = this.getSchema()
@@ -81,7 +81,7 @@ class GraphQLProvider(
             logger.error("Could not initialize GraphQL")
             return
         }
-        val graphqlContext = if (user != null) GraphQLContext(user) else user
+        val graphqlContext = if (user != null) GraphQLContext(user) else null
         val body: GraphQLQuery
         val query = handler.message()
         logger.info(query)

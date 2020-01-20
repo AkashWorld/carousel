@@ -8,11 +8,11 @@ import com.carousal.server.GraphQLContext
 import com.carousal.server.model.ChatRepository
 import com.carousal.server.model.ContentType
 import com.carousal.server.model.Message
+import com.carousal.server.model.UsersRepository
 import java.util.concurrent.ConcurrentLinkedQueue
 
-class ChatDataFetchers(private val chatRepository: ChatRepository) {
+class ChatDataFetchers(private val usersRepository: UsersRepository, private val chatRepository: ChatRepository) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
-    private val chatFeedPublisher: ChatFeedPublisher = ChatFeedPublisher()
 
     fun queryGetMessagePaginated(): DataFetcher<List<Message>> {
         return DataFetcher { environment ->
@@ -46,7 +46,7 @@ class ChatDataFetchers(private val chatRepository: ChatRepository) {
                 throw Exception("mutationInsertMessage: No context found")
             }
             val message = environment.getArgument<String>("message")
-            chatFeedPublisher.publishMessage(chatRepository.addMessage(context.user, message, ContentType.MESSAGE))
+            publishToChatFeed(chatRepository.addMessage(context.user, message, ContentType.MESSAGE))
             true
         }
     }
@@ -59,7 +59,7 @@ class ChatDataFetchers(private val chatRepository: ChatRepository) {
                 throw Exception("mutationInsertImage: No context found")
             }
             val data = environment.getArgument<String>("data")
-            chatFeedPublisher.publishMessage(chatRepository.addMessage(context.user, data, ContentType.IMAGE))
+            publishToChatFeed(chatRepository.addMessage(context.user, data, ContentType.IMAGE))
             true
         }
     }
@@ -71,24 +71,27 @@ class ChatDataFetchers(private val chatRepository: ChatRepository) {
                 logger.error("subscriptionChatFeed: No context found")
                 throw Exception("subscriptionChatFeed: No context found")
             }
+            val chatFeedPublisher = ChatFeedPublisher()
+            context.user.setChatFeedPublisher(chatFeedPublisher)
             chatFeedPublisher
+        }
+    }
+
+    private fun publishToChatFeed(message: Message) {
+        usersRepository.getAllUsers().parallelStream().forEach {
+            it.getChatFeedPublisher()?.publishMessage(message)
         }
     }
 }
 
-/**
- * Memory leak, we need to figure out how to clean this up if user disconnects
- */
 class ChatFeedPublisher : Publisher<Message> {
-    private val subscribers: ConcurrentLinkedQueue<Subscriber<in Message>?> = ConcurrentLinkedQueue()
+    private var subscriber: Subscriber<in Message>? = null
 
     override fun subscribe(s: Subscriber<in Message>?) {
-        subscribers.add(s)
+        subscriber = s
     }
 
     fun publishMessage(message: Message) {
-        subscribers.forEach {
-            it?.onNext(message)
-        }
+        subscriber?.onNext(message)
     }
 }

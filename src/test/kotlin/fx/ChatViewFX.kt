@@ -46,8 +46,9 @@ class ChatViewFX {
             msglist.add(Message("yassuo", "hello world"))
             tornadofx.setInScope(chatController, testScope)
             tornadofx.setInScope(clientContextController, testScope)
-            clientContext.requestSignInToken("test", "localhost", null, {}, {})
+            clientContext.requestSignInToken("test", "localhost:57423", null, {}, {})
             Thread.sleep(1000)
+            chatController.subscribeToMessages {  }
         }
 
         override val root = hbox {

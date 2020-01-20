@@ -30,7 +30,6 @@ class MediaPageFX {
     )
 
     class MediaPageTest : View() {
-        private val testScope = Scope()
         private val chatController: ChatController by inject()
 
         init {
@@ -48,19 +47,21 @@ class MediaPageFX {
             msglist.add(Message("awildwildboar", "paused at 0:00", ContentType.INFO))
             msglist.add(Message("awildwildboar", "loaded shady korean video", ContentType.INFO))
             msglist.add(Message("Wizardofozzie", "whats wrong with you"))
-            tornadofx.setInScope(chatController, testScope)
             Thread.sleep(1000)
         }
 
         override val root = stackpane {
-            this.add(find<PlayerPage>(scope = testScope))
+            prefWidth = 1200.0
+            prefHeight = 1000.0
+            this.add(find<PlayerPage>())
         }
     }
 
     @BeforeEach
     private fun init() {
         server.initialize()
-        ClientContextImpl.getInstance().requestSignInToken("test", "localhost:57423", null, {}, {})
+        Thread.sleep(100)
+        ClientContextImpl.getInstance().requestSignInToken("TestUser", "localhost:57423", null, {}, {})
         Thread.sleep(100)
         SvgImageLoaderFactory.install()
     }

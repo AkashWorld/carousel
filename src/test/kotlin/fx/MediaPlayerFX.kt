@@ -15,18 +15,17 @@ import tornadofx.*
 
 class MediaPlayerFX {
     class TestApp :
-        App(TextView::class, UtilityStyles::class, FileLoaderStyles::class, ChatFeedStyles::class, MediaPlayerStyles::class) {
+        App(TestView::class, UtilityStyles::class, FileLoaderStyles::class, ChatFeedStyles::class, MediaPlayerStyles::class) {
         init {
             reloadStylesheetsOnFocus()
         }
     }
 
-    class TextView : View() {
+    class TestView : View() {
         override val root = stackpane {
+            prefWidth = 1000.0
+            prefHeight = 1000.0
             this.add(find<FileLoaderView>())
-            setOnMouseClicked {
-                this.add(find<NotificationTabFragment>(mapOf("message" to "This is an example notifcation. Its what it would look like in the real world scenario. Please do something important.")))
-            }
         }
     }
 
@@ -34,7 +33,8 @@ class MediaPlayerFX {
     fun initTornadoFX() {
         SvgImageLoaderFactory.install()
         Server.getInstance().initialize()
-        ClientContextImpl.getInstance().requestSignInToken("", "localhost:57423", "", {}, {})
+        Thread.sleep(100)
+        ClientContextImpl.getInstance().requestSignInToken("TestUser", "localhost:57423", "", {}, {})
         Thread.sleep(100)
     }
 
@@ -42,5 +42,4 @@ class MediaPlayerFX {
     fun mediaPlayerTest() {
         launch<TestApp>()
     }
-
 }

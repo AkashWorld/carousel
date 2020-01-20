@@ -2,6 +2,7 @@ package com.carousal.client.views.utilities
 
 import javafx.geometry.Pos
 import javafx.geometry.VPos
+import javafx.scene.Cursor
 import javafx.scene.paint.Color
 import tornadofx.*
 
@@ -9,7 +10,6 @@ class UtilityStyles : Stylesheet() {
     companion object {
         val notificationTabContainer by cssclass()
         val closeButton by cssclass()
-        val notificationIcon by cssclass()
         val notificationMessage by cssclass()
         val messageTextFlow by cssclass()
     }
@@ -22,6 +22,9 @@ class UtilityStyles : Stylesheet() {
             borderRadius = multi(box(10.px))
             padding = box(15.px)
             alignment = Pos.CENTER
+            and(hover) {
+                cursor = Cursor.HAND
+            }
         }
         closeButton {
             backgroundColor = multi(Color.TRANSPARENT)

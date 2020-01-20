@@ -14,7 +14,7 @@ class NotificationMessageFX {
     }
 
     class Container : View() {
-        override val root = stackpane {
+        override val root = borderpane {
             prefWidth = 500.0
             prefHeight = 500.0
             style {
@@ -25,7 +25,7 @@ class NotificationMessageFX {
         override fun onDock() {
             super.onDock()
             runLater(1000.millis) {
-                root.add(find<NotificationTabFragment>(mapOf("message" to "Hey, this is a notification message; Hello, World! Hey this is kind of cool. What is this program!")))
+                root.center = find<NotificationTabFragment>(mapOf("message" to "Hey, this is a notification message; Hello, World! Hey this is kind of cool. What is this program!")).root
             }
         }
     }

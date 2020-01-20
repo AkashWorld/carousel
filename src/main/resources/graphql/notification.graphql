@@ -3,5 +3,5 @@ type Notification {
 }
 
 extend type Subscription {
-    notificationSubscription: Notification!
+    notification: Notification!
 }

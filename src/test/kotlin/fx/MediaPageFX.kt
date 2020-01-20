@@ -11,6 +11,7 @@ import com.carousal.client.views.intropage.IntroPageStyles
 import com.carousal.client.views.playerpage.fileloader.FileLoaderStyles
 import com.carousal.client.views.playerpage.PlayerPage
 import com.carousal.client.views.playerpage.mediaplayer.MediaPlayerStyles
+import com.carousal.client.views.utilities.UtilityStyles
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -26,7 +27,8 @@ class MediaPageFX {
         ChatFeedStyles::class,
         FileLoaderStyles::class,
         MediaPlayerStyles::class,
-        IntroPageStyles::class
+        IntroPageStyles::class,
+        UtilityStyles::class
     )
 
     class MediaPageTest : View() {

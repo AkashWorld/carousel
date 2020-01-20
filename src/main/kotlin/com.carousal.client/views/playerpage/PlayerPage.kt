@@ -1,12 +1,15 @@
 package com.carousal.client.views.playerpage
 
 import com.carousal.client.controllers.ChatController
+import com.carousal.client.controllers.NotificationController
 import com.carousal.client.controllers.UsersController
 import com.carousal.client.models.*
+import com.carousal.client.models.observables.Notification
 import com.carousal.client.views.utilities.ViewUtils
 import com.carousal.client.views.intropage.IntroPage
 import com.carousal.client.views.playerpage.chatfeed.ChatFragment
 import com.carousal.client.views.playerpage.fileloader.FileLoaderView
+import com.carousal.client.views.utilities.NotificationTabFragment
 import com.jfoenix.controls.JFXButton
 import com.jfoenix.controls.JFXDialog
 import com.jfoenix.controls.JFXDialogLayout
@@ -21,12 +24,18 @@ class PlayerPage : View() {
     private val fileLoaderView: FileLoaderView by inject()
     private val chatController: ChatController by inject()
     private val usersController: UsersController by inject()
+    private val notificationController: NotificationController by inject()
     private var isReadyCheckOngoing = false
     private val readyCheckListener: ChangeListener<UserActionEvent?> = ChangeListener { _, _, newValue ->
         newValue?.run {
             if (newValue.action == UserAction.READY_CHECK && !isReadyCheckOngoing) {
                 showReadyCheckDialog()
             }
+        }
+    }
+    private val notificationListener: ChangeListener<Notification?> = ChangeListener { _, _, newValue ->
+        newValue?.run {
+            primaryStage.scene.root.add(find<NotificationTabFragment>(mapOf("message" to this.content)))
         }
     }
 
@@ -100,12 +109,20 @@ class PlayerPage : View() {
                 primaryStage.scene.root as StackPane
             )
         }
+        notificationController.sendNotificationSubscription {
+            ViewUtils.showErrorDialog(
+                "Connection is lost, please restart this application.",
+                primaryStage.scene.root as StackPane
+            )
+        }
         usersController.getUserActionObservable().addListener(readyCheckListener)
+        notificationController.getNotificationListener().addListener(notificationListener)
     }
 
     override fun onUndock() {
         super.onUndock()
         usersController.getUserActionObservable().removeListener(readyCheckListener)
+        notificationController.getNotificationListener().removeListener(notificationListener)
         chatController.cleanUp()
         root.center = fileLoaderView.root
         root.children.remove(root.right)

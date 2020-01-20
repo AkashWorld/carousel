@@ -55,7 +55,7 @@ type Notification {
 }
 
 extend type Subscription {
-    notificationSubscription: Notification!
+    notification: Notification!
 }
 type User {
     username: String!

@@ -1,7 +1,6 @@
 package com.carousal.client.views.utilities
 
 import animatefx.animation.FadeOut
-import animatefx.animation.Pulse
 import animatefx.animation.SlideInUp
 import javafx.scene.layout.AnchorPane
 import tornadofx.*
@@ -14,8 +13,8 @@ class NotificationTabFragment : Fragment() {
         rootReference = this
         isPickOnBounds = false
         stackpane {
-            AnchorPane.setRightAnchor(this, 25.0)
-            AnchorPane.setBottomAnchor(this, 100.0)
+            AnchorPane.setLeftAnchor(this, 25.0)
+            AnchorPane.setBottomAnchor(this, 75.0)
             addClass(UtilityStyles.notificationTabContainer)
             textflow {
                 addClass(UtilityStyles.messageTextFlow)
@@ -29,6 +28,9 @@ class NotificationTabFragment : Fragment() {
                     rootReference.removeFromParent()
                 }
                 outAnimation.play()
+            }
+            tooltip("Dismiss") {
+                showDelay = 0.millis
             }
         }
     }

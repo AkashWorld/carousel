@@ -5,16 +5,14 @@ import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
 import org.slf4j.LoggerFactory
 import com.carousal.server.GraphQLContext
-import com.carousal.server.model.Action
-import com.carousal.server.model.Media
-import com.carousal.server.model.MediaSubscriptionResult
-import com.carousal.server.model.UsersRepository
+import com.carousal.server.model.*
 import java.util.concurrent.ConcurrentLinkedQueue
 
 class MediaDataFetchers(
     private val usersRepository: UsersRepository
 ) {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
+
     fun mutationPlay(): DataFetcher<Boolean?> {
         return DataFetcher { environment ->
             val context: GraphQLContext = environment.getContext() ?: return@DataFetcher null
@@ -22,8 +20,15 @@ class MediaDataFetchers(
             usersRepository.getAllUsers().parallelStream().forEach {
                 it.getMediaActionPublisher()?.publishPlay(context.user.username)
             }
-            if (usersRepository.isEveryoneReady()) {
-                return@DataFetcher true
+            if (!usersRepository.isEveryoneReady()) {
+                usersRepository.getAllUsers().forEach {
+                    it.getNotificationPublisher()?.publishNotification(
+                        Notification(
+                            "Not everyone is ready! Initiate" +
+                                    " a ready check by pressing the ready check button in the bottom of the chat."
+                        )
+                    )
+                }
             }
             return@DataFetcher false
         }

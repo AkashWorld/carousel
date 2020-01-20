@@ -17,6 +17,7 @@ import org.reactivestreams.Subscription
 import org.slf4j.LoggerFactory
 import com.carousal.server.datafetchers.ChatDataFetchers
 import com.carousal.server.datafetchers.MediaDataFetchers
+import com.carousal.server.datafetchers.NotificationDataFetchers
 import com.carousal.server.datafetchers.UserDataFetchers
 import com.carousal.server.model.ChatRepository
 import com.carousal.server.model.User
@@ -41,6 +42,7 @@ class GraphQLProvider(
     private val userDataFetchers = UserDataFetchers(usersRepository, userAuthentication)
     private val mediaDataFetchers = MediaDataFetchers(usersRepository)
     private val chatFeedDataFetchers = ChatDataFetchers(usersRepository, chatRepository)
+    private val notificationDataFetchers = NotificationDataFetchers()
 
     init {
         val schema = this.getSchema()
@@ -155,6 +157,7 @@ class GraphQLProvider(
             subscription.dataFetcher("mediaActions", this.mediaDataFetchers.subscriptionMedia())
             subscription.dataFetcher("chatFeed", this.chatFeedDataFetchers.subscriptionChatFeed())
             subscription.dataFetcher("userAction", this.userDataFetchers.subscriptionUserAction())
+            subscription.dataFetcher("notification", this.notificationDataFetchers.subscriptionNotification())
         }
         return runtimeWiringBuilder.build()
     }

@@ -8,6 +8,7 @@ import com.carousal.client.views.ApplicationView
 import com.carousal.client.views.utilities.ViewUtils
 import com.carousal.client.views.playerpage.fileloader.FileLoaderView
 import com.carousal.client.views.playerpage.chatfeed.MessageFragment
+import com.carousal.client.views.utilities.NotificationTabFragment
 import javafx.application.Platform
 import javafx.beans.Observable
 import javafx.beans.value.ChangeListener
@@ -65,7 +66,7 @@ class MediaPlayerView : View() {
     private var mediaPlayerFactory: MediaPlayerFactory? = null
     private var mediaPlayer: EmbeddedMediaPlayer? = null
     private lateinit var mediaCanvas: Canvas
-    private lateinit var mediaPane: Pane
+    private lateinit var mediaPane: StackPane
     private lateinit var controlPane: BorderPane
     private val controls = find<MediaPlayerControls>()
     private var mediaActionObservable: MediaActionObservable? = null
@@ -159,15 +160,7 @@ class MediaPlayerView : View() {
                         )
                     }
                 } else {
-                    mediaController.playAction({ isEveryoneReady: Boolean ->
-                        if (!isEveryoneReady) {
-                            ViewUtils.showErrorDialog(
-                                "Warning",
-                                "Not everyone is ready! Start a ready check with the button on the bottom right.",
-                                primaryStage.scene.root as StackPane
-                            )
-                        }
-                    }, {
+                    mediaController.playAction({}, {
                         ViewUtils.showErrorDialog(
                             "A connection error has occurred, could not sync video",
                             primaryStage.scene.root as StackPane
@@ -437,15 +430,7 @@ class MediaPlayerView : View() {
     private fun setUpControls() {
         controls.showPlayButtonForOnPause()
         controls.setOnPlayCallback {
-            mediaController.playAction({
-                if (!it) {
-                    ViewUtils.showErrorDialog(
-                        "Warning",
-                        "Not everyone is ready! Start a ready check with the button on the bottom right.",
-                        primaryStage.scene.root as StackPane
-                    )
-                }
-            }, {
+            mediaController.playAction({}, {
                 ViewUtils.showErrorDialog(
                     "A connection error has occurred, could not sync video",
                     primaryStage.scene.root as StackPane

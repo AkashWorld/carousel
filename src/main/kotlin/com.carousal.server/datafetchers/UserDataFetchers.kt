@@ -5,6 +5,7 @@ import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
 import org.slf4j.LoggerFactory
 import com.carousal.server.GraphQLContext
+import com.carousal.server.model.Notification
 import com.carousal.server.model.User
 import com.carousal.server.model.UserAuthentication
 import com.carousal.server.model.UsersRepository
@@ -60,11 +61,21 @@ class UserDataFetchers constructor(
     }
 
     fun mutationReadyCheck(): DataFetcher<Boolean?> {
-        return DataFetcher {
-            val context: GraphQLContext = it.getContext() ?: return@DataFetcher null
-            val isReady: Boolean = it.getArgument("isReady")
+        return DataFetcher { environment ->
+            val context: GraphQLContext = environment.getContext() ?: return@DataFetcher null
+            val isReady: Boolean = environment.getArgument("isReady")
             context.user.isReady = isReady
             publishToUserActionSubscriber(context.user, UserAction.IS_READY)
+            if(!isReady) {
+                usersRepository.getAllUsers().forEach {
+                    it.getNotificationPublisher()?.publishNotification(Notification("${context.user.username} is not ready."))
+                }
+            }
+            else if (usersRepository.isEveryoneReady()) {
+                usersRepository.getAllUsers().forEach {
+                    it.getNotificationPublisher()?.publishNotification(Notification("Everyone is ready!"))
+                }
+            }
             isReady
         }
     }

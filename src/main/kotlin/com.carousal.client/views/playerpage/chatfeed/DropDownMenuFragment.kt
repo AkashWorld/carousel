@@ -28,7 +28,7 @@ class DropDownMenuFragment : Fragment() {
         }
         val menu = contextmenu {
             isAutoHide = true
-            item("Load View") {
+            item("Load Video") {
                 setOnAction {
                     playerPageController.navigateToFileLoaderPage()
                 }

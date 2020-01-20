@@ -16,7 +16,7 @@ class WSListener : WebSocketListener() {
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         logger.error("WebSocket Failure", t)
-        handlers.parallelStream().forEach { it.error() }
+        handlers.forEach { it.error() }
     }
 
     override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
@@ -26,7 +26,7 @@ class WSListener : WebSocketListener() {
 
     override fun onMessage(webSocket: WebSocket, text: String) {
         logger.info(text)
-        handlers.parallelStream().forEach { it.success(text) }
+        handlers.forEach { it.success(text) }
     }
 
     fun addWebSocketHandler(identifier: String, success: (String) -> Unit, error: () -> Unit): Boolean {

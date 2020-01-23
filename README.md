@@ -10,7 +10,7 @@ This application is a self-hosted video syncing application. In scenarios where 
 ![Sample Picture](./resources/SamplePic.png)
 
 ## Download
-[Windows x64 Setup](https://github.com/AkashWorld/carousal/releases/download/v0.2-alpha/carousal_setup_v0.2.exe)\
+[Windows x64 Setup](https://github.com/AkashWorld/carousel/releases/download/v0.3-alpha/carousel_v0.3_setup.exe)\
 Other operating systems will be supported at a later time.
 
 ## How does it work?

@@ -9,7 +9,7 @@ DefaultGroupName=Carousal
 WizardStyle=modern
 
 [Files]
-Source: "../build/launch4j/Carousal.exe"; DestDir: "{app}"
+Source: "../build/launch4j/Carousel.exe"; DestDir: "{app}"
 Source: "../build/launch4j/lib/*"; DestDir: "{app}/lib"
 Source: "./jre11/*"; DestDir: "{app}/jre11"; Flags: ignoreversion recursesubdirs
 

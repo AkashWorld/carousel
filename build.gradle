@@ -5,6 +5,9 @@ plugins {
     id 'edu.sc.seis.launch4j' version '2.4.6'
 }
 
+/**
+ * gradlew installDst
+ */
 application {
     mainClassName = 'com.carousel.client.MainKt'
 }
@@ -15,6 +18,9 @@ def jvmModuleArgs = ['--add-exports=javafx.graphics/com.sun.javafx.iio=ALL-UNNAM
                      '--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED',
 ]
 
+/**
+ * gradlew createExe
+ */
 launch4j {
     mainClassName = 'com.carousel.client.MainKt'
     icon = "${projectDir}/resources/caoursel256.ico"
@@ -74,6 +80,7 @@ dependencies {
     implementation 'me.xdrop:fuzzywuzzy:1.2.0'
     implementation 'org.bitlet:weupnp:0.1.4'
     implementation 'io.github.typhon0:AnimateFX:1.2.1'
+    implementation 'commons-cli:commons-cli:1.4'
     testImplementation 'org.mockito:mockito-core:3.2.4'
     testImplementation "org.junit.jupiter:junit-jupiter:5.5.2"
 }

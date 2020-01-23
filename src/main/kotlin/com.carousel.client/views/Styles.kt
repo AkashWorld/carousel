@@ -22,7 +22,7 @@ class Styles {
         }
 
         fun getIconInputStream(): InputStream? {
-            return this::class.java.classLoader.getResourceAsStream("")
+            return this::class.java.classLoader.getResourceAsStream("icons/Carousel32.png")
         }
     }
 }

@@ -2,10 +2,10 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 [Setup]
-AppName=Carousal
-AppVersion=0.1
-DefaultDirName={autopf}\Carousal
-DefaultGroupName=Carousal
+AppName=Carousel
+AppVersion=0.3
+DefaultDirName={autopf}\Carousel
+DefaultGroupName=Carousel
 WizardStyle=modern
 
 [Files]
@@ -14,4 +14,4 @@ Source: "../build/launch4j/lib/*"; DestDir: "{app}/lib"
 Source: "./jre11/*"; DestDir: "{app}/jre11"; Flags: ignoreversion recursesubdirs
 
 [Icons]
-Name:"{group}\Carousal.exe"; Filename:"{app}\Carousal.exe"; WorkingDir:"{app}"
+Name:"{group}\Carousel.exe"; Filename:"{app}\Carousel.exe"; WorkingDir:"{app}"

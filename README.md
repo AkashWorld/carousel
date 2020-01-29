@@ -4,14 +4,14 @@
 
 # Carousel
 
+## Download
+[Windows x64 Setup](https://github.com/AkashWorld/carousel/releases/download/v0.3-alpha/carousel_v0.3_setup.exe)\
+Other operating systems will be supported at a later time.
+
 ## Intro
 This application is a self-hosted video syncing application. In scenarios where multiple people would like to watch their favorite movies/tv shows together but can't without high bandwidth stream sharing, Carousel comes to the rescue! As long as all participants has access to the same video file locally, Carousel will sync together the video timestamps and pause/play state of the video! Perfect for a good movie night when you aren't near your friends. It also includes a chat which allows you to share emojis and memes.
 
 ![Sample Picture](./resources/SamplePic.png)
-
-## Download
-[Windows x64 Setup](https://github.com/AkashWorld/carousel/releases/download/v0.3-alpha/carousel_v0.3_setup.exe)\
-Other operating systems will be supported at a later time.
 
 ## How does it work?
 ### Prerequisites

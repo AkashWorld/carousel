@@ -344,9 +344,9 @@ class MediaPlayerView : View() {
         mediaPlayer = mediaPlayerFactory?.mediaPlayers()?.newEmbeddedMediaPlayer()
         mediaPlayer?.videoSurface()?.set(TornadoFXVideoSurface())
         mediaCanvas.widthProperty()
-            ?.addListener { _: Observable? -> if (mediaPlayer?.status()?.isPlaying == true) renderFrame(mediaCanvas) }
+            ?.addListener { _: Observable? -> renderFrame(mediaCanvas) }
         mediaCanvas.heightProperty()
-            ?.addListener { _: Observable? -> if (mediaPlayer?.status()?.isPlaying == true) renderFrame(mediaCanvas) }
+            ?.addListener { _: Observable? -> renderFrame(mediaCanvas) }
         mediaPlayer?.media()?.prepare(fileLoaderController.getCurrentSelectedFile()?.absolutePath)
         mediaPlayer?.events()?.addMediaPlayerEventListener(object : MediaPlayerEventListener {
             override fun positionChanged(mediaPlayer: MediaPlayer?, newPosition: Float) {
@@ -461,6 +461,7 @@ class MediaPlayerView : View() {
             mediaPlayer?.audio()?.setVolume(it.toInt())
         }
     }
+
     companion object {
         init {
             VLCLibraryPathLoader()

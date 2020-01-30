@@ -8,6 +8,7 @@ import com.carousel.client.views.ApplicationView
 import com.carousel.client.views.utilities.ViewUtils
 import com.carousel.client.views.playerpage.fileloader.FileLoaderView
 import com.carousel.client.views.playerpage.chatfeed.MessageFragment
+import com.sun.jna.NativeLibrary
 import javafx.application.Platform
 import javafx.beans.Observable
 import javafx.beans.value.ChangeListener
@@ -27,6 +28,7 @@ import javafx.scene.paint.Color
 import javafx.scene.transform.Affine
 import org.slf4j.LoggerFactory
 import tornadofx.*
+import uk.co.caprica.vlcj.binding.RuntimeUtil
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory
 import uk.co.caprica.vlcj.media.MediaRef
 import uk.co.caprica.vlcj.media.TrackType
@@ -457,6 +459,11 @@ class MediaPlayerView : View() {
         }
         controls.setOnVolumeChange {
             mediaPlayer?.audio()?.setVolume(it.toInt())
+        }
+    }
+    companion object {
+        init {
+            VLCLibraryPathLoader()
         }
     }
 }

@@ -7,11 +7,13 @@ AppVersion=0.3
 DefaultDirName={autopf}\Carousel
 DefaultGroupName=Carousel
 WizardStyle=modern
+OutputBaseFilename=carousel_setup
 
 [Files]
 Source: "../build/launch4j/Carousel.exe"; DestDir: "{app}"
 Source: "../build/launch4j/lib/*"; DestDir: "{app}/lib"
 Source: "./jre11/*"; DestDir: "{app}/jre11"; Flags: ignoreversion recursesubdirs
+Source: "../vlclibs/*"; DestDir: "{app}/vlclibs"; Flags: ignoreversion recursesubdirs
 
 [Icons]
 Name:"{group}\Carousel.exe"; Filename:"{app}\Carousel.exe"; WorkingDir:"{app}"

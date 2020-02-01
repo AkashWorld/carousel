@@ -76,7 +76,7 @@ class Giphy {
         return try {
             val payload: DataPayload<List<SearchGifPayload>> = gson.fromJson(resp.body?.string(), payloadType)
             logger.info(payload.toString())
-            payload.data.map { it.images.downsized_medium }
+            return transformPayloadUrl(payload.data.map { it.images.downsized_medium })
         } catch (e: Exception) {
             logger.error(e.message)
             null
@@ -100,10 +100,21 @@ class Giphy {
         return try {
             val payload: DataPayload<List<SearchGifPayload>> = gson.fromJson(resp.body?.string(), payloadType)
             logger.info(payload.toString())
-            payload.data.map { it.images.downsized_medium }
+            return transformPayloadUrl(payload.data.map { it.images.downsized_medium })
         } catch (e: Exception) {
             logger.error(e.message)
             null
+        }
+    }
+
+    private fun transformPayloadUrl(payload: List<ImageDataPayload>): List<ImageDataPayload> {
+        return payload.map {
+            var newUrl = it.url.replace("media/", "")
+            newUrl = newUrl.substringAfter(".")
+            newUrl = "https://i.$newUrl"
+            newUrl = newUrl.replace("/giphy", "")
+            val image = ImageDataPayload(newUrl, it.width, it.height, it.size)
+            image
         }
     }
 }

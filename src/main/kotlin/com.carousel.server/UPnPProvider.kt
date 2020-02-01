@@ -29,13 +29,13 @@ class UPnPProviderImpl(private val port: Int) : UPnPProvider {
             }
             val localAddress = device?.localAddress
             externalIp = device?.externalIPAddress
-            logger.info("Sending port mapping request");
+            logger.info("Sending port mapping request")
             if (device?.addPortMapping(
                     port, port,
                     localAddress?.hostAddress, "TCP", "Carousal"
                 ) != true
             ) {
-                logger.error("Port mapping attempt failed");
+                logger.error("Port mapping attempt failed")
                 return false
             }
             return true

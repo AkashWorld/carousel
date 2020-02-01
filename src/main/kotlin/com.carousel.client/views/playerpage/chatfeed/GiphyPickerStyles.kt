@@ -1,5 +1,6 @@
 package com.carousel.client.views.playerpage.chatfeed
 
+import javafx.geometry.Pos
 import javafx.scene.Cursor
 import javafx.scene.paint.Color
 import tornadofx.*
@@ -46,6 +47,10 @@ class GiphyPickerStyles : Stylesheet() {
             and(hover) {
                 cursor = Cursor.HAND
             }
+            focusColor = Color.TRANSPARENT
+            backgroundColor = multi(gifBackgroundColor)
+            padding = box(5.px)
+            alignment = Pos.CENTER
         }
     }
 }

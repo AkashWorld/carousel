@@ -149,6 +149,7 @@ class GraphQLProvider(
             mutation.dataFetcher("seek", this.mediaDataFetchers.mutationSeek())
             mutation.dataFetcher("load", this.mediaDataFetchers.mutationLoad())
             mutation.dataFetcher("insertImage", this.chatFeedDataFetchers.mutationInsertImage())
+            mutation.dataFetcher("insertImageUrl", this.chatFeedDataFetchers.mutationInsertImageUrl())
             mutation.dataFetcher("insertMessage", this.chatFeedDataFetchers.mutationInsertMessage())
             mutation.dataFetcher("readyCheck", this.userDataFetchers.mutationReadyCheck())
             mutation.dataFetcher("initiateReadyCheck", this.userDataFetchers.mutationInitiateReadyCheck())

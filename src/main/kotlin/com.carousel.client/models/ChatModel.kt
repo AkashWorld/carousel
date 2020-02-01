@@ -8,6 +8,7 @@ import tornadofx.toObservable
 
 enum class ContentType {
     IMAGE,
+    IMAGE_URL,
     MESSAGE,
     INFO,
 }
@@ -46,6 +47,16 @@ class ChatModel {
            }
        """.trimIndent()
         val variables = mapOf("data" to encodedImage)
+        clientContext.sendQueryOrMutationRequest(mutation, variables, { success() }, error)
+    }
+
+    fun sendInsertImageUrlRequest(url: String, success: () -> Unit, error: () -> Unit) {
+        val mutation = """
+           mutation InsertImageUrl(${"$"}data: String!){
+                insertImageUrl(data: ${"$"}data)
+           }
+       """.trimIndent()
+        val variables = mapOf("data" to url)
         clientContext.sendQueryOrMutationRequest(mutation, variables, { success() }, error)
     }
 

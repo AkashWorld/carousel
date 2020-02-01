@@ -8,6 +8,7 @@ import com.carousel.client.models.Message
 import com.carousel.client.views.intropage.IntroPageStyles
 import com.carousel.client.views.playerpage.fileloader.FileLoaderStyles
 import com.carousel.client.views.playerpage.PlayerPage
+import com.carousel.client.views.playerpage.chatfeed.GiphyPickerStyles
 import com.carousel.client.views.playerpage.mediaplayer.MediaPlayerStyles
 import com.carousel.client.views.utilities.UtilityStyles
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
@@ -26,7 +27,8 @@ class MediaPageFX {
         FileLoaderStyles::class,
         MediaPlayerStyles::class,
         IntroPageStyles::class,
-        UtilityStyles::class
+        UtilityStyles::class,
+        GiphyPickerStyles::class
     )
 
     class MediaPageTest : View() {

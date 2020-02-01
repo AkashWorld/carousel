@@ -67,7 +67,7 @@ class ChatController : Controller() {
                         }
                     }
                     runLater {
-                        message.let{chatModel.addMessage(Message(this.user.username, it, ContentType.INFO))}
+                        message.let { chatModel.addMessage(Message(this.user.username, it, ContentType.INFO)) }
                     }
                 }
             }
@@ -84,6 +84,10 @@ class ChatController : Controller() {
 
     fun addImage(encodedImage: String, success: () -> Unit, error: () -> Unit) {
         chatModel.sendInsertImageRequest(encodedImage, success, error)
+    }
+
+    fun addImageUrl(url: String, success: () -> Unit, error: () -> Unit) {
+        chatModel.sendInsertImageUrlRequest(url, success, error)
     }
 
     fun subscribeToMessages(error: () -> Unit) {

@@ -8,6 +8,7 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
+import javafx.scene.input.KeyCode
 import javafx.scene.paint.Color
 import tornadofx.*
 
@@ -18,15 +19,18 @@ class GiphyPicker : Fragment() {
 
     override val root = borderpane {
         addClass(GiphyPickerStyles.giphyPickerContainer)
+        style {
+            backgroundColor = multi(GiphyPickerStyles.gifBackgroundColor)
+        }
         top {
             hbox {
                 textfield(query) {
                     addClass(ChatFeedStyles.emojiTextField)
-                    promptText = "Powered by GIPHY"
+                    promptText = "Search GIPHY"
                 }
                 button {
                     addClass(ChatFeedStyles.emojiButton)
-                    val icon = MaterialIconView(MaterialIcon.SEARCH, "30px")
+                    val icon = MaterialIconView(MaterialIcon.CLOSE, "30px")
                     icon.fill = ChatFeedStyles.chatTextColor
                     icon.onHover {
                         if (it) {
@@ -36,7 +40,7 @@ class GiphyPicker : Fragment() {
                         }
                     }
                     action {
-                        giphyController.retrieveSearchQueryGifs(query.value) {}
+                        close()
                     }
                     this.add(icon)
                 }
@@ -54,21 +58,31 @@ class GiphyPicker : Fragment() {
                         this.backgroundColor = multi(GiphyPickerStyles.gifBackgroundColor)
                     }
                     cellFormat {
-                        style {
-                            this.focusColor = Color.TRANSPARENT
-                            this.backgroundColor = multi(GiphyPickerStyles.gifBackgroundColor)
-                            this.padding = box(5.px)
-                            this.alignment = Pos.CENTER
-                        }
+                        addClass(GiphyPickerStyles.gifIVStyle)
                         val image = Image(this.item.url, 235.0, 235.0, true, true, true)
                         val iv = ImageView(image)
-                        iv.addClass(GiphyPickerStyles.gifIVStyle)
                         graphic = iv
                         setOnMouseClicked {
-                            chatController.addMessage(this.item.url)
+                            chatController.addImageUrl(this.item.url, {}, {})
+                            close()
                         }
                     }
                 }
+            }
+        }
+        bottom {
+            hbox {
+                this.alignment = Pos.CENTER
+                text("Powered by GIPHY") {
+                    style {
+                        fill = ChatFeedStyles.chatTextColor
+                    }
+                }
+            }
+        }
+        this.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED) {
+            if (it.code == KeyCode.ENTER) {
+                giphyController.retrieveSearchQueryGifs(query.value) {}
             }
         }
     }
@@ -76,6 +90,7 @@ class GiphyPicker : Fragment() {
     override fun onDock() {
         super.onDock()
         giphyController.retrieveTrendingGifs { }
+        currentStage?.scene?.fill = Color.TRANSPARENT
     }
 }
 

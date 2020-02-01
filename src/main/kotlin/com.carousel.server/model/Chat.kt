@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentLinkedDeque
 
 enum class ContentType {
     IMAGE,
+    IMAGE_URL,
     MESSAGE,
     INFO
 }

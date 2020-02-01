@@ -24,7 +24,7 @@ class GiphyImageButton : Fragment() {
         setOnMouseClicked {
             val giphyStage = giphyPicker.openWindow(StageStyle.TRANSPARENT)
             giphyStage?.isAlwaysOnTop = true
-            giphyStage?.x = it.screenX
+            giphyStage?.x = it.screenX - 100.0
             giphyStage?.y = it.screenY - 485.0
             primaryStage.scene.setOnMouseClicked {
                 giphyStage?.close()

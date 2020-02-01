@@ -18,10 +18,11 @@ data class RandomIdPayload(val random_id: String)
  * Search response payloads
  */
 data class SearchGifPayload(val type: String, val images: ImagesPayload)
+
 data class ImagesPayload(val downsized_medium: ImageDataPayload)
 data class ImageDataPayload(val url: String, val width: String, val height: String, val size: Int)
 
-class GiphyClient() {
+class Giphy {
     companion object {
         private const val GIPHY_API_KEY = "api_key"
     }
@@ -35,6 +36,9 @@ class GiphyClient() {
     private val randomIdUrl = "api.giphy.com/v1/randomid"
 
     fun getGIPHYRandomId(): String? {
+        if (GIPHY_API_VALUE == null) {
+            return null
+        }
         val request: Request = Request.Builder()
             .get()
             .url("https://$randomIdUrl?$GIPHY_API_KEY=$GIPHY_API_VALUE")
@@ -55,6 +59,9 @@ class GiphyClient() {
     }
 
     fun getGiphySearchRequest(query: String, randomId: String?, offset: Int = 0): List<ImageDataPayload>? {
+        if (GIPHY_API_VALUE == null) {
+            return null
+        }
         var urlApi = "https://$gifSearchUrl?$GIPHY_API_KEY=$GIPHY_API_VALUE&q=$query&offset=$offset"
         randomId?.run { urlApi += "&random_id=$this" }
         val request: Request = Request.Builder()
@@ -77,6 +84,9 @@ class GiphyClient() {
     }
 
     fun getGiphyTrendingRequest(randomId: String?, offset: Int = 0): List<ImageDataPayload>? {
+        if (GIPHY_API_VALUE == null) {
+            return null
+        }
         var urlApi = "https://$gifTrendingUrl?$GIPHY_API_KEY=$GIPHY_API_VALUE&offset=$offset"
         val request: Request = Request.Builder()
             .get()

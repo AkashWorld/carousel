@@ -1,4 +1,4 @@
-import com.carousel.server.model.GiphyClient
+import com.carousel.server.model.Giphy
 import org.junit.jupiter.api.Test
 
 /**
@@ -7,19 +7,19 @@ import org.junit.jupiter.api.Test
 class GiphyTest {
     @Test
     fun shouldReturnGiphyRandomId() {
-        val client = GiphyClient()
+        val client = Giphy()
         assert(client.getGIPHYRandomId()?.length!! > 0)
     }
 
     @Test
     fun shouldReturnGiphyQuery() {
-        val client = GiphyClient()
+        val client = Giphy()
         assert(client.getGiphySearchRequest("superman", null) != null)
     }
 
     @Test
     fun shouldReturnTrendingGiphyQuery() {
-        val client = GiphyClient()
+        val client = Giphy()
         assert(client.getGiphyTrendingRequest(null) != null)
     }
 }

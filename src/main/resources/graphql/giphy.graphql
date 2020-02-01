@@ -1,0 +1,11 @@
+type Image {
+    url: String!
+    width: Int!
+    height: Int!
+}
+
+extend type Query {
+    getGiphyRandomId: String!
+    getGiphyTrendingResults(randomId: String!, offset: Int!): [Image!]!
+    getGiphySearchResults(query: String, randomId: String!, offset: Int!): [Image!]!
+}

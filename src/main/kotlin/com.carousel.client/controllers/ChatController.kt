@@ -9,6 +9,7 @@ import javafx.beans.value.ChangeListener
 import javafx.beans.value.ObservableBooleanValue
 import javafx.beans.value.ObservableValue
 import javafx.collections.ObservableList
+import javafx.scene.image.Image
 import javafx.scene.paint.Color
 import tornadofx.*
 
@@ -88,6 +89,14 @@ class ChatController : Controller() {
 
     fun addImageUrl(url: String, success: () -> Unit, error: () -> Unit) {
         chatModel.sendInsertImageUrlRequest(url, success, error)
+    }
+
+    fun getImageFromURL(url: String): Image {
+        var image = chatModel.getCachedImageFromUrl(url)
+        if (image == null) {
+            image = Image(url, 350.0, 350.0, true, true, true)
+        }
+        return image
     }
 
     fun subscribeToMessages(error: () -> Unit) {

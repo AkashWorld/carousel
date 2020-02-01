@@ -1,7 +1,10 @@
 package com.carousel.client.models
 
+import com.google.common.cache.Cache
+import com.google.common.cache.CacheBuilder
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
+import javafx.scene.image.Image
 import org.slf4j.LoggerFactory
 import tornadofx.runLater
 import tornadofx.toObservable
@@ -18,8 +21,12 @@ data class DataPayload<T>(val data: T)
 class GiphyModel {
     private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private var randomId: String? = null
-    var currentQuery: String? = null
-    val activeList = listOf<ImageDataPayload>().toObservable()
+    private val imageCache: Cache<String?, List<Pair<String, Image>>> =
+        CacheBuilder.newBuilder().maximumSize(100).build<String, List<Pair<String, Image>>>()
+    private var trendingCache: List<Pair<String, Image>>? = null
+    private var currentQuery: String? = null
+    val activeList = listOf<Pair<String, Image>>().toObservable()
+
 
     fun registerRandomIdCallback(success: () -> Unit, error: () -> Unit) {
         val query = """
@@ -48,6 +55,12 @@ class GiphyModel {
         if (randomId == null) {
             return
         }
+        if (imageCache.getIfPresent(query) != null && query != currentQuery) {
+            currentQuery = query
+            activeList.clear()
+            activeList.addAll(imageCache.getIfPresent(query)!!)
+            return
+        }
         val gqlQuery = """
             query SearchResults(${"$"}query: String!, ${"$"}randomId: String!, ${"$"}offset: Int!) {
                 getGiphySearchResults(query: ${"$"}query, randomId: ${"$"}randomId, offset: ${"$"}offset) {
@@ -57,12 +70,8 @@ class GiphyModel {
                 }
             }
         """.trimIndent()
-        var offset = 0
-        if (query == currentQuery) {
-            offset = this.activeList.size
-        }
         ClientContextImpl.getInstance().sendQueryOrMutationRequest(gqlQuery,
-            mapOf("query" to query, "randomId" to randomId!!, "offset" to offset.toString()), {
+            mapOf("query" to query, "randomId" to randomId!!, "offset" to 0.toString()), {
                 val payloadType: Type = object : TypeToken<DataPayload<GetGiphySearchResults?>>() {}.type
                 try {
                     val payload: DataPayload<GetGiphySearchResults> = Gson().fromJson(it, payloadType)
@@ -72,7 +81,15 @@ class GiphyModel {
                             activeList.clear()
                             currentQuery = query
                         }
-                        activeList.addAll(payload.data.getGiphySearchResults)
+                        val images = payload.data.getGiphySearchResults.map { data ->
+                            Pair(
+                                data.url, Image(
+                                    data.url, 235.0, 235.0, true, true, true
+                                )
+                            )
+                        }
+                        activeList.addAll(images)
+                        imageCache.put(query, images)
                     }
                 } catch (e: Exception) {
                     logger.error(e.message)
@@ -87,6 +104,12 @@ class GiphyModel {
         if (randomId == null) {
             return
         }
+        if (currentQuery != null && trendingCache != null) {
+            currentQuery = null
+            activeList.clear()
+            activeList.addAll(trendingCache!!)
+            return
+        }
         val query = """
             query TrendingResults(${"$"}randomId: String!, ${"$"}offset: Int!) {
                 getGiphyTrendingResults(randomId: ${"$"}randomId, offset: ${"$"}offset) {
@@ -96,22 +119,24 @@ class GiphyModel {
                 }
             }
         """.trimIndent()
-        var offset = 0
-        if (currentQuery == null) {
-            offset = activeList.size
-        }
         ClientContextImpl.getInstance().sendQueryOrMutationRequest(query,
-            mapOf("randomId" to randomId!!, "offset" to offset.toString()), {
+            mapOf("randomId" to randomId!!, "offset" to 0.toString()), {
                 val payloadType: Type = object : TypeToken<DataPayload<GetGiphyTrendingResults?>>() {}.type
                 try {
                     val payload: DataPayload<GetGiphyTrendingResults> = Gson().fromJson(it, payloadType)
                     logger.info("Client received payload: $payload")
                     runLater {
-                        if (currentQuery != null) {
-                            activeList.clear()
-                            currentQuery = null
+                        val images = payload.data.getGiphyTrendingResults.map { data ->
+                            Pair(
+                                data.url, Image(
+                                    data.url, 235.0, 235.0, true, true, true
+                                )
+                            )
                         }
-                        activeList.addAll(payload.data.getGiphyTrendingResults)
+                        activeList.clear()
+                        currentQuery = null
+                        activeList.addAll(images)
+                        trendingCache = images
                     }
                 } catch (e: Exception) {
                     logger.error(e.message)

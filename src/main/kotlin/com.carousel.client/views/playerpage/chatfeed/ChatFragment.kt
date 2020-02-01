@@ -77,11 +77,11 @@ class ChatFragment : Fragment() {
                             clientContextController.addressToClipboard()
                             serverAddress.set("Copied!")
                             runLater(Duration.millis(3000.0)) {
-                                serverAddress.set("Server Address: ${clientContextController.getAddress()}")
+                                serverAddress.set(clientContextController.getAddress())
                             }
                         }
                         this.add(icon)
-                        tooltip("Only share this IP address with those you trust!") {
+                        tooltip("Only share this address with those you trust!") {
                             showDelay = Duration.ZERO
                         }
                     }

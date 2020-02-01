@@ -3,12 +3,13 @@ package com.carousel.client.controllers
 import com.carousel.client.models.GiphyModel
 import com.carousel.client.models.ImageDataPayload
 import javafx.collections.ObservableList
+import javafx.scene.image.Image
 import tornadofx.*
 
 class GiphyController : Controller() {
     private val giphyModel = GiphyModel()
 
-    fun getActiveGifList(): ObservableList<ImageDataPayload> {
+    fun getActiveGifList(): ObservableList<Pair<String, Image>> {
         return giphyModel.activeList
     }
 

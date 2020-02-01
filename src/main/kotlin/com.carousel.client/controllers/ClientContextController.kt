@@ -9,7 +9,11 @@ class ClientContextController : Controller() {
     private val clientContext: ClientContext = ClientContextImpl.getInstance()
 
     fun getAddress(): String {
-        return clientContext.getServerAddress() ?: "Error"
+        var address = clientContext.getServerAddress() ?: return "Error"
+        if (address.length >= 35) {
+            address = address.substring(0, 35) + "..."
+        }
+        return address
     }
 
     fun addressToClipboard() {

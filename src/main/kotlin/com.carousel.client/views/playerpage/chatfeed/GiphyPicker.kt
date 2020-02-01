@@ -59,11 +59,10 @@ class GiphyPicker : Fragment() {
                     }
                     cellFormat {
                         addClass(GiphyPickerStyles.gifIVStyle)
-                        val image = Image(this.item.url, 235.0, 235.0, true, true, true)
-                        val iv = ImageView(image)
+                        val iv = ImageView(this.item.second)
                         graphic = iv
                         setOnMouseClicked {
-                            chatController.addImageUrl(this.item.url, {}, {})
+                            chatController.addImageUrl(this.item.first, {}, {})
                             close()
                         }
                     }
@@ -82,14 +81,20 @@ class GiphyPicker : Fragment() {
         }
         this.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED) {
             if (it.code == KeyCode.ENTER) {
-                giphyController.retrieveSearchQueryGifs(query.value) {}
+                if (query.value.isNullOrEmpty()) {
+                    giphyController.retrieveTrendingGifs { }
+                } else {
+                    giphyController.retrieveSearchQueryGifs(query.value) {}
+                }
             }
         }
     }
 
     override fun onDock() {
         super.onDock()
-        giphyController.retrieveTrendingGifs { }
+        if (giphyController.getActiveGifList().isEmpty()) {
+            giphyController.retrieveTrendingGifs { }
+        }
         currentStage?.scene?.fill = Color.TRANSPARENT
     }
 }

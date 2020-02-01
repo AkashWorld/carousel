@@ -1,5 +1,6 @@
 package com.carousel.server.model
 
+import com.google.common.cache.CacheBuilder
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import okhttp3.OkHttpClient
@@ -34,6 +35,8 @@ class Giphy {
     private val gifSearchUrl = "api.giphy.com/v1/gifs/search"
     private val gifTrendingUrl = "api.giphy.com/v1/gifs/trending"
     private val randomIdUrl = "api.giphy.com/v1/randomid"
+    private val queryImageCache = CacheBuilder.newBuilder().maximumSize(500).build<String, List<ImageDataPayload>>()
+    private val trendingResults = mutableListOf<ImageDataPayload>()
 
     fun getGIPHYRandomId(): String? {
         if (GIPHY_API_VALUE == null) {
@@ -62,6 +65,9 @@ class Giphy {
         if (GIPHY_API_VALUE == null) {
             return null
         }
+        if(queryImageCache.getIfPresent(query) != null) {
+            return queryImageCache.getIfPresent(query) as List<ImageDataPayload>
+        }
         var urlApi = "https://$gifSearchUrl?$GIPHY_API_KEY=$GIPHY_API_VALUE&q=$query&offset=$offset"
         randomId?.run { urlApi += "&random_id=$this" }
         val request: Request = Request.Builder()
@@ -76,7 +82,9 @@ class Giphy {
         return try {
             val payload: DataPayload<List<SearchGifPayload>> = gson.fromJson(resp.body?.string(), payloadType)
             logger.info(payload.toString())
-            return transformPayloadUrl(payload.data.map { it.images.downsized_medium })
+            val payloadImageData = transformPayloadUrl(payload.data.map { it.images.downsized_medium })
+            queryImageCache.put(query, payloadImageData)
+            payloadImageData
         } catch (e: Exception) {
             logger.error(e.message)
             null
@@ -87,7 +95,11 @@ class Giphy {
         if (GIPHY_API_VALUE == null) {
             return null
         }
+        if(trendingResults.isNotEmpty()) {
+            return trendingResults
+        }
         var urlApi = "https://$gifTrendingUrl?$GIPHY_API_KEY=$GIPHY_API_VALUE&offset=$offset"
+        randomId?.run { urlApi += "&random_id=$this" }
         val request: Request = Request.Builder()
             .get()
             .url(urlApi)
@@ -100,7 +112,9 @@ class Giphy {
         return try {
             val payload: DataPayload<List<SearchGifPayload>> = gson.fromJson(resp.body?.string(), payloadType)
             logger.info(payload.toString())
-            return transformPayloadUrl(payload.data.map { it.images.downsized_medium })
+            val payloadImageData = transformPayloadUrl(payload.data.map { it.images.downsized_medium })
+            trendingResults.addAll(payloadImageData)
+            payloadImageData
         } catch (e: Exception) {
             logger.error(e.message)
             null

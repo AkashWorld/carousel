@@ -4,19 +4,22 @@ import com.carousel.client.controllers.ChatController
 import com.carousel.client.controllers.ImageLoaderController
 import com.carousel.client.models.ContentType
 import com.carousel.client.models.Message
+import javafx.concurrent.ScheduledService
+import javafx.concurrent.Task
+import javafx.scene.Cursor
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.text.FontPosture
 import javafx.scene.text.FontWeight
 import javafx.util.Duration
 import tornadofx.*
+import java.time.Instant
 
 class MessageFragment : Fragment() {
     private val message: Message by param()
     private val textSize: Double by param()
     private val chatController: ChatController by inject()
     private val imageLoaderController: ImageLoaderController by inject()
-    private val gifCache = mutableMapOf<String, Image>()
 
     companion object {
         private val emojiLoader = EmojiLoader()
@@ -99,14 +102,18 @@ class MessageFragment : Fragment() {
                 }
             }
         } else if (message.contentType == ContentType.IMAGE_URL) {
-            val image: Image
-            if (gifCache.containsKey(message.content)) {
-                image = gifCache[message.content]!!
+            val image = chatController.getImageFromURL(message.content)
+            if (image.isError) {
+                text("unable to load image") {
+                    style {
+                        this.fill = ChatFeedStyles.chatTextColor
+                        this.fontStyle = FontPosture.ITALIC
+                        this.fontSize = textSize.px
+                    }
+                }
             } else {
-                image = Image(message.content, 350.0, 350.0, true, true, true)
-                gifCache[message.content] = image
+                imageview(image) {}
             }
-            imageview(image) {}
         }
         style {
             lineSpacing = 5.0

@@ -2,12 +2,14 @@ package com.carousel.client.models
 
 import com.google.gson.Gson
 import javafx.collections.ObservableList
+import javafx.scene.image.Image
 import org.slf4j.LoggerFactory
 import tornadofx.runLater
 import tornadofx.toObservable
 
 enum class ContentType {
     IMAGE,
+    IMAGE_URL,
     MESSAGE,
     INFO,
 }
@@ -28,6 +30,7 @@ class ChatModel {
     private val chatList: ObservableList<Message> = mutableListOf<Message>().toObservable()
     private val allMessages: MutableList<Message> = mutableListOf()
     private var isInfoMessageShown = true
+    private val urlImageCache = mutableMapOf<String, Image>()
 
     fun sendInsertMessageRequest(content: String) {
         val mutation = """
@@ -46,6 +49,16 @@ class ChatModel {
            }
        """.trimIndent()
         val variables = mapOf("data" to encodedImage)
+        clientContext.sendQueryOrMutationRequest(mutation, variables, { success() }, error)
+    }
+
+    fun sendInsertImageUrlRequest(url: String, success: () -> Unit, error: () -> Unit) {
+        val mutation = """
+           mutation InsertImageUrl(${"$"}data: String!){
+                insertImageUrl(data: ${"$"}data)
+           }
+       """.trimIndent()
+        val variables = mapOf("data" to url)
         clientContext.sendQueryOrMutationRequest(mutation, variables, { success() }, error)
     }
 
@@ -79,8 +92,21 @@ class ChatModel {
         if (!isInfoMessageShown && message.contentType == ContentType.INFO) {
             return
         }
+        if (message.contentType == ContentType.IMAGE_URL) {
+            cacheImageURL(message.content)
+        }
         runLater {
             chatList.add(message)
+        }
+    }
+
+    fun getCachedImageFromUrl(url: String): Image? {
+        return urlImageCache[url]
+    }
+
+    private fun cacheImageURL(url: String) {
+        if (!urlImageCache.containsKey(url)) {
+            urlImageCache[url] = Image(url, 350.0, 350.0, true, true, true)
         }
     }
 

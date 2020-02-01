@@ -1,6 +1,7 @@
 enum ContentType {
     IMAGE,
     MESSAGE,
+    IMAGE_URL,
     INFO,
 }
 
@@ -18,6 +19,7 @@ extend type Query {
 
 extend type Mutation {
     insertMessage(message: String!): Boolean!
+    insertImageUrl(data: String!): Boolean!
     insertImage(data: String!): Boolean!
 }
 

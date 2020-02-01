@@ -9,6 +9,7 @@ import com.carousel.client.models.ClientContextImpl
 import com.carousel.client.models.ContentType
 import com.carousel.client.models.Message
 import com.carousel.client.views.playerpage.chatfeed.ChatFragment
+import com.carousel.client.views.playerpage.chatfeed.GiphyPickerStyles
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -18,10 +19,9 @@ import com.carousel.server.Server
 class ChatViewFX {
     private val server: Server = Server.getInstance()
 
-    class Application : App(ChatViewTest::class, stylesheet = ChatFeedStyles::class) {
+    class Application : App(ChatViewTest::class,  ChatFeedStyles::class, GiphyPickerStyles::class) {
         init {
             reloadStylesheetsOnFocus()
-            reloadViewsOnFocus()
         }
     }
 

@@ -1,5 +1,6 @@
 package com.carousel.server
 
+import com.carousel.server.datafetchers.*
 import com.google.gson.Gson
 import graphql.ExecutionInput
 import graphql.ExecutionResult
@@ -15,10 +16,6 @@ import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import org.slf4j.LoggerFactory
-import com.carousel.server.datafetchers.ChatDataFetchers
-import com.carousel.server.datafetchers.MediaDataFetchers
-import com.carousel.server.datafetchers.NotificationDataFetchers
-import com.carousel.server.datafetchers.UserDataFetchers
 import com.carousel.server.model.ChatRepository
 import com.carousel.server.model.User
 import com.carousel.server.model.UserAuthentication
@@ -42,6 +39,7 @@ class GraphQLProvider(
     private val mediaDataFetchers = MediaDataFetchers(usersRepository)
     private val chatFeedDataFetchers = ChatDataFetchers(usersRepository, chatRepository)
     private val notificationDataFetchers = NotificationDataFetchers()
+    private val giphyDataFetchers = GiphyDataFetchers()
 
     init {
         val schema = this.getSchema()
@@ -139,6 +137,9 @@ class GraphQLProvider(
             query.dataFetcher("getAllUsers", this.userDataFetchers.queryGetAllUsers())
             query.dataFetcher("getLengthOfChatFeed", this.chatFeedDataFetchers.queryGetLengthOfChatFeed())
             query.dataFetcher("getMessagesPaginated", this.chatFeedDataFetchers.queryGetMessagePaginated())
+            query.dataFetcher("getGiphyRandomId", this.giphyDataFetchers.queryGetGiphyRandomId())
+            query.dataFetcher("getGiphyTrendingResults", this.giphyDataFetchers.queryGetGiphyTrendingResults())
+            query.dataFetcher("getGiphySearchResults", this.giphyDataFetchers.queryGetGiphySearchResults())
         }
         runtimeWiringBuilder.type("Mutation") { mutation ->
             mutation.dataFetcher("signIn", this.userDataFetchers.mutationSignIn())
@@ -148,6 +149,7 @@ class GraphQLProvider(
             mutation.dataFetcher("seek", this.mediaDataFetchers.mutationSeek())
             mutation.dataFetcher("load", this.mediaDataFetchers.mutationLoad())
             mutation.dataFetcher("insertImage", this.chatFeedDataFetchers.mutationInsertImage())
+            mutation.dataFetcher("insertImageUrl", this.chatFeedDataFetchers.mutationInsertImageUrl())
             mutation.dataFetcher("insertMessage", this.chatFeedDataFetchers.mutationInsertMessage())
             mutation.dataFetcher("readyCheck", this.userDataFetchers.mutationReadyCheck())
             mutation.dataFetcher("initiateReadyCheck", this.userDataFetchers.mutationInitiateReadyCheck())

@@ -4,11 +4,16 @@ import com.carousel.client.controllers.ChatController
 import com.carousel.client.controllers.ImageLoaderController
 import com.carousel.client.models.ContentType
 import com.carousel.client.models.Message
+import javafx.concurrent.ScheduledService
+import javafx.concurrent.Task
+import javafx.scene.Cursor
+import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.text.FontPosture
 import javafx.scene.text.FontWeight
 import javafx.util.Duration
 import tornadofx.*
+import java.time.Instant
 
 class MessageFragment : Fragment() {
     private val message: Message by param()
@@ -95,6 +100,19 @@ class MessageFragment : Fragment() {
                         this.fontSize = textSize.px
                     }
                 }
+            }
+        } else if (message.contentType == ContentType.IMAGE_URL) {
+            val image = chatController.getImageFromURL(message.content)
+            if (image.isError) {
+                text("unable to load image") {
+                    style {
+                        this.fill = ChatFeedStyles.chatTextColor
+                        this.fontStyle = FontPosture.ITALIC
+                        this.fontSize = textSize.px
+                    }
+                }
+            } else {
+                imageview(image) {}
             }
         }
         style {

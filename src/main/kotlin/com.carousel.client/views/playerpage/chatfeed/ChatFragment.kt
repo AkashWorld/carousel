@@ -3,6 +3,7 @@ package com.carousel.client.views.playerpage.chatfeed
 import com.carousel.client.models.Message
 import com.carousel.client.controllers.ChatController
 import com.carousel.client.controllers.ClientContextController
+import com.carousel.client.controllers.GiphyController
 import com.carousel.client.controllers.UsersController
 import com.carousel.client.views.utilities.ViewUtils
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
@@ -13,6 +14,7 @@ import javafx.geometry.Insets
 import javafx.scene.control.ListView
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
+import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
@@ -24,6 +26,7 @@ class ChatFragment : Fragment() {
     private val clientContextController: ClientContextController by inject()
     private val chatController: ChatController by inject()
     private val usersController: UsersController by inject()
+    private val giphyController: GiphyController by inject()
     private val chatInput: SimpleStringProperty = SimpleStringProperty()
     private val serverAddress: SimpleStringProperty = SimpleStringProperty("")
     private val emojiPicker = find<EmojiPicker>("emojiCallback" to { alias: String ->
@@ -31,6 +34,7 @@ class ChatFragment : Fragment() {
     })
     private lateinit var listView: ListView<Message>
     private val menuButton = find<DropDownMenuFragment>()
+    private lateinit var bottomButtonPane: HBox
 
     override val root = borderpane {
         hgrow = Priority.NEVER
@@ -73,11 +77,11 @@ class ChatFragment : Fragment() {
                             clientContextController.addressToClipboard()
                             serverAddress.set("Copied!")
                             runLater(Duration.millis(3000.0)) {
-                                serverAddress.set("Server Address: ${clientContextController.getAddress()}")
+                                serverAddress.set(clientContextController.getAddress())
                             }
                         }
                         this.add(icon)
-                        tooltip("Only share this IP address with those you trust!") {
+                        tooltip("Only share this address with those you trust!") {
                             showDelay = Duration.ZERO
                         }
                     }
@@ -151,6 +155,7 @@ class ChatFragment : Fragment() {
                     }
                     left {
                         hbox {
+                            bottomButtonPane = this
                             spacing = 10.0
                             button {
                                 addClass(ChatFeedStyles.emojiButton)
@@ -223,6 +228,12 @@ class ChatFragment : Fragment() {
                 }
             }
         }
+    }
+
+    init {
+        giphyController.pingGiphyRandomId({
+            bottomButtonPane.add(find<GiphyImageButton>())
+        }, {})
     }
 
     private fun sendChatMessage() {

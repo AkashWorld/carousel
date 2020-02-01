@@ -32,6 +32,7 @@ launch4j {
     jvmOptions = jvmModuleArgs
     bundledJrePath = "./jre11"
     bundledJre64Bit = true
+    maxHeapSize = 50000000000
 }
 
 startScripts {

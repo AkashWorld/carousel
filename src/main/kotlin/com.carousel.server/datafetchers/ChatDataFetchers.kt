@@ -50,6 +50,19 @@ class ChatDataFetchers(private val usersRepository: UsersRepository, private val
         }
     }
 
+    fun mutationInsertImageUrl(): DataFetcher<Boolean> {
+        return DataFetcher { environment ->
+            val context = environment.getContext<GraphQLContext?>()
+            if (context == null) {
+                logger.error("queryGetMessagePaginated: No context found")
+                throw Exception("mutationInsertImage: No context found")
+            }
+            val data = environment.getArgument<String>("data")
+            publishToChatFeed(chatRepository.addMessage(context.user, data, ContentType.IMAGE_URL))
+            true
+        }
+    }
+
     fun mutationInsertImage(): DataFetcher<Boolean> {
         return DataFetcher { environment ->
             val context = environment.getContext<GraphQLContext?>()

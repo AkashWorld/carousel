@@ -5,7 +5,7 @@
 # Carousel
 
 ## Download
-[Windows x64 Setup](https://github.com/AkashWorld/carousel/releases/download/v0.3-alpha/carousel_v0.3_setup.exe)\
+[Windows x64 Setup](https://github.com/AkashWorld/carousel/releases/tag/v0.4-alpha)\
 Other operating systems will be supported at a later time.
 
 ## Intro
